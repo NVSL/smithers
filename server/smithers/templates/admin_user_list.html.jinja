@@ -1,0 +1,14 @@
+{% import 'admin_table.html.jinja' as admin_table %}
+{% extends "admin_page.html.jinja" %}
+{% block title %}Users{% endblock title%}
+
+{% block content %}
+<h1>Users</h1>
+
+{{admin_table.render_table(userlist)}}
+
+{% endblock content %}
+
+{% block style %}
+{{super()}}
+{% endblock style %}

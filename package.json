@@ -1,0 +1,32 @@
+{
+  "name": "Locutor",
+  "version": "0.0.1",
+  "description": "Locutor",
+  "repository": {},
+  "author": "Steven Swanson",
+  "bugs": {},
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-bower-task": "^0.4.0",
+    "grunt-contrib-clean": "^0.7.0",
+    "grunt-contrib-connect": "~0.9.0",
+    "grunt-contrib-copy": "~0.8.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-open": "^0.2.3",
+    "grunt-run": "^0.3.0",
+    "grunt-tsd": "^0.2.0-beta.1",
+    "grunt-typescript": "^0.8.0",
+    "grunt-wait": "^0.1.0",
+    "typescript": "~1.6.2",
+    "grunt-npm-install": "~0.2.0"
+  },
+  "dependencies": {
+    "body-parser": "~1.12.2",
+    "connect": "~3.3.5",
+    "finalhandler": "~0.3.4",
+    "grunt-contrib-rename": "0.0.3",
+    "grunt-exec": "^0.4.6",
+    "serve-static": "~1.9.2",
+    "tsd": "^0.6.4"
+  }
+}

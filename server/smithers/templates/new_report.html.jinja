@@ -1,0 +1,45 @@
+{% extends "bootstrap/base.html" %}
+{% import 'admin_table.html.jinja' as admin_table %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+        {% block title %}Submit Report{% endblock title%}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet"
+      href="{{url_for('static', filename='css/smithers.css')}}">
+{% endblock styles %}
+
+    {% block navbar %}
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+
+
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+        <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
+        <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
+        </div>
+    </form>
+    {% if current_user %}
+        <form class="navbar-form navbar-right" action="{{logout_trampoline}}" method="POST">
+              <input type="hidden" name="continue" value="{{logout_url}}"></input>
+     {{ current_user.nickname() }} <button class="btn btn-default" type="submit">Logout</button>
+      </form>
+        {% endif %}
+   </div>
+        </nav>
+    {% endblock navbar %}
+
+{% block content %}
+<div class="container">
+   {% if is_new_report %}
+   <h1>Submit Report</h1>
+    {% else %}
+    <h1>Report from {{the_report.created.strftime("%d %b")}}</h1>
+    {% endif %}
+
+      {{ wtf.quick_form(form, form_type="horizontal") }}
+</div>
+
+{% endblock content %}
+

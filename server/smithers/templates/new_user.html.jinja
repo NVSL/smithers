@@ -1,0 +1,85 @@
+{% import 'admin_table.html.jinja' as admin_table %}
+{% extends "admin_page.html.jinja" %}
+{% block title %}Create User{% endblock title%}
+
+{% block content %}
+<h1>Create User</h1>
+
+<form method="POST" class="form-horizontal" action="/user/op/create">
+    <div class="column">
+    {{ form.csrf_token }}
+
+        <div class="form-group">
+    {{ form.email.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.email(size=20, class_="form-control") }}
+</div>
+</div>
+
+<div class="form-group">
+    {{ form.full_name.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.full_name(size=20, class_="form-control") }}
+</div>
+
+        </div>
+
+
+
+        <div class="form-group">
+    {{ form.custom_message.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.custom_message(rows=4, cols=40, class_="form-control")}}
+</div>
+</div>
+
+<div class="form-group">
+    {{ form.time_allowed.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.time_allowed(size=20, class_="form-control") }}
+</div>
+</div>
+
+
+<div class="form-group">
+    {{ form.password1.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.password1(size=20, class_="form-control") }}
+</div>
+</div>
+
+<div class="form-group">
+    {{ form.password2.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.password2(size=20, class_="form-control") }}
+</div>
+</div>
+
+<div class="form-group">
+    {{ form.roles.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.roles(size=20, class_="form-control") }}
+</div>
+</div>
+
+<div class="form-group">
+    {{ form.country.label(class_="control-label  col-sm-2") }}
+    <div class="col-sm-10">
+    {{ form.country(size=20, class_="form-control") }}
+</div>
+</div>
+
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+    <input type="submit" class="btn btn-default" value="Create"></input>
+     </div>
+  </div>
+</div>
+</form>
+{% endblock content %}
+
+{% block style %}
+{{super()}}
+{% endblock style %}
+

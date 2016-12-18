@@ -1,0 +1,9 @@
+google-api-python-client
+GoogleAppEngineCloudStorageClient
+webob
+httplib2
+flask
+flask-login
+flask-wtf
+flask-bootstrap
+wtforms-components

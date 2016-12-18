@@ -1,0 +1,7 @@
+{% macro admin_nav() %}
+Browse:
+{% for t in admin_console_tools %}
+<a href="{{t[1]}}">{{t[0]}}</a>
+{% endfor %}
+<hr>
+{% endmacro %}

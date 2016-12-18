@@ -1,0 +1,64 @@
+{% macro format_df(df) %}
+<span class="gtron-data-cell {% if df.css_class %}{{df.css_class}}{% endif %}">
+  {% if df.formatter.method %}
+    <form action="{{df.link}}" method="{{df.formatter.method}}">
+      <input type="submit" value="{{df.display}}"></input>
+    </form>
+  {% else %}
+  {% if df.link %}<a href="{{df.link}}">{% endif %}
+    {{df.display}}
+  {% if df.link %}</a>{% endif %}
+  {% endif %}
+</span>
+{% endmacro %}
+
+{% macro render_table(table_spec, selectable_lines) %}
+  <table>
+    <tr>
+      {% if selectable_lines %}
+      <th></th>
+      {% endif %}
+      {% for c in table_spec.headings %}
+      <th>{{c}}</th>
+      {% endfor %}
+    </tr>
+    {% for build in table_spec.records %}
+    <tr {% if build.css %}class="{{build.css.css_class}}"{% endif %}>
+      {% if selectable_lines %}
+      <td><input onclick="auto_refresh=false;" type="checkbox" name="select_{{table_spec.selector_name(build)}}"></input> </td>
+      {% endif %}
+      {% for c in table_spec.headings %}
+      <td>{{ format_df(build[c]) }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}
+
+{% macro render_table_controls(table_spec) %}
+<form>
+  <select name="{{table_spec.name}}:filter_field">
+    {% for c in table_spec.headings %}
+    <option value="{{c}}" {% if table_spec.filter_field == c %} selected {% endif %}>{{c}}</option>
+    {% endfor %}
+  </select>
+  <input type="text" value="{{table_spec.filter_value}}" name="{{table_spec.name}}:filter_value">Value</input>
+  <input type="submit"></input>
+</form>
+{% endmacro %}
+
+{% macro render_list(list_spec) %}
+<table>
+  <tr>
+    <th>Field</th>
+    <th>Value</th>
+  </tr>
+  {% for f in list_spec.labels %}
+  <tr>
+    <td>{{f}}</td>
+    <td>{{format_df(list_spec.record[f])}}</td>
+  </tr>
+  {% endfor %}
+  </table>
+</table>
+{% endmacro %}
