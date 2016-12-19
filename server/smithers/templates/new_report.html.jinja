@@ -16,9 +16,9 @@
 
 {% block smithers_content %}
    {% if is_new_report %}
-   <h1>Submit Report</h1>
+   <h1>Submit Report for {{display_user.full_name}}</h1>
    {% else %}
-   <h1>Report from {{the_report.created.strftime("%d %b")}}</h1>
+   <h1>{{display_user.full_name}}'s Report From {{the_report.created.strftime("%d %b")}}</h1>
    {% endif %}
 
     {% if error %}

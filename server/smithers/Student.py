@@ -268,16 +268,15 @@ def send_welcome_email(email, custom_message=None):
 
 def send_update_email(user, report):
 
-    now = datetime.datetime.now().strftime("%d %b, %Y")
+    now = report.created.strftime("%b %d, %Y")
     message = render_template("update_email.txt.jinja",
                               user=user,
                               report=report,
-                              report_url="{}{}".format(request.host_url[0:-1],url_for(".browse_report", student=user.key.urlsafe())),
-                              now=now)
+                              report_url="{}{}".format(request.host_url[0:-1],url_for(".browse_report", student=user.key.urlsafe())))
 
     email = mail.EmailMessage(sender=config.admin_email,
                               to=config.admin_email,
-                              subject="{} Progress Report for {}".format(now, user.full_name),
+                              subject="Progress Report for {} ({})".format(user.full_name, now),
                               body=message)
     email.send()
     log.info("sent message to {}: \n{}".format(config.admin_email, message))
