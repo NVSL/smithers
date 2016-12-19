@@ -1,0 +1,10 @@
+indexes:
+- kind: Report
+  properties:
+  - name: student
+  - name: created
+
+- kind: Report
+  ancestor: yes
+  properties:
+  - name: created

@@ -27,3 +27,4 @@ deploy:
 	mkdir -p deploy
 	DEPLOY_DIRECTORY=deploy grunt build_deploy
 	appcfg.py -V testing update deploy/app.yaml
+	appcfg.py update_indexes deploy

@@ -9,6 +9,7 @@ import Logging as log
 from flask import redirect, url_for, request, render_template, Blueprint, g
 from util import role_required, next_url, Bunch
 from Report import Report
+import datetime
 
 from flask_wtf import FlaskForm
 
@@ -177,6 +178,7 @@ def view_or_enter_reports(student, default_to_submission=True):
         except Exception as e:
             return redirect(url_for(".submit_report", index=report_count, error=str("Error: {}".format(e))))
         else:
+            send_update_email(student, report)
             return redirect(url_for(".submit_report", index=report_count, notification="Report Saved"))
     else:
         error = None
@@ -264,6 +266,22 @@ def send_welcome_email(email, custom_message=None):
     email.send()
     log.info("sent message to {}: \n{}".format(email, message))
 
+def send_update_email(user, report):
+
+    now = datetime.datetime.now().strftime("%d %b, %Y")
+    message = render_template("update_email.txt.jinja",
+                              user=user,
+                              report=report,
+                              report_url="{}{}".format(request.host_url[0:-1],url_for(".browse_report", student=user.key.urlsafe())),
+                              now=now)
+
+    email = mail.EmailMessage(sender=config.admin_email,
+                              to=config.admin_email,
+                              subject="{} Progress Report for {}".format(now, user.full_name),
+                              body=message)
+    email.send()
+    log.info("sent message to {}: \n{}".format(config.admin_email, message))
+
 
 @student_ops.route("/whitelist", methods=['POST', 'GET'])
 def update_whitelist():
@@ -281,6 +299,7 @@ def update_whitelist():
         except Exception as e:
             return redirect(url_for(".update_whitelist", error="Error: {}".format(e)))
         else:
+
             return redirect(url_for(".update_whitelist", notification="Successfully added"))
     else:
         return render_template("update_whitelist.html.jinja",
