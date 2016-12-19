@@ -18,13 +18,6 @@ from wtforms.validators import DataRequired
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
 
-def nav_state():
-    return Bunch(current_user=Student.get_current_student(),
-                 student_list=[(s, url_for(".browse_report", student=s.key.urlsafe())) for s in Student.query().fetch()],
-                 add_url=url_for(".update_whitelist"),
-                 logout_trampoline=url_for(".logout"),
-                 logout_url=users.CreateLogoutURL(url_for(".submit_report")))
-
 class WhiteList(ndb.Model):
     authorized_users = ndb.TextProperty()
 
@@ -151,11 +144,7 @@ def update_user():
         form.full_name.data = student.full_name
         form.email.data = student.email
         return render_template("update_user.html.jinja",
-                               form=form,
-                               current_user=student,
-                               logout_trampoline=url_for(".logout"),
-                               logout_url=users.CreateLogoutURL(url_for(".submit_report")),
-                               error=form.errors)
+                               form=form)
 
 
 @student_ops.route("/student/<student>")
@@ -175,7 +164,7 @@ def view_or_enter_reports(student, default_to_submission=True):
     form = DisplayReportForm(request.form)
     report_query = Report.query(ancestor=student.key).order(Report.created)
     report_count = report_query.count()
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate():
         try:
             report = Report(parent=student.key)
             form.populate_obj(report)
@@ -183,15 +172,12 @@ def view_or_enter_reports(student, default_to_submission=True):
             report.student = student.nickname()
             # raise Exception()
             report.put()
-        except Exception as a:
-            return redirect(url_for(".submit_report", index=report_count, error=str("Error: {}".format(a))))
+        except Exception as e:
+            return redirect(url_for(".submit_report", index=report_count, error=str("Error: {}".format(e))))
         else:
             return redirect(url_for(".submit_report", index=report_count, notification="Report Saved"))
     else:
-        if request.method == "POST":
-            error = "Invalid data.  Missed a field?"
-        else:
-            error = None
+        error = None
 
         if report_count > 0:
             reports = report_query.fetch()
@@ -203,11 +189,10 @@ def view_or_enter_reports(student, default_to_submission=True):
             index = int(request.args.get("index", report_count))
         else:
             if report_count == 0:
-                return "student has not submitted any reports"
+                index = int(request.args.get("index", report_count))
+                error = "User {} has not submitted any reports".format(student.full_name or student.email)
             else:
                 index = int(request.args.get("index", report_count - 1))
-
-        log.info("{} {} {}".format(index, report_count, latest_report))
 
         if index == report_count:
             if latest_report is not None:
@@ -245,15 +230,13 @@ def view_or_enter_reports(student, default_to_submission=True):
         return render_template("new_report.html.jinja",
                                form=form,
                                is_new_report=is_new_report,
-                               current_user=Student.get_current_student(),
                                display_user=student,
                                next_report=next_report,
                                prev_report=prev_report,
                                the_report=display_report,
-                               logout_trampoline=url_for(".logout"),
                                error=error or request.args.get("error") or request.form.get("error"),
-                               notification=request.args.get("notification") or request.form.get("notification"),
-                               logout_url=users.CreateLogoutURL(url_for(".submit_report")))
+                               notification=request.args.get("notification") or request.form.get("notification")
+                               )
 
 
 class UpdateWhiteListForm(FlaskForm):

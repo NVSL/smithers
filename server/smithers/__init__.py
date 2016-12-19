@@ -18,7 +18,7 @@ app.secret_key = 'A0Zr9aoeu8j/3yXaoeuaoeuaoeujmN]LWX/,?RT'
 
 import traceback
 
-from smithers.Student import student_ops, nav_state, Student
+from smithers.Student import student_ops, Student
 from smithers.Report import report_ops
 app.register_blueprint(student_ops)
 app.register_blueprint(report_ops)
@@ -29,6 +29,7 @@ class smithers_globals(app.app_ctx_globals_class):
         super(smithers_globals,self).__init__(*args, **kwargs)
         self.current_user=Student.get_current_student()
         self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]
+        self.admin_view = users.is_current_user_admin()
 
     def CreateLogoutURL(self, next):
         return users.CreateLogoutURL(next)

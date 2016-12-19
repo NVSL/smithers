@@ -21,14 +21,14 @@
    <h1>Report from {{the_report.created.strftime("%d %b")}}</h1>
    {% endif %}
 
-   {{ wtf.quick_form(form, form_type="horizontal") }}
-
     {% if error %}
     <p class="form-error" style="color:red; font-style: italic">{{error}}</p>
     {% endif %}
     {% if notification %}
     <p class="form-notification" style="color:darkgreen; font-style: italic">{{notification}}</p>
     {% endif %}
+
+   {{ wtf.quick_form(form, form_type="horizontal") }}
 
 {% endblock smithers_content %}
 
