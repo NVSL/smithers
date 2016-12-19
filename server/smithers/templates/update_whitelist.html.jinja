@@ -1,0 +1,26 @@
+{% extends "smithers_page.html.jinja" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+        {% block title %}Update White List{% endblock title%}
+
+{% block smithers_content %}
+   <h1>Add Student</h1>
+{% if error %}
+<p class="form-error" >{{error}}</p>
+{% endif %}
+{% if notification %}
+<p class="form-notification">{{notification}}</p>
+{% endif %}
+        {{ wtf.quick_form(form, method="POST") }}
+
+
+<h2>Current List</h2>
+<ul class="list-group">
+{% for e in white_list %}
+  <li class="list-group-item">{{e}}</li>
+{% endfor %}
+</ul>
+
+
+{% endblock smithers_content %}
+

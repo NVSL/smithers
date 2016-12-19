@@ -24,3 +24,11 @@ code {
 h1 {
   margin-bottom: 0.5em
 }
+
+.form-error {
+color:red; font-style: italic
+}
+
+.form-notification {
+color:darkgreen; font-style: italic
+}

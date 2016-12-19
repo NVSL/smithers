@@ -1,6 +1,7 @@
-from flask import Flask
-from flask_bootstrap import Bootstrap
+from flask import Flask, url_for
+from google.appengine.api import users
 
+from flask_bootstrap import Bootstrap
 
 # import flask_login
 from google.appengine.ext import ndb
@@ -17,10 +18,23 @@ app.secret_key = 'A0Zr9aoeu8j/3yXaoeuaoeuaoeujmN]LWX/,?RT'
 
 import traceback
 
-from smithers.Student import student_ops
+from smithers.Student import student_ops, nav_state, Student
 from smithers.Report import report_ops
 app.register_blueprint(student_ops)
 app.register_blueprint(report_ops)
+
+
+class smithers_globals(app.app_ctx_globals_class):
+    def __init__(self, *args, **kwargs):
+        super(smithers_globals,self).__init__(*args, **kwargs)
+        self.current_user=Student.get_current_student()
+        self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]
+
+    def CreateLogoutURL(self, next):
+        return users.CreateLogoutURL(next)
+
+app.app_ctx_globals_class = smithers_globals
+
 # app.register_blueprint(app_ops)
 
 # from locutor.User import ensure_admin

@@ -1,0 +1,53 @@
+{% extends "bootstrap/base.html" %}
+{% import 'admin_table.html.jinja' as admin_table %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet"
+      href="{{url_for('static', filename='css/smithers.css')}}">
+{% endblock styles %}
+
+    {% block navbar %}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+
+            {% block navbar_content %}
+            {% if g.student_list %}
+             <ul class="nav navbar-nav">
+                <li  class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Students<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                         {% for s in g.student_list %}
+                         <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].full_name}}</a></li>
+                         {% endfor %}
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('student_ops.update_whitelist') }}">Add</a></li>
+
+             </ul>
+             {% endif %}
+             {% if g.current_user %}
+             <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
+                      <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
+             {{ g.current_user.nickname() }} <button class="btn btn-default" type="submit">Logout</button>
+             </form>
+             {% endif %}
+             {% endblock navbar_content %}
+
+        </div>
+
+    </nav>
+
+    {% endblock navbar %}
+
+{% block content %}
+<div class="container">
+   {% block smithers_content %}
+    {% endblock smithers_content %}
+</div>
+
+{% endblock content %}
+

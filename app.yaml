@@ -1,4 +1,4 @@
-application: nvslsmithers
+application: nvsl-progress-reports
 version: testing
 runtime: python27
 api_version: 1
@@ -10,9 +10,16 @@ handlers:
 - url: /static
   static_dir: static
 
+- url: /?
+  script: server.smithers.app
+  login: required
+
 #- url: /app/enforce_deadlines
 #  script: server.locutor.app
 #  login: admin
+- url: /whitelist
+  script: server.smithers.app
+  login: admin
 
 - url: /.*
   script: server.smithers.app
