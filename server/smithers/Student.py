@@ -1,5 +1,7 @@
 from google.appengine.ext import ndb
 from google.appengine.api import users
+from google.appengine.api import mail
+
 from smithers.util import build_list_spec, build_table_spec
 import config
 from util import DFC, Time
@@ -190,7 +192,7 @@ def view_or_enter_reports(student, default_to_submission=True):
         else:
             if report_count == 0:
                 index = int(request.args.get("index", report_count))
-                error = "User {} has not submitted any reports".format(student.full_name or student.email)
+                error = "{} has not submitted any reports".format(student.full_name or student.email)
             else:
                 index = int(request.args.get("index", report_count - 1))
 
@@ -241,12 +243,30 @@ def view_or_enter_reports(student, default_to_submission=True):
 
 class UpdateWhiteListForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired()])
+    custom_message = TextAreaField("Custom Message")
     submit = SubmitField("Add")
+
+
+def send_welcome_email(email, custom_message=None):
+    if custom_message is not None and custom_message.strip() == "":
+        custom_message = None
+
+    message = render_template("welcome_email.txt.jinja",
+                              email=email,
+                              url=request.host_url[0:-1],
+                              custom_message=custom_message)
+
+    email = mail.EmailMessage(sender=config.admin_email,
+                              to=email,
+                              bcc=config.admin_email,
+                              subject="NVSL Progress Reporting",
+                              body=message)
+    email.send()
+    log.info("sent message to {}: \n{}".format(email, message))
 
 
 @student_ops.route("/whitelist", methods=['POST', 'GET'])
 def update_whitelist():
-    student = Student.get_current_student()
 
     form = UpdateWhiteListForm()
 
@@ -255,6 +275,7 @@ def update_whitelist():
             list = WhiteList.get_list()
             s = list.authorized_users.strip().split("\n")
             s.append(form.email.data)
+            send_welcome_email(form.email.data, custom_message=form.custom_message.data)
             list.authorized_users = "\n".join(s)
             list.put()
         except Exception as e:
@@ -263,7 +284,6 @@ def update_whitelist():
             return redirect(url_for(".update_whitelist", notification="Successfully added"))
     else:
         return render_template("update_whitelist.html.jinja",
-                               current_user=student,
                                white_list=WhiteList.get_list().authorized_users.split("\n"),
                                form=form,
                                error=request.args.get("error") or request.form.get("error"),
