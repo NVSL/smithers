@@ -267,12 +267,13 @@ def send_welcome_email(email, custom_message=None):
     log.info("sent message to {}: \n{}".format(email, message))
 
 def send_update_email(user, report):
-
-    now = report.created.strftime("%b %d, %Y")
     message = render_template("update_email.txt.jinja",
                               user=user,
                               report=report,
-                              report_url="{}{}".format(request.host_url[0:-1],url_for(".browse_report", student=user.key.urlsafe())))
+                              report_url="{}{}".format(request.host_url[0:-1],
+                                                       url_for(".browse_report", student=user.key.urlsafe())))
+
+    now = report.created.strftime("%b %d, %Y")
 
     email = mail.EmailMessage(sender=config.admin_email,
                               to=config.admin_email,
