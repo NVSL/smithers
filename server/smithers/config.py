@@ -13,4 +13,6 @@ admin_fullname="Steven Swanson"
 admin_username="swanson"
 admin_email="swanson@eng.ucsd.edu"
 
+comments_url="https://github.com/NVSL/smithers/issues"
+
 local_time_zone = pytz.timezone("US/Pacific")

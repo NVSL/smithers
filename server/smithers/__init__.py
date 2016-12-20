@@ -1,6 +1,6 @@
 from flask import Flask, url_for
 from google.appengine.api import users
-
+import config
 from flask_bootstrap import Bootstrap
 
 # import flask_login
@@ -30,6 +30,7 @@ class smithers_globals(app.app_ctx_globals_class):
         self.current_user=Student.get_current_student()
         self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]
         self.admin_view = users.is_current_user_admin()
+        self.config = config
 
     def CreateLogoutURL(self, next):
         return users.CreateLogoutURL(next)
