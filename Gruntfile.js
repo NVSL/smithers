@@ -20,7 +20,7 @@ const CLIENT_FILES_SRC_DIR="static";
 const CLIENT_FILES=['**/*.html', '**/*.css',  '**/*.json', '**/*.gspec', '**/*.svg', 'Jet.js', '**/*.png', '**/*.jpg', '**/*.zip'];
 
 const SERVER_FILES_SRC_DIR="server";
-const SERVER_FILES=['**/*.json', '*.yaml', '**/*.py', '**/*.jinja', 'local_mode.flag'];
+const SERVER_FILES=['**/*.json', '*.yaml', '**/*.py', '**/*.jinja.*', 'local_mode.flag'];
 const ROOT_SERVER_FILES=['app.yaml', 'index.yaml', 'cron.yaml','appengine_config.py'];
 
 const LIB_FILES_SRC_DIR="bower_components";

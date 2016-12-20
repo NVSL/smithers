@@ -1,4 +1,4 @@
-{% extends "smithers_page.html.jinja" %}
+{% extends "smithers_page.jinja.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
         {% block title %}Update White List{% endblock title%}
@@ -14,7 +14,7 @@
         {{ wtf.quick_form(form, method="POST") }}
 
 
-<h2>Current List</h2>
+<h2>Unused Invitations</h2>
 <ul class="list-group">
 {% for e in white_list %}
   <li class="list-group-item">{{e}}</li>

@@ -16,7 +16,6 @@ from wtforms.validators import DataRequired
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
 
-
 class WhiteList(ndb.Model):
     authorized_users = ndb.TextProperty()
 
@@ -31,12 +30,27 @@ class WhiteList(ndb.Model):
 
         return white_list
 
-    def is_white_listed(self, email):
+    def is_whitelisted(self, email):
         return email.upper() in map(lambda x: x.strip().upper(),
                                     self.authorized_users.split("\n"))
 
 
-class Student(ndb.Model):#, flask_login.UserMixin):
+    def remove_from_whitelist(self, email, put=True):
+        emails = self.authorized_users.split("\n")
+        emails = [e for e in emails if e != email]
+        self.authorized_users = "\n".join(emails)
+        if put:
+            self.put()
+
+
+    def add_to_whitelist(self, email, put=True):
+        self.remove_from_whitelist(email,put=False)
+        emails = self.authorized_users.split("\n") + [email]
+        self.authorized_users = "\n".join(emails)
+        if put:
+            self.put()
+
+class Student(ndb.Model):
     """A main model for representing users."""
     username=ndb.StringProperty()
     email=ndb.StringProperty()
@@ -87,7 +101,8 @@ class Student(ndb.Model):#, flask_login.UserMixin):
                           Student, user.user_id()).get()
 
         if student is None:
-            if users.is_current_user_admin() or WhiteList.get_list().is_white_listed(user.email()):
+            if users.is_current_user_admin() or WhiteList.get_list().is_whitelisted(user.email()):
+                WhiteList.get_list().remove_from_whitelist(user.email())
                 log.info("Creating student entity for user: {}".format(user))
                 student = Student(parent=student_parent_key,
                                   id=user.user_id(),
@@ -146,7 +161,7 @@ def update_user():
     else:
         form.full_name.data = student.full_name
         form.email.data = student.email
-        return render_template("update_user.html.jinja",
+        return render_template("update_user.jinja.html",
                                form=form)
 
 
@@ -236,7 +251,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                                   student=student.key.urlsafe(),
                                   index=index - 1)
 
-        return render_template("new_report.html.jinja",
+        return render_template("new_report.jinja.html",
                                form=form,
                                is_new_report=is_new_report,
                                display_user=student,
@@ -258,7 +273,7 @@ def send_welcome_email(email, custom_message=None):
     if custom_message is not None and custom_message.strip() == "":
         custom_message = None
 
-    message = render_template("welcome_email.txt.jinja",
+    message = render_template("welcome_email.jinja.txt",
                               email=email,
                               url=request.host_url[0:-1],
                               custom_message=custom_message)
@@ -274,7 +289,7 @@ def send_welcome_email(email, custom_message=None):
 
 def send_update_email(user, report):
 
-    message = render_template("update_email.txt.jinja",
+    message = render_template("update_email.jinja.txt",
                               user=user,
                               report=report,
                               report_url="{}{}".format(request.host_url[0:-1],
@@ -295,19 +310,19 @@ def update_whitelist():
 
     if form.validate_on_submit():
         try:
+            if Student.query(Student.email == form.email.data).count() > 0:
+                raise Exception("User with email '{}' already exists".format(form.email.data))
+
             list = WhiteList.get_list()
-            s = list.authorized_users.strip().split("\n")
-            s.append(form.email.data)
+            list.add_to_whitelist(form.email.data)
             send_welcome_email(form.email.data, custom_message=form.custom_message.data)
-            list.authorized_users = "\n".join(s)
-            list.put()
         except Exception as e:
             return redirect(url_for(".update_whitelist", error="Error: {}".format(e)))
         else:
 
             return redirect(url_for(".update_whitelist", notification="Successfully added"))
     else:
-        return render_template("update_whitelist.html.jinja",
+        return render_template("update_whitelist.jinja.html",
                                white_list=WhiteList.get_list().authorized_users.split("\n"),
                                form=form,
                                error=request.args.get("error") or request.form.get("error"),
@@ -336,7 +351,7 @@ class NewStudentForm(FlaskForm):
 #                              members,
 #                              "username",
 #                              default_sort_reversed=True)
-#     return render_template("admin_student_list.html.jinja",
+#     return render_template("admin_student_list.jinja.html",
 #         userlist=table
 #     )
 #
@@ -349,7 +364,7 @@ class NewStudentForm(FlaskForm):
 #                                  student,
 #                                  Student.formatted_members)
 #
-#     return render_template("admin_student.html.jinja",
+#     return render_template("admin_student.jinja.html",
 #         user_attrs = build_spec,
 #         user = student
 #     )
@@ -360,4 +375,4 @@ def index():
     if not users.is_current_user_admin():
         return redirect(url_for(".submit_report"))
     else:
-        return render_template("smithers_page.html.jinja")
+        return render_template("smithers_page.jinja.html")
