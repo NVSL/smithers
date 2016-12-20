@@ -11,7 +11,8 @@ from Report import Report
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField
 from wtforms_components import read_only
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Email
+
 
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
@@ -264,7 +265,7 @@ def view_or_enter_reports(student, default_to_submission=True):
 
 
 class UpdateWhiteListForm(FlaskForm):
-    email = StringField("Email Address", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired(),Email()])
     custom_message = TextAreaField("Custom Message")
     submit = SubmitField("Add")
 
