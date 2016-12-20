@@ -1,5 +1,4 @@
 {% extends "bootstrap/base.html" %}
-{% import 'admin_table.html.jinja' as admin_table %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block styles %}
@@ -32,7 +31,7 @@
              {% if g.current_user %}
              <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
                       <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
-             {{ g.current_user.nickname() }} <button class="btn btn-default" type="submit">Logout</button>
+             {{ g.current_user.full_name or g.current_user.email }} <button class="btn btn-default" type="submit">Logout</button>
              </form>
              {% endif %}
              {% endblock navbar_content %}

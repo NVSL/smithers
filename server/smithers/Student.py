@@ -2,19 +2,14 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.api import mail
 
-from smithers.util import build_list_spec, build_table_spec
 import config
-from util import DFC, Time
+from util import DFC
 import Logging as log
-from flask import redirect, url_for, request, render_template, Blueprint, g
-from util import role_required, next_url, Bunch
+from flask import redirect, url_for, request, render_template, Blueprint
+from util import role_required, next_url
 from Report import Report
-import datetime
-
 from flask_wtf import FlaskForm
-
-#import flask_login
-from wtforms import StringField, PasswordField, HiddenField, TextAreaField, SubmitField
+from wtforms import StringField, HiddenField, TextAreaField, SubmitField
 from wtforms_components import read_only
 from wtforms.validators import DataRequired
 
@@ -224,12 +219,16 @@ def view_or_enter_reports(student, default_to_submission=True):
         if index >= report_count:
             next_report = None
         else:
-            next_report = url_for(request.endpoint, student=student.key.urlsafe(), index=index + 1)
+            next_report = url_for(request.endpoint,
+                                  student=student.key.urlsafe(),
+                                  index=index + 1)
 
         if index <= 0:
             prev_report = None
         else:
-            prev_report = url_for(request.endpoint, student=student.key.urlsafe(), index=index - 1)
+            prev_report = url_for(request.endpoint,
+                                  student=student.key.urlsafe(),
+                                  index=index - 1)
 
         return render_template("new_report.html.jinja",
                                form=form,
@@ -317,36 +316,36 @@ def logout():
 class NewStudentForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired()])
     full_name=StringField('Name', validators=[DataRequired()])
-
-@student_ops.route("/student/")
-@role_required(config.admin_role)
-def display_all_students():
-
-    # DFC("start vm",
-    members = [m for m in Student.formatted_members]
-
-    table = build_table_spec("students",
-                             Student.query().fetch(),
-                             members,
-                             "username",
-                             default_sort_reversed=True)
-    return render_template("admin_student_list.html.jinja",
-        userlist=table
-    )
-
-@student_ops.route("/student/<key>")
-@role_required(config.admin_role)
-def display_one_student(key):
-    student = ndb.Key(urlsafe=key).get()
-
-    build_spec = build_list_spec("student",
-                                 student,
-                                 Student.formatted_members)
-
-    return render_template("admin_student.html.jinja",
-        user_attrs = build_spec,
-        user = student
-    )
+#
+# @student_ops.route("/student/")
+# @role_required(config.admin_role)
+# def display_all_students():
+#
+#     # DFC("start vm",
+#     members = [m for m in Student.formatted_members]
+#
+#     table = build_table_spec("students",
+#                              Student.query().fetch(),
+#                              members,
+#                              "username",
+#                              default_sort_reversed=True)
+#     return render_template("admin_student_list.html.jinja",
+#         userlist=table
+#     )
+#
+# @student_ops.route("/student/<key>")
+# @role_required(config.admin_role)
+# def display_one_student(key):
+#     student = ndb.Key(urlsafe=key).get()
+#
+#     build_spec = build_list_spec("student",
+#                                  student,
+#                                  Student.formatted_members)
+#
+#     return render_template("admin_student.html.jinja",
+#         user_attrs = build_spec,
+#         user = student
+#     )
 
 @student_ops.route("/")
 def index():
