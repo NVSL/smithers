@@ -6,7 +6,7 @@ import config
 from util import DFC
 import Logging as log
 from flask import redirect, url_for, request, render_template, Blueprint
-from util import role_required, next_url
+from util import next_url
 from Report import Report
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField
@@ -15,6 +15,7 @@ from wtforms.validators import DataRequired
 
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
+
 
 class WhiteList(ndb.Model):
     authorized_users = ndb.TextProperty()
@@ -33,6 +34,7 @@ class WhiteList(ndb.Model):
     def is_white_listed(self, email):
         return email.upper() in map(lambda x: x.strip().upper(),
                                     self.authorized_users.split("\n"))
+
 
 class Student(ndb.Model):#, flask_login.UserMixin):
     """A main model for representing users."""
@@ -97,6 +99,7 @@ class Student(ndb.Model):#, flask_login.UserMixin):
                 raise Exception("Unauthorized email address")
         return student
 
+
 class DisplayReportForm(FlaskForm):
     long_term_goal = TextAreaField('Current Goal', validators=[DataRequired()])
     disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
@@ -118,6 +121,7 @@ class DisplayReportForm(FlaskForm):
         read_only(self.next_weekly_goals)
         del self.submit
 
+
 class UpdateUserForm(FlaskForm):
     full_name = StringField("Full Name", validators=[DataRequired()])
     email = StringField("Email")
@@ -126,6 +130,7 @@ class UpdateUserForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(UpdateUserForm, self).__init__(*args, **kwargs)
         read_only(self.email)
+
 
 @student_ops.route("/user/update/", methods=['GET', 'POST'])
 def update_user():
@@ -149,6 +154,7 @@ def update_user():
 def browse_report(student):
     s = Student.get_student(student)
     return view_or_enter_reports(s, default_to_submission=False)
+
 
 @student_ops.route('/report', methods=["POST",'GET'])
 def submit_report():
@@ -265,18 +271,18 @@ def send_welcome_email(email, custom_message=None):
     email.send()
     log.info("sent message to {}: \n{}".format(email, message))
 
+
 def send_update_email(user, report):
+
     message = render_template("update_email.txt.jinja",
                               user=user,
                               report=report,
                               report_url="{}{}".format(request.host_url[0:-1],
                                                        url_for(".browse_report", student=user.key.urlsafe())))
 
-    now = report.created.strftime("%b %d, %Y")
-
     email = mail.EmailMessage(sender=config.admin_email,
                               to=config.admin_email,
-                              subject="Progress Report for {} ({})".format(user.full_name, now),
+                              subject="Progress Report for {} ({})".format(user.full_name, report.local_created_time().strftime("%b %d, %Y")),
                               body=message)
     email.send()
     log.info("sent message to {}: \n{}".format(config.admin_email, message))
@@ -313,6 +319,7 @@ def update_whitelist():
 def logout():
     return redirect(request.form.get('continue', users.CreateLogoutURL(url_for(".submit_report"))))
 
+
 class NewStudentForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired()])
     full_name=StringField('Name', validators=[DataRequired()])
@@ -346,6 +353,7 @@ class NewStudentForm(FlaskForm):
 #         user_attrs = build_spec,
 #         user = student
 #     )
+
 
 @student_ops.route("/")
 def index():

@@ -7,3 +7,4 @@ flask-login
 flask-wtf
 flask-bootstrap
 wtforms-components
+pytz

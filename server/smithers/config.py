@@ -1,4 +1,4 @@
-
+import pytz
 
 webapp2_config = dict()
 webapp2_config['webapp2_extras.sessions'] = {
@@ -12,3 +12,5 @@ admin_country = "usa"
 admin_fullname="Steven Swanson"
 admin_username="swanson"
 admin_email="swanson@eng.ucsd.edu"
+
+local_time_zone = pytz.timezone("US/Pacific")
