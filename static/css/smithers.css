@@ -6,6 +6,7 @@ html {
 }
 
 body {
+  padding-top: 70px;
 }
 
 
@@ -59,4 +60,11 @@ h3 {
 
 a {
 	color:black;
+}
+
+.navbar-brand {
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    padding-right: 5px;
 }

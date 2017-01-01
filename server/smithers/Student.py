@@ -326,6 +326,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                                form=form,
                                is_new_report=is_new_report,
                                display_user=student,
+                               current_user=Student.get_current_student(),
                                next_report=next_report,
                                prev_report=prev_report,
                                the_report=display_report,

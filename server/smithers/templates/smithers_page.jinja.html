@@ -16,71 +16,85 @@
 {% endblock styles %}
 
     {% block navbar %}
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
 
-            {% block navbar_content %}
-               {% if g.admin_view %}
-             <ul class="nav navbar-nav">
-                <li  class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Students<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                         {% for s in g.student_list %}
-                         <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].full_name}}</a></li>
-                         {% endfor %}
-                    </ul>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+
+            <a class="navbar-brand" href="http://nvsl.ucsd.edu">
+                <img alt="NVSL" src="/static/assets/img/NVSL-Logo.png" style="height:40px"></img>
+            </a>
+            <button aria-controls="navbar" aria-expanded="false" class="navbar-toggle collapsed" data-target="#top-nav" data-toggle="collapse" type="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse" id="top-nav">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="{{url_for('student_ops.submit_report')}}">Reporting</a>
                 </li>
-                <li><a href="{{ url_for('student_ops.update_whitelist') }}">Add</a></li>
-
-             </ul>
-             {% endif %}
-
-             {% if g.current_user %}
-             <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
-                      <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
-             {{ g.current_user.full_name or g.current_user.email }} <button class="btn btn-default" type="submit">Logout</button>
-             </form>
-             {% endif %}
-            <ul class="nav navbar-nav navbar-left">
                 <li  class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         Resources<span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                         <li><a href="{{url_for('student_ops.sign_expectation_agreement')}}">Expectations</a></li>
+                        <li><a href="{{url_for('student_ops.sign_expectation_agreement')}}">Expectations</a></li>
                         {% macro resource(file, name) %}
-                         <li><a href="/resource/{{file}}">{{name}}</a></li>
+                        <li><a href="/resource/{{file}}">{{name}}</a></li>
                         {% endmacro %}
-                         {{ resource("travel.html", "Travel")}}
-                         {{ resource("internships.html", "Internships")}}
-                         {{ resource("meetings.html", "Scheduling Meetings")}}
-                         {{ resource("GivingTalks.html", "Giving Talks")}}
-                         {{ resource("WritingPapers.html", "Writing Papers")}}
-                         {{ resource("Misc.html", "Misc")}}
+                        {{ resource("GivingTalks.html", "Giving Talks")}}
+                        {{ resource("WritingPapers.html", "Writing Papers")}}
+                        {{ resource("meetings.html", "Scheduling Meetings")}}
+                        {{ resource("travel.html", "Travel")}}
+                        {{ resource("internships.html", "Internships")}}
+                        {{ resource("Misc.html", "Misc")}}
                     </ul>
                 </li>
+                {% if g.admin_view %}
 
-                <form class="navbar-form navbar-left">
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-default" type="button" onclick="location.href='{{url_for('student_ops.submit_report')}}';">Submit Report</button>
-                    </div>
-                </form>
+                <li  class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Students<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% for s in g.student_list %}
+                        <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].full_name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('student_ops.update_whitelist') }}">Add</a></li>
+                {% endif %}
+            </ul>
+                    {% if g.current_user %}
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <p class="navbar-text">Hello, {{ g.current_user.full_name or g.current_user.email }}</p>
+                    <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
+                        <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
+                         <button class="btn btn-default" type="submit">Logout</button>
+                    </form>
 
-             </ul>
-
-             {% endblock navbar_content %}
+                </li>
+                <li><p class="navbar-text">&nbsp;&nbsp;</p></li>
+            </ul>
+            {% endif %}
 
         </div>
 
-    </nav>
 
-    {% endblock navbar %}
+    </div>
+
+</nav>
+
+{% endblock navbar %}
 
 {% block content %}
 <div class="container">
-   {% block smithers_content %}
+    {% block smithers_content %}
     {% endblock smithers_content %}
     <hr>
     <p><a href="{{g.config.comments_url}}">Comments, bugs, or suggestions?</a></p>

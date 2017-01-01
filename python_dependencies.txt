@@ -8,3 +8,4 @@ flask-wtf
 flask-bootstrap
 wtforms-components
 pytz
+flask-nav

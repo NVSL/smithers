@@ -6,12 +6,38 @@ from flask_bootstrap import Bootstrap
 # import flask_login
 from google.appengine.ext import ndb
 import logging as log
+from flask_nav import Nav
+from flask_nav.elements import Navbar, View, Subgroup
 
 # login_manager = flask_login.LoginManager()
 app = Flask(__name__)
 Bootstrap(app)
 
 app.secret_key = 'A0Zr9aoeu8j/3yXaoeuaoeuaoeujmN]LWX/,?RT'
+
+nav = Nav()
+
+def resource(file, name):
+    return View(name, "student_ops.render_resource", file=file)
+
+@nav.navigation()
+def mynavbar():
+    return Navbar(
+        'NVSL',
+        View('Reporting', 'student_ops.submit_report'),
+        Subgroup('Resources',
+                 resource("travel.html", "Travel"),
+                 resource("internships.html", "Internships"),
+                 resource("meetings.html", "Scheduling Meetings"),
+                 resource("GivingTalks.html", "Giving Talks"),
+                 resource("WritingPapers.html", "Writing Papers"),
+                 resource("Misc.html", "Misc")),
+        View('Logout', 'student_ops.logout')
+    )
+
+
+nav.init_app(app)
+
 # login_manager.init_app(app)
 # login_manager.login_view = "student_ops.login"
 # login_manager.login_message = "Please log in to do that"

@@ -3,26 +3,29 @@
 
 {% block title %}Submit Report{% endblock title%}
 
-{% block navbar_content %}
-    {{ super() }}
-    <form class="navbar-form navbar-left">
-        <div class="btn-group" role="group">
-        <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
-        <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
-        </div>
-    </form>
-{% endblock navbar_content %}
 
 {% block smithers_content %}
-   {% if is_new_report %}
-   <h1>Submit Report for {{display_user.full_name}}</h1>
-   {% else %}
-   <h1>{{display_user.full_name}}'s Report From {{the_report.local_created_time().strftime("%b %d")}}</h1>
-   {% endif %}
+{% if is_new_report %}
+<h1>Submit Report</h1>
+{% else %}
+<h1>{% if display_user != current_user %} {{display_user.full_name}}: {% endif %} {{the_report.local_created_time().strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+{% endif %}
 
-   {{ alerts() }}
+{{ alerts() }}
 
-   {{ wtf.quick_form(form, form_type="horizontal") }}
+
+<form class="form form-horizontal">
+    <div class="form-group">
+        <div class="col-lg-offset-2 col-lg-10">
+            <div class="btn-group" role="group">
+                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
+                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{ wtf.quick_form(form, form_type="horizontal") }}
 
 {% endblock smithers_content %}
 
