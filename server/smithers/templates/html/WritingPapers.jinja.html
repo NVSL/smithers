@@ -1,0 +1,440 @@
+{% extends "smithers_page.jinja.html" %}
+{% block smithers_content %}
+<h1>The Nuts and Bolts of Writing Papers</h1>
+<p>Papers are your primary work products as
+    a researcher, so it's in your
+    interest to make sure they are of high quality.&nbsp; This document
+    describes the practical aspects of writing papers.&nbsp; It details
+     your responsibilities in the process (depending on your role) and what you need to do and when.&nbsp; This includes many small, non-obvious details
+    (e.g., checking in a copy of the reviews to svn) that make our lives
+    easier before, during, and after the paper deadline.&nbsp;</p>
+  <p>This document covers the pratical side of writing papers. Its contents fall into two categories: 1) Useful hints for making the paper writing process go smoothly and 2) expectations for what needs to be done to produce a high quality paper.  This second category is especially important because it helps make sure we are all the same page about the paper writing process, who's responsible for what, etc. If you have any questions about anything in this document please ask.</p>
+<p>This document does not discuss how to structure a paper, craft a good introduction, or create a well-reason argument that flows well and is engaging to the reader. Those are skills I will help you develop as we craft the text and you will continue to hone those skills for your entire carreer. The idea behind this document is get the easy, mechanical stuff out of the way quickly so you can focus your time on learning how to write.</p>
+
+<h2>First things</h2>
+Technical writing is a skill that, like most skills, almost anyone can
+acquire.&nbsp; It is not, however, a skill that most computer science graduate students
+get much really good practice at during their undergraduate
+education.&nbsp; It is also an activity that many computer scientists
+do not particularly enjoy.&nbsp; Nevertheless, it is a skill that you
+must become proficient at if you are to be a successful
+researcher.&nbsp; There is no way around this.<br />
+<br />
+Also, like many skills, there are a great many good books on the
+subject.&nbsp; You should read the following:<br />
+<ol>
+  <li><a href="https://www.amazon.com/Style-Lessons-Clarity-Grace-11th/dp/0321898680">"Style: Lessons in Clarity and Grace"</a>  by
+Joseph M.
+Williams and Gregory G. Colomb.&nbsp; This book is really excellent. It's helped to improve my writing a great deal.&nbsp; It is also the
+text for Lawrence Saul's excellent technical writing course.&nbsp; You
+should take that course too.<br />
+  </li>
+  <li><a href="http://cseweb.ucsd.edu/~swanson/papers/science-of-writing.pdf">"The Science of Scientific Writing"</a> by George D. Gopen and Judith A. Swan.  An excellent complement to "Clarity and Gracy"</li>
+  <li> Strunk and White's "The Elements of Style" is also good, but
+much drier.&nbsp; However, it provides good answers to many very
+practical questions about what should be capitalized where, etc.</li>
+  <li>&quot;An evaluation of the ninth SOSP submissions or how (and how not) to write a good systems paper&quot; by  	 Roy Levin   	and David D. Redell. It provides a practical set of questions to ask yourself while writing papers. It's available <a href="http://portal.acm.org/citation.cfm?id=378283">here</a>.</li>
+  <li>&quot;A Referee's Plea&quot; by Mark Allman. More good advice or writing sound papers from a reviewer's perspective. It's<a href="http://www.icir.org/mallman/plea.txt"> here</a>.</li>
+</ol>
+Reading these will not make a good writer overnight, but
+it will provide you with two things:&nbsp; 1) Heaps of very practical
+advice that will significantly improve your writing and 2) a different
+perspective on writing:&nbsp; These books formalize and name many
+aspects of both good and bad writing.&nbsp; Having good names and
+definitions for things is basis for reasoning and thinking about them
+rigorously, which is what you should eventually be able to do about
+your writing. Having this skill may make writing more palatable to you: It makes it less of a craft and more of a science. These books will give concrete, explanations for why some sentences and paragraphs &quot;just seem better.&quot; Once you understand those explanations, you can use them as guidelines to make other sentences better. Of course, there is still craft involved, and you need to master that as well.<br />
+<h2>Crafting a Paper</h2>
+<h3>Know Your	Reader/Reviewer</h3>
+<p>It is important to understand your audience when you are writing a paper. The first audience for any paper is the conference program committee or the journal's editors. Fortunately, you know a lot about these kinds of people, because, for the most part, they are people like you, your colleauges, and your advisor. </p>
+<p>Consider the characteristics of an ideal reviewer.</p>
+<ul>
+  <li>She has ample time.</li>
+  <li>She carefully reads each word.</li>
+  <li>She looks over the cited papers to gather context.</li>
+  <li>She is an expert in the field.</li>
+  <li>She is open-minded.</li>
+  <li>She gives you the benefit of the doubt.</li>
+  <li>She is able and willing to put aside her predjudices and preconceptions about the research area.</li>
+  <li>She takes careful notes.</li>
+  <li>She consults with a local expert, if she is unfamiliar with the area.</li>
+  <li>She goes back to review parts of the paper she did not understand.</li>
+  <li>She wants the most interesting, exciting papers for the conference, no exceptions, no compromises.</li>
+  <li>She works hard to identify and understand the ideas you are trying to express.</li>
+</ul>
+<p>Writing for such a reviewer is easy, because the reviewer is willing to put in a lot of work to understand what you've written. These reviewers (or something like them) exist, but they are in the minority. If you want to get your paper accepted, you should target less idealized reviewer.</p>
+<ul>
+  <li>She is impatient.</li>
+  <li>She is reading as fast as possible.</li>
+  <li>She is very skeptical. </li>
+  <li>She jumps to conclusions.</li>
+  <li>She is tired.</li>
+  <li>She is distracted.</li>
+  <li>She has 15 more papers to read.</li>
+  <li>She is looking for a reason to stop reading and reject your paper.</li>
+  <li>She thinks she understands the area, but doesn't.</li>
+  <li>She has  little expertise in the area but was assigned to the review the paper anyway.</li>
+  <li>She does not read the related work.</li>
+  <li>She is looking for a reason to reject your paper because she works in the same area.</li>
+  <li>She is looking for a reason to reject your paper because she has a paper under submission to the same conference and only so many papers will get in.</li>
+  <li>She is looking for a reason to reject your paper, so she can get her review done and move on to another paper.</li>
+  <li>If something isn't clear, she skips it and moves on.</li>
+</ul>
+<p>After the paper is accepted, the audience changes from the program committee to your technical community. While those readers are not competing with you for conference publication slots, many of them are just as tired, distracted, skeptical, impatient, and apt to jump to conclusions.</p>
+<p>If your work is to have the most impact possible, the widest possible audience must be able to read and understand it. That means your paper must hold their attention in the face of exhaustion, boredom, and distraction and convey your ideas despite their predjudices, misconceptions, and preconceptions.</p>
+<p>Writing a paper that can accomplish this is challenging and it requires a great deal of work. Fortunately, though, the changes you need to make in order to reach the less-than-ideal reader will also result in a paper that gets your ideas across and keeps your reader (regardless of how tired they are) engaged.</p>
+<h3>Why, What, and How</h3>
+<p>A good systems paper must answer three questions about the research projectit describes: Why is the research project interesting and important? What does the research project accomplish/? and How did the project accomplish it?</p>
+<h2>Software</h2>
+<p>We use pdflatex and bibtex to typeset papers. It produces nice-looking output and is cross-platform. Latex is a complex and powerful system, but the basics are not too complicated. We have a standard paper skeleton we use that makes text look like it's a paper. You'll pick up the finer points pretty quickly. I've not found any books that are especially great guides to latex, but google does a pretty fair job of solving specific problems. As always, your fellow grad students are an excellent resource.</p>
+<p>If you need to create a new paper, please start by 'svn copy'ing a recent paper or trunk/Papers/PaperTemplate. Please stick to the organization of files that is there. It's flexible enough to accomodate any particular format that a conference requires and it includes the collected wisdom (and macros) we have accumulated about creating easy-to-manage, good-looking papers.</p>
+<p>You can edit the latex source using any text editor you like, but it needs to save text files with Unix-style line breaks and it must play nicely with svn, emacs, and vi. There are sophisticated WYSIWYG editors for Latex. You are welcome to use, them but &quot;real&quot; version of the paper should be built by a makefile, since it's infrastructure that is available to everyone.</p>
+<p>We use the SVN or git versioning system to track revisions of our papers (and most everything else we produce in the course of our research). There's plenty of documentation about both on the web. SVN and git provide the beginning of good version control but not the end. We also follow several other rules to keep things running smoothly:</p>
+<ul>
+  <li>Check in early and often. SVN/git serve as backup mechanisms as well as version control systems.</li>
+  <li>Everything needed to build the paper should be checked into git/SVN (this includes .tex, .bib, and .sty files, e.g. as well as the .pdf's for figures and graphs). Nothing that is generated by latex or bibtex should be checked in (e.g., .aux, .bbl, .log, .pdf).</li>
+  <li>Typing &quot;make&quot; in the paper directory should produce a file called paper.pdf. You should not check in paper..pdf.</li>
+  <li>SVN/git does not provide a strong notion of locking: they will happily allow two people to make incompatible changes to the line of the same file. This will result in conflicts when one of the authers does an update. These conflicts can cause obvious and non-obvious changes to the text that no one intended. To avoid these problems we use an ad hoc e-mail-based locking system:
+    <ul>
+      <li>When you started editing a file send an email with a subject line like &quot;lock(foo.tex)&quot; to the authors of the paper..</li>
+      <li>When you are finished, check in and then send the message &quot;unlock(foo.tex)&quot;</li>
+      <li>As an alternative, you can set up a google spreadsheet with a line for each file and an owner field next to it. Share this document with all the authors of the paper.</li>
+    </ul>
+  </li>
+  </ul>
+<h2>How to be an author on a paper</h2>
+<p>Before the deadline</p>
+<ol>
+  <li>You should be available to work (at school) on the paper for, at
+least, the 3 weeks prior to the deadline and you should plan on
+working almost all day every day (including night and weekends) on the
+paper during the last week.&nbsp; In some cases, all of this time will
+not be necessary, and we will sometimes take days off to unwind, but this should be your expectation as far as
+planning.<br />
+  </li>
+  <li>If you have a conflict with #1, you need to let me know at least
+2 months in advance of the paper deadline so we can adjust our timeline
+appropriately. You
+should assume that every year we will target  ISCA, MICRO, ASPLOS, FAST, SOSP, OSDI, and any other conference you have submitted to previously, so be aware of those deadlines.&nbsp; If you are wondering if we are targeting a conference, ask. Deadlines are set at least
+6 months in advance for all these conferences.</li>
+  <li>As an author on the paper, you should be willing to do whatever needs doing to get a paper out the door,
+    even if it is not "your job." Research is a team sport.</li>
+</ol>
+During the rebuttal period<br />
+<ol>
+  <li>You should be available during the rebuttal period to work on the
+rebuttals.&nbsp; This will typically not take more than a couple hours
+a day during the rebuttal period unless you are first author. There are exceptions, however, so you should plan on being available.</li>
+</ol>
+After (hopefully) acceptance:<br />
+<ol>
+  <li>Congratulations!<br />
+  </li>
+  <li>Work with the other authors to polish the paper for the camera
+ready version.</li>
+  <li>Here, more than ever, the we need the paper to look good and
+deliver the message we want it to.&nbsp;
+People should be impressed when they look at our papers, and we will
+spend a lot of time refining how the paper looks, sprucing up figures,
+etc.</li>
+  <li>Check out the section on camera-ready papers below. If you notice that something doesn't measure up to that list, fix it or let the first author know.<br />
+  </li>
+</ol>
+The conference:<br />
+<ol>
+  <li>You should not schedule anything that conflicts with the
+conference without checking with me first. Going to conferences is an important for your professional development, especially when you're work is being presented.</li>
+  <li>If you attend the conference, the university (i.e., my grants)
+will, in most cases, cover your transportation, lodging, and food for the duration
+of the conference.&nbsp; You are welcome to stay longer but the extra hotel etc. 
+is on your dime.</li>
+  <li>You should be well rested for and attend the talk.<br />
+  </li>
+</ol>
+<h2>Being first author on a paper</h2>
+<p>Being the first author on a paper means that you are the lead student
+  on the paper.&nbsp; This is good for you professionally, since you will be the student most closely associated with the paper. However, being first author comes
+  with a great deal of responsibility. In fact, by default, everything about the paper is ultimately your responsibility.</p>
+<p>During the course of writing the paper other authors will take over certain aspects of the paper's writing and technical content, but it's your job to track deadlines (e.g., submitting copyright forms, collecting conflict lists, making sure that a shepherd's requests are met on time) and make sure that things are finished on time. This means keeping your co-authors up-to-date about what needs to be done and following up with to make sure things are on track. I repeat: You are responsible for getting all these things done. If they don't get done, you will be on the spot to answer for it.</p>
+<p>Before submission:</p>
+<ol>
+  <li>At all times, forward any emails you receive about the paper to
+    the other authors <em>in our group</em>. I will forward them as needed to outside collaborators.<br />
+    </li>
+  <li>Prepare the skeleton of the paper. This means creating a new directory in SVN/git repo with an appropriate name. We use the naming convention &lt;year&gt;&lt;conference&gt;-&lt;topic&gt; For example: 2010ISCA-Foobar. You can create the skeleton by copying another recent paper, but strip out all of the unrelated text. Make sure it builds from a clean checkout. Send out the SVN/git information to the rest of the authors.</li>
+  <li>Set up email notifications for commits:  From the repo home page on github, select "settings->Web Hooks and Services -> Add Service -> Email."  Enter either "Storage NVSL <cse-nvsl-storage@eng.ucsd.edu>" or "Gadgetron NVSL <cse-gadgetron-devel@eng.ucsd.edu>" depending on whether the paper is related to storage/NVMs or Gadgetron.  Leave the "secret" blank.</li>
+  <li>Ensure that the latex source for the paper conforms to the
+    formatting requirements for submission to the conference. This means that the paper should build and conform to the formatting requirements of the conference. If the conference provides a .cls file, we should use it. However, please don't import any templates that the conference provides, they are not usually helpful.</li>
+  <li>Be aware of the conference deadline, including the time and <span
+ style="font-style: italic;">time zone<span style="font-style: italic;"></span></span>
+    at which the paper is due.&nbsp; Know when it is due in local time.  If the deadline is not clear, it is your job to find out when it is.</li>
+  <li>Know how many pages are allowed and what the rules are (e.g.,
+    does the page count include the references?).<br />
+    </li>
+  <li>Be aware of the abstract deadline (including local time), if
+    there is one.&nbsp; Ensure that the paper is registered and an abstract
+    is submitted in time.&nbsp; This means conferring with me at least 2
+    days ahead of time about the abstract and title.</li>
+  <li>Distribute the account and login information for the paper
+    submission site to the other authors of the paper <span
+ style="font-style: italic;">in our group</span>.&nbsp; I'll distribute
+    it, as needed, to people outside our group.</li>
+  <li>Collect and enter author and conflict of interest
+    information for the paper.&nbsp; If we have faculty collaborators be
+    sure to give them at least 3 days to respond to your request for
+    conflict information.<br />
+    </li>
+  <li>Select a set of topic areas for the paper, and discuss them with
+    me before entering them on the conference web site.</li>
+  <li>Make sure you have all the other information that the submission site requests. If you need additional information, let me know.</li>
+</ol>
+<p>At submission: </p>
+<ol>
+  <li>Unless we discuss otherwise, you will be responsible for
+submission.&nbsp; This means that at about T-minus 1 hour from the
+deadline, you should have the submission site loaded up in a web
+browser and be logged in.&nbsp;&nbsp; You should submit drafts
+regularly up until the deadline just to be safe.</li>
+  <li>You should be submitting the paper from a machine on you
+are building the paper.&nbsp; There should not be emailing the paper to
+yourself or otherwise shuffling files around.&nbsp; You need to be able
+to do 'svn update'&nbsp; 'make' and within a few seconds be uploading
+the paper to the web site.&nbsp; Practice this ahead of time, and make sure you have your ssh keys setup so  svn doesn't ask you for a password.</li>
+  <li>You are responsible for ensuring the paper submitted on time.<br />
+  </li>
+</ol>
+After submission:<br />
+<ol>
+  <li>Once the final version of the paper is submitted, ensure that the
+paper builds correctly from a clean checkout (make test_build) and add
+the submitted pdf with a name like 'submitted_to_isca_2009.pdf' and
+commit it.&nbsp; Then tag the paper source with a similar name using 'svn copy' or 'git tag'.</li>
+</ol>
+At rebuttal time:<br />
+<ol>
+  <li>Rebuttals are opportunity that some conferences provide to respond to reviews. Not all conferences provide the chance for a rebuttal. You should know whether your target conference does.</li>
+  <li>Be aware of the rebuttal period and send out a reminder email to
+    the authors 2 days before.</li>
+  <li>When the review period starts, check the web site regularly for
+the reviews to become available.&nbsp; Continue to check regularly
+throughout the rebuttal period.&nbsp; Late reviews may appear.</li>
+  <li>Send out a copy of the reviews and a link to them.&nbsp; It is
+important that you send out a copy and not just a link, because after
+the rebuttal period, the reviews may no longer be available on
+line.&nbsp; We will want to refer to them later.</li>
+  <li>Check in a copy of the reviews to SVN.<br />
+  </li>
+  <li>Summarize the reviews.&nbsp; You want to collect the reviews by
+what the topic of their complaint, and then synthesize each reviewers
+complaint on each topic into a high-level point that we can
+address.&nbsp; Along with each high-level point, the summary should
+contain the passages from the reviews along with an annotation denoting
+which reviewer the comment came from.</li>
+  <li>Send out the summary.&nbsp; <br />
+  </li>
+  <li>Draft a response to each of the high-level points, and send it
+out as well. The summary and the draft response should be sent out no
+more than 12 hours after the reviews become available.<br />
+  </li>
+  <li>Iterate on the rebuttal with me and the other authors.</li>
+  <li>You are responsible for making sure the rebuttal is submitted on
+    time.</li>
+  </ol>
+<p>After (hopefully) acceptance:</p>
+<ol>
+  <li>Congratulations!<br />
+  </li>
+  <li>Once you receive the author packet, email the other authors with
+information about when the camera-ready version is due.</li>
+  <li>Reformat the paper to meet the specifications, and check it
+    in.&nbsp;&nbsp; Let everyone know how we stand with respect to length.<br />
+  </li>
+  <li>Keep track of any paperwork (e.g., copyright forms) that need to
+be printed/signed/faxed.&nbsp; Take care of it.</li>
+  <li>You are responsible for submitting the camera ready version on
+    time.&nbsp;&nbsp; Caveat: The camera-ready deadline is not a hard
+    deadline, so we will frequently be late.&nbsp; You should discuss with
+    me what our "real" deadline is for getting it in.</li>
+  <li>You are the lead on getting the paper into camera-ready shape (see below).</li>
+  <li>Create a news story on the project website announcing the acceptance of the paper. Ask another member of the group how.  It should fit with three lines in the news feed on the left hand side of the main page (two lines is even better). </li>
+  <li>Update the canonical bibtex entry and rebuild all the web pages that include the paper.  Remind Steve to do the same to the architecture home page.  Ask another member of the group how.</li>
+  <li>Discuss submitting the paper to IEEE Micro TopPicks with your advisor.  It's an annually published collection of the best papers in computer architecture.  The deadline is in mid September.  It takes several weeks to prepare a submission, so be sure to start this discussion in plenty of time.</li>
+</ol>
+<h2>Preparing the camera-ready version of a paper</h2>
+<p>The standard of polish on the camera-ready version of your first paper is probably higher than for any document you have produced in the course of your education. This is for good reason: Finished papers are, aside from trained researchers, the only product of research. They are the enduring embodiment of the ideas we have developed. Everything else (the code, workloads, scripts, etc.) is just an artifact. The paper is what counts. It is what lasts.</p>
+<p>The push for completing the camera-ready version can involve quite a bit of work, sometimes almost as much as the initial submission. You should budget your time accordingly. Typically, we will need to update the paper to reflect the latest results and to remedy any problems we did not have time to fix at submission time. There will also be a great deal of fine tuning the wording and appearance of the paper. </p>
+<p>There are many steps to preparing the camera ready version of the paper.</p>
+<ol>
+  <li>Put the paper into the final submission format as given by the author packet. Typically, there will be a space for keywords on the first page as well as a copyright notice. If they don't show up, you may be doing something wrong, so come check with me.</li>
+  <li>You have not looked the paper in some time, so your eyes will be fresh. Use this rare opportunity to read the paper critically from start to finish. Can you tighten the language? Can you improve the argument? Do questions jump out at you? Do you have trouble understanding a figure? Mark up a copy of the paper with the fixes, but don't get distracted by fixing them.</li>
+  <li>After reading through the paper completely, fix the problems you found.</li>
+  <li>Are there page numbers? Usually, they are not allowed on camera-ready submissions. Check the instructions to be sure.</li>
+  <li>Consider making large-scale changes to the paper. We may have discussed this ahead of time, but even if we have not, consider how you would rewrite this paper from scratch given what you know now. This is the time to make these large changes. </li>
+  <li>Update all the figures in the paper with latest/best data we have for the experiment/systems the paper deals with. This may including adding additional workloads, updating graphs, etc. </li>
+  <li>Update and check<em> all </em>the numbers given the paper. This means recalculating them all based on the latest data. </li>
+  <li>Perform a mental sanity check on all the numbers in the paper. Do they make sense? Are they consistent with story the paper and with the story of the paragraph/sentence they are in?</li>
+  <li>Look critically at all the graphs on a printed version of the paper. Are things crowded together? Are the axis labels too close to the axis tic values? Are bars in graphs wide enough to be distinguished from one another? Are the lines in line graphs different enough to easily identified? Fix any problems you find.</li>
+  <li>Look at the drawn figures in a printed version of the paper. Are the fonts legible? Are the figures cramped? Could they be generally cleaned up? Fix any problems you find.</li>
+  <li>Are all the figures, captions, graphs, and tables, the same width as the columns they are in? They should not be narrower or wider.</li>
+  <li>If needed confer with me about selecting key words for the paper. Add them to the paper using the appropriate macros (they will be defined as part submission style file).</li>
+  <li>Proofread, proofread, proofread! Typos make you look bad, so you don't them enshrined forever in the paper.</li>
+  <li>Spell check.</li>
+  <li>Consistency check. Are all instance of the names of workloads, machine configurations, and ideas spelled, capitalized, and punctuated consistently. In the figures, in the graphs, and in the text. If there are small inconsistencies, just fix them. If there are more wide spread problems (i.e., different people are consistently using different spellings or names).</li>
+  <li>Make sure that, to the extent possible, figures on the page with the text that refers to them. This can take a bunch of messing around with the latex source and trying lots of things. Keep at it.</li>
+  <li>If there are line breaks in the title are they where you want them? Does the title look good?</li>
+  <li>Ask each author how they would like their name to appear and with what affiliation. In particular, do they use a middle initial?</li>
+  <li>Does the author list look good? Are they too crowded? Are their strange coincidental alignments between names on different lines that look awkward?</li>
+  <li>Once all the content is fixed, you should focus on making the paper as a whole look good. This means starting on the first page and looking for all types of visual/typesetting problems listed below.  Fixing them will take a bunch of messing around with the latex and fixing some will cause others.  It's an iterative and slow process, but is necessary to make the paper look its best.
+    <ol>
+      <li>Large gaps between paragraphs</li>
+      <li>Section titles on their own at the bottoms of columns</li>
+      <li>Excessive gaps or white space.</li>
+      <li>Excessively narrow spacing between figures and text. Can you tell where the caption ends an the text begins?</li>
+      <li>Pages completely filled with figures.</li>
+      <li>Figures or tables on the first page.</li>
+      </ol>
+  </li>
+  <li>Once all this is done, send out a draft the authors who are managing the final submission, and ask for comments. Iterate until everyone's happy.</li>
+  <li>After submitting the camera ready version, create a news story on the project website announcing its availability. Include a link to the paper. Ask another member of the group how, since it varies from group to group. </li>
+  <li>Update the canonical bibtex entry and rebuild all the web pages that include the paper.  Remind Steve to do the same to the architecture home page.</li>
+  </ol>
+<h2>Miscellaneous Writing/Presentation Projects</h2>
+At times you will need to producing things like extended abstracts,
+posters, etc.&nbsp; It's critical that these be of high quality as
+well.&nbsp; Just like being first author on a paper, you are
+responsible for knowing and meeting the deadline and other requirements
+for submission.&nbsp; We will need to iterate on these items at least
+once and possibly several times.&nbsp; This means you should get a
+draft of the item to me <span style="font-style: italic;">at least</span>
+one week ahead of the deadline.<br />
+
+<h2>&nbsp;</h2>
+<h2>Writing style guide</h2>
+<h3>Defining and Using New Terms</h3>
+<p>Introducing new terminology or including technical shorthand in a paper can help clarify your writing, but it can also add complexity and add to the mental load of your reader.  New terms include any word or phrase that you define and assign a specific meaning to.  </p>
+<p>New terms and technical shorthand falls into three categories: Contribution terms, simplifying terms, and technical shorthand.</p>
+<h4>Simplifying terms</h4>
+<p>These are terms you define to make the paper easier to understand. This include acronyms and abbreviations. For instance, here's a definition of several new terms from one of our papers (new terms in italics):</p>
+<blockquote>This partitioning gives rise to four new types of pointers: Pointers within a single NV-heap (<em>intra-heap NV-to-NV pointers</em>), pointers between two NV-heaps (<em>inter-heap NV-to-NV pointers</em>), pointers from volatile memory to an NV-heap (<em>V-to-NV pointers</em>), and pointers from an NV-heap to volatile memory (<em>NV-to-V pointers</em>).</blockquote>
+<p>Defining these terms has pros and cons. On the positive side, it provides a useful shorthand for refering to complex ideas. On the negative side, new terms require the reader to remember new, unfamiliar vocabulary in order to understand the rest of the paper. That is a potential distraction.</p>
+<p>In this case, the advantages outweigh the disadvantages, because the paper goes on to use the terms repeatedly, and repeating a phrase like &quot;pointers from an NV-heap to volatile memory&quot; would be more distracting.</p>
+<p>This paragraph also gives the reader some help by carefully choosing the terms so they have structure. They all have roughly the same structure, so the reader can group them together easily in her mind. They are also built from well-known terms (&quot;inter&quot; and &quot;intra&quot;), terms that have been used earlier in the paper (&quot;NV&quot;), and common idioms (&quot;X-to-Y&quot;).</p>
+<p>You can make simplifying terms easier on your reader in several ways.  First, hyphenate, and capitalize the term the same way every time you use it. LaTex macros are useful here. Second, use it consistently a single part of speach (noun, verb, adjective, etc.) Finally, once you define the term, you should use it every time you refer to the idea or object it represents. Otherwise, the reader may believe you are introducing a new concept, leading to confusing. This last rule applies especially to acronyms.</p>
+<h4>Contribution terms</h4>
+<p>Contribution terms name a contribution or key idea of your work. Contribution terms are usually simplifying terms, but they may also be novel phrases (&quot;liquid types&quot;), acronyms (&quot;IRON file systems&quot;), puns (&quot;eNVy&quot;), or terms from the real world or popular culture (&quot;Paxos&quot;). </p>
+<p>Choose these terms carefully -- if your research is successful, they may become widely used. They should be concise, catchy, easy to say/pronounce, and, preferably, unique (so your work will not be confused with someone else's). </p>
+<p>For example, here is the definition of <a href="http://research.microsoft.com/apps/video/default.aspx?id=103638">Liquid Types</a>:</p>
+<blockquote>
+  <p>We present <em>Logically Qualified Data Types</em>, abbreviated to <em>Liquid Types</em>, a system for automatically inferring dependent types pre- cise enough to prove a variety of safety properties, thereby allow- ing programmers to reap many of the benefits of dependent types without paying the heavy price of manual annotation.</p>
+</blockquote>
+<p>&quot;Liquid Types&quot; is an great contribution term because its fun, corresponds roughly with its technical meaning, and is something lik an acronym for the longer and less catchy &quot;logically qualified datatypes.&quot; It so catchy, that even though I know very little about programming languages, I remember the name &quot;liquid types.&quot; </p>
+<p>The paper puts the term to great use, too: It refers to &quot;liquid types&quot; repeatedly and builds a vocabulary of related simplifying terms around the word &quot;liquid&quot; (e.g., &quot;liquid refinements&quot; and &quot;liquid qualifiers&quot;). It provides a coherent framework for describing and discussing the ideas the paper presents.</p>
+<h4>Technical shorthand</h4>
+<p>Technical shorthand phrases, expressions, or symbols appear in technical contexts, but not typically in prose. For instance,  &quot;write()&quot; is a useful way to refer to the write system call. </p>
+<p>The advantage of technical shorthand terms is that they are succinct descriptions of complex ideas. The disadvantage is that they are not words, so they interrupt the flow of the text.  As with simplifying terms, if you are going to a piece of technical shorthand many times, the costs probably outweigh the benefits. If you are going to refer to it just once or twice, it is better use a longer, prose description (e.g., write system call).</p>
+<h3>Writing checklist</h3>
+
+This is a list of things to check for when reading over your paper.  These are common problems I spend a lot of time providing feedback about.  Please address these on your own before your paper goes to me or the technical writer.
+<ol>
+  <li>Is the most important information presented early in the paper, section, or paragraph?  In all cases, the most important thing should come first.  Don't "bury the lead" by hiding important information half way through.  Readers skim all the time.  Make it easy for them.</li>
+  <li> Have you eliminated all your passive voice?  If some remains are you prepared to argue vigourously for why it should remain?
+  </li>
+  <li>
+    Do you define your acronyms once and only once and, once they are defined, use only the acronymns from then on?
+  </li>
+  <li>
+    Do you consistently use the terms you define?  Once you have gone through the effort of defining a term and making your reader learn what it means, you should use it.
+  </li>
+  <li>
+    Do you use the terms you define at all?  Are they necessary?  Each new term is something that the reader must learn to recognize.  IF you only need to refer to something once or twice, it may not be worth defining a term for it?
+  </li>
+  <li> Do you create new terms to highlight important ideas and make it easier for the reader to understand what you are saying?  Creating new terms can given the reader a handle on important concepts and "families" of terms can highlight important differences (e.g., "inner loop" vs. "outer loop").
+</li>
+<li>If you create new terms, are they easy to pronounce?  New terms should make it easier to discuss and name components or ideas.  Hard-to-pronounce terms are not easy to use.</li>
+</ol>
+
+<h3>Other points</h3>
+This is an incomplete style guide for the group.&nbsp; Please follow
+it.
+<ol>
+  <li>No passive voice.&nbsp; This is not a completely hard rules but
+    you should
+    be able to vigorously defend any passive voice in the paper.</li>
+  <li>Figure and title captions are complete sentences.</li>
+  <li>"Figure~1(a)", not "Figure 1a" or "Figure 1-a". The '~' is a
+non-breaking space in tex.<br />
+  </li>
+  <li>"some work~\cite{foo,bar,baz}", not "some work
+\cite{foo}\cite{bar}\cite{baz}"</li>
+  <li>There must be a space between a number and its units: "The experiment took 10~s"&nbsp; not "10s" or "10-s" or "10s". This <a href="http://www.poynton.com/notes/units/index.html">page</a> has useful pointers on the usage of numbers and units (ignore what it says about hard drive capacity). The only exceptoins are &quot;\x{}&quot; and &quot;%&quot;. No space for those.<br />
+  </li>
+  <li>In section headings, only the first word is capitalized.</li>
+  <li>Use the \figtitle{} macro at the beginning of your captions for
+figures and tables.&nbsp;&nbsp; Only the first word in the figure title
+is capitalized.</li>
+  <li>use $\times$ instead of 'x' for multiplicative performance
+increases.  There should be a macro for this: \x{}.  If there is not, add one to defs.tex. </li>
+  <li>Rarely, if ever, use semi-colons to form compound sentences.</li>
+  <li>There is no comma before the conjunction in a compound noun or
+verb: "He quickly circumnavigated and then saved the world" not "He
+quickly circumnavigated, and then saved the world."</li>
+  <li>There is a comma before the conjunction in compound
+    sentences:&nbsp; &quot;He quickly circumnavigated the world, and he was happy about it.&quot;</li>
+  <li>&quot;the experiment was 10\x{} faster&quot; not &quot;x&quot; or &quot;X&quot; and not &quot;10~\x{}&quot;</li>
+  <li>Every section must have at least one introductory paragraph. You should not have a section heading followed immediately by a subheading. You must provide an intro paragraph</li>
+  <li>No contractions: &quot;cannot&quot; instead of &quot;can't&quot;, &quot;did not&quot; instead of &quot;didn't&quot;</li>
+  <li>&quot;Data&quot; is plural.  So is &quot;metadata&quot;.  There is no hyphen in &quot;metadata&quot;.
+</li>
+  <li>"write-only" not "write only"</li>
+  <li>Once an acronym is defined, it should always be used in place of the phrase it represents.</li>
+  <li>Spell out numbers less than 10 and &ldquo;round&rdquo; numbers less than 100 . E.g: &ldquo;Five programs executed fifty instructions each&rdquo;  &ldquo;Five programs executed  74 instructions each&rdquo;  &ldquo;five programs executed 1042 instructions each&rdquo;</li>
+  <li>Includes commas in numbers larger  than 10,000. e.g: &quot;He ate 1000 hot dogs&quot; &quot;He ate 10,000 hot dogs&quot; </li>
+  <li>&quot;cannot&quot; instead of &quot;can not&quot;</li>
+  <li>Function calls should be typeset with \fc{}: e.g. \fc{memcpy} instead of &quot;memcpy()&quot;</li>
+  <li>&quot;K&quot; &quot;M&quot; etc are cannot be used as shorthand except in the context of units: e.g.&quot;kB&quot; is ok. &quot;10K lines of code&quot; is not.</li>
+  <li>&quot;PCIe&quot; not &quot;PCI-E&quot;</li>
+  <li>Avoid first-person singular pronouns (i.e., &quot;I,&quot;&quot;me,&quot;, etc.) altogether.
+  <li>Avoid first-person plural pronouns (i.e., &quot;we,&quot;&quot;our,&quot;, etc.) when possible.  Usually it can be eliminated.  Other possibilities for nouns in places of these are "the paper" "this section" etc., but see the next bullet.
+  <li>Try to avoid refering to "this paper," "this section," etc., they are not interesting actors in a sentence.  However, getting rid of them can lead to awkwardness or, even worse, passive voice.  Use them in moderation.
+  </ol>
+<h2>Preparing Graphs and Figures</h2>
+<p>Graphs and figures in papers need to be easily legible and easy to understand. They also need to look good and contribute to overall story the paper is telling. Figures and Graphs are, after the abstract and introduction, the likely parts of the paper that people will read while skimming. With that in mind, it's a reasonable goal that by reading the introduction and looking at the graphs, figures, and tables, a reader should be able to get the main point argument, contribution, and results of your paper. </p>
+<p>For papers that will appear in conference proceedings and journals being legible and &quot;looking good&quot; means doing those things on the printed page, in black and white, as well as on a computer monitor. This means that both figures and graphs should only be in black and white -- not color, and not gray scale, but black and white. In addition, the fonts must be easily readable with the naked eye. The only exception is photographs, which can be in color (but should still be adjusted to look good when printed).</p>
+<p>Since we use pdflatex, all figures and graphs must be pdfs to be included. </p>
+<h3>Captions</h3>
+<p>The caption is an important part of the each figure and graph in the paper. Captions should both describe the graph or figure and explain what the key point of the figure or graph is. Remember, if the reader is skimming, she will likely read the captions and not much else. Therefore, the captions need to contain a succcint description of what the figure adds to the paper's story.</p>
+<h3 id="graphs">Graphs </h3>
+<p>Things to consider/remember when building a graph:</p>
+<ol>
+  <li>Always label your axes with both meaningful names and units. The one exception is the horizontal axis for bar graphs in which the bar names obviate the need for an axis label.
+  </li>
+  <li>If there is more than one set of bars or line, include a legend.</li>
+  <li> Make sure the names and labels in the legend, bar labels, etc. are meaningful and that they match what is used in the text.</li>
+  <li>Do not include a title on your graph. The caption serves this purpose.</li>
+  <li>You should not generally use a log scale unless you are trying to show that something is exponential or you are just interested in orders of magnitude.</li>
+  <li>The paper's directory structure in svn should contain the raw data for the graph, the script/file that generates the graph (e.g., ploticus or gnuplot), and a Makefile to generate the graph as needed.</li>
+  <li>It can be useful to prototype graphs in excel, but excel is not a great choice for building the graphs that actually go into a paper. It does not provide adequate control over the graph's layout and it is not scriptable.</li>
+  <li>Think critically about your graph. Does it make the point you are trying to convey? Could that point be made more obvious? Does the organization and structure of the graph match the discussion in the text (e.g., if the text compares two values, is that comparison easy for the reader to verify? Are the two bars close together?)</li>
+  <li>Think asthetically about your graph. Does it look good? Good graphs should be pretty and well-organized.</li>
+  </ol>
+<p>We use <a href="http://www.gnuplot.info/">gnuplot</a> and <a href="http://ploticus.sourceforge.net/doc/welcome.html">ploticus</a> to draw graphs. Gnuplot is useful for line graphs mostly and is good at handling data sets with many thousands of points. Ploticus works well for bar graphs. Neither of these programs is terribly easy to use and they both have plenty of warts, but this is the case of all graph drawing systems. We have standardized on these two, to make it easier for students to learn from each other how to best get around these warts. There is documentation online for both, and you will learn a great deal by looking at examples that other students have created. If you are having trouble getting the output you want, ask me or another student.</p>
+<h3>Scaling figures and graphs for latex</h3>
+<p>The relationship between the size and shape of the pdf of graph or figure and how it appears in the paper is non-intuitive. The macros we use to include figures and graphs in latex specify a fixed width, and latex will scale the pdf to match that width. This means that the height of the figures and graphs is fixed and its height is determined by the figures aspect ratio (i.e., the ratio of it's height to width). For instance, if you want to make a figure shorter, you should need to increase its width relative to its height. This can have unintended consequences: For instance, if you just make the figure wider, latex will shrink it more, and the fonts may become difficult to read. </p>
+<p>If you want the figure to appear narrower on the page, you'll need to modify the macro used to instantiate it.</p>
+<h2>Bibliographies and citations</h2>
+<p>We use bibtex to create bibliographies for papers.This means that in order to cite a paper, you'll need to create or download a bibtex entry for it. For consistency, use bibtex entries from the <a href="http://portal.acm.org/portal.cfm">ACM portal</a>. If the entry you need is not available, check <a href="http://ieeexplore.ieee.org/">IEEExplore</a>. As a last resort, build the entry yourself.</p>
+<p>If it's a paper that you cite frequently, give it a memorable and useful tag for use with \cite{}. Otherwise, you can just use whatever came with the entry.</p>
+<p>Often, you may need to cite a paper that you don't have an entry handy for, you may not know what you are going to cite, or you may not want to stop writing and go look up the paper. In these cases insert something like \cite{foobar} in the text, this will cause a latex warning and will ensure that you must fix the problem to get a clean build. Do not say \cite{} or &quot;[]&quot;, as neither of these will generate errors, and it's possible they will show up as missing citations in the submitted paper.</p>
+<h2>Working With a Technical Writer</h2>
+<p>In some cases, we may hire a technical writer (TW) to help with writing the paper. The TW will mostly focus on grammar, mechanical, style and presentation issues that are not CS-specific. I work with the TW to ensure that his or her work reflects our standard practices.  Using a TW is an easy way to improve the quality of our papers without much effort on our part.</p>
+<p>Working with TW does require some effort, though. Below are the guidelines for working with the TW:</p>
+<ul>
+  <li>Be courteous. The TW is an independent contractor and if working with us is not reasonably pleasant experience, they may not wish to work with us in the future. This will negativey impact the entire group.</li>
+  <li>Incorporate all of the TW's edits. The TW will not always be correct, but he or she has a great deal of experience editing prose. When you receive comments from the TW, you should incorporate and/or flag all of the changes they propose. For flagged changes, we can discuss them and decide what to do with them.</li>
+  <li>Get a draft to the TW on time. The TW does eat, sleep, and breath research like we do, so it is unreasonable to expect the TW to make a last minute pass over the paper in the hours before a deadline. We will set a deadline for getting the TW a draft. You should do everything in your power to make that deadline.</li>
+  <li>The TW does not need a complete draft of everything to provide useful comments. If everything but the results section is ready, send it along with a note explaining that the TW should skip that section.</li>
+  <li>You should only send text to the TW that you are mostly happy with. The TW process should come after we have decided on the general flow for the paper and you've gotten the text into pretty good shape, otherwise the benefits of their work will disappear when we make substantial revisions.</li>
+  </ul>
+<p>Our process for working with a TW is a work in progress. Please let me know if you have any thoughts.</p>
+
+{% endblock smithers_content %}

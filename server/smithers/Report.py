@@ -1,7 +1,7 @@
-from google.appengine.ext import ndb
 from flask import Blueprint
-import config
-import pytz
+from google.appengine.ext import ndb
+
+from smithers.util import localize_time
 
 report_ops = Blueprint("report_ops", __name__)
 report_parent_key = ndb.Key("Report", "reports")
@@ -23,4 +23,4 @@ class Report(ndb.Model):
 
     def local_created_time(self):
 
-        return self.created.replace(tzinfo=pytz.UTC).astimezone(config.local_time_zone)
+        return localize_time(self.created)

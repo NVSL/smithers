@@ -1,0 +1,16 @@
+{% extends "smithers_page.jinja.html" %}
+{% block smithers_content %}
+
+{% if last_signed %}
+<p class="form-notification">You last read agreed to expectations document on {{last_signed.strftime("%B %d, %Y")}}.
+    Please take a moment to read through it again and acknowledge that you have read and understood it.</p>
+{% else %}
+<p class="form-notification">You have not read and agreed to the lab expectations document.  Please read through the document carefully and acknowledge that you have read and understood it.</p>
+{% endif %}
+
+{% include 'expectations_body.jinja.html' %}
+
+
+{{ wtf.quick_form(form) }}
+
+{% endblock smithers_content %}

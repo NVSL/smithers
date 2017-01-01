@@ -1,3 +1,4 @@
+import datetime
 from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.api import mail
@@ -6,10 +7,10 @@ import config
 from util import DFC
 import Logging as log
 from flask import redirect, url_for, request, render_template, Blueprint
-from util import next_url
+from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, TextAreaField, SubmitField
+from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField
 from wtforms_components import read_only
 from wtforms.validators import DataRequired, Email
 
@@ -53,10 +54,12 @@ class WhiteList(ndb.Model):
 
 class Student(ndb.Model):
     """A main model for representing users."""
-    username=ndb.StringProperty()
-    email=ndb.StringProperty()
-    full_name=ndb.StringProperty()
-    userid= ndb.StringProperty()
+    username = ndb.StringProperty()
+    email = ndb.StringProperty()
+    full_name = ndb.StringProperty()
+    userid = ndb.StringProperty()
+
+    last_signed_expectations_agreement = ndb.DateTimeProperty()
 
     formatted_members = [
         DFC("urlsafe",
@@ -171,10 +174,77 @@ def browse_report(student):
     s = Student.get_student(student)
     return view_or_enter_reports(s, default_to_submission=False)
 
+class Requirement(object):
+
+    def __init__(self):
+        super(Requirement, self).__init__()
+        self.next_url = None
+
+    def do_redirect(self, student, next_url=None):
+        if next_url is None:
+            next_url = request.full_path
+        self.next_url = next_url
+        return redirect(self.redirect_url(student))
+
+    def url_for(self, *args, **kwargs):
+        return url_for(*args, next=self.next_url, **kwargs)
+
+class UpdateUser(Requirement):
+    def is_satisfied(self, student):
+        return student.full_name is not None
+
+    def redirect_url(self, student):
+        return self.url_for(".update_user")
+
+class SignExpectationsAgreement(Requirement):
+    def is_satisfied(self, student):
+        if student.last_signed_expectations_agreement is None:
+            return False
+
+        how_long = datetime.datetime.now() - student.last_signed_expectations_agreement
+        if how_long > config.expectation_agreement_period:
+            return False
+        else:
+            return True
+
+    def redirect_url(self, student):
+        return self.url_for(".sign_expectation_agreement")
+
+class ExpectationAgreementForm(FlaskForm):
+    #name = StringField("Name", validators=[DataRequired()])
+    agree = BooleanField("I have read and understood the document above.", validators=[DataRequired()])
+    submit = SubmitField("Agree")
+
+@student_ops.route("/expectations", methods=["POST", "GET"])
+def sign_expectation_agreement():
+    student = Student.get_current_student()
+    form = ExpectationAgreementForm(request.form)
+    if request.method == "POST" and form.validate():
+        try:
+            student.last_signed_expectations_agreement = datetime.datetime.now()
+            student.put()
+        except Exception as e:
+            return redirect(url_for(".sign_expectation_agreement", error=str("Error: {}".format(e))))
+        else:
+            return redirect(next_url(url_for(".submit_report")))
+    else:
+       return render_template("expectations.jinja.html",
+                               form=form,
+                               #how_long=datetime.datetime.now() - student.last_signed_expectations_agreement,
+                               last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
+                               student=student
+                             )
+
+requirements = [UpdateUser(),
+                SignExpectationsAgreement()]
 
 @student_ops.route('/report', methods=["POST",'GET'])
 def submit_report():
     student = Student.get_current_student()
+    for r in requirements:
+        if not r.is_satisfied(student):
+            return r.do_redirect(student)
+
     if student.full_name is None:
         return redirect(url_for(".update_user", next=url_for(".submit_report")))
     return view_or_enter_reports(student)
@@ -190,7 +260,7 @@ def view_or_enter_reports(student, default_to_submission=True):
             form.populate_obj(report)
             report.previous_weekly_goals = form.previous_weekly_goals.data
             report.student = student.nickname()
-            # raise Exception()
+            #raise Exception("hello")
             report.put()
         except Exception as e:
             return redirect(url_for(".submit_report", index=report_count, error=str("Error: {}".format(e))))
@@ -377,3 +447,7 @@ def index():
         return redirect(url_for(".submit_report"))
     else:
         return render_template("smithers_page.jinja.html")
+
+@student_ops.route("/resource/<file>")
+def render_resource(file):
+    return render_template("html/{}".format(file.replace(".html",".jinja.html")))

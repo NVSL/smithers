@@ -1,4 +1,5 @@
 import pytz
+import datetime
 
 webapp2_config = dict()
 webapp2_config['webapp2_extras.sessions'] = {
@@ -16,3 +17,5 @@ admin_email="swanson@eng.ucsd.edu"
 comments_url="https://github.com/NVSL/smithers/issues"
 
 local_time_zone = pytz.timezone("US/Pacific")
+
+expectation_agreement_period = datetime.timedelta(weeks=26)

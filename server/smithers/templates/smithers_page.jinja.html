@@ -1,4 +1,12 @@
 {% extends "bootstrap/base.html" %}
+{% macro alerts() %}
+    {% if error %}
+    <p class="form-error">{{error}}</p>
+    {% endif %}
+    {% if notification %}
+    <p class="form-notification" >{{notification}}</p>
+    {% endif %}
+{% endmacro %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block styles %}
@@ -12,7 +20,7 @@
         <div class="container-fluid">
 
             {% block navbar_content %}
-            {% if g.admin_view %}
+               {% if g.admin_view %}
              <ul class="nav navbar-nav">
                 <li  class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
@@ -28,12 +36,40 @@
 
              </ul>
              {% endif %}
+
              {% if g.current_user %}
              <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
                       <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
              {{ g.current_user.full_name or g.current_user.email }} <button class="btn btn-default" type="submit">Logout</button>
              </form>
              {% endif %}
+            <ul class="nav navbar-nav navbar-left">
+                <li  class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Resources<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                         <li><a href="{{url_for('student_ops.sign_expectation_agreement')}}">Expectations</a></li>
+                        {% macro resource(file, name) %}
+                         <li><a href="/resource/{{file}}">{{name}}</a></li>
+                        {% endmacro %}
+                         {{ resource("travel.html", "Travel")}}
+                         {{ resource("internships.html", "Internships")}}
+                         {{ resource("meetings.html", "Scheduling Meetings")}}
+                         {{ resource("GivingTalks.html", "Giving Talks")}}
+                         {{ resource("WritingPapers.html", "Writing Papers")}}
+                         {{ resource("Misc.html", "Misc")}}
+                    </ul>
+                </li>
+
+                <form class="navbar-form navbar-left">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-default" type="button" onclick="location.href='{{url_for('student_ops.submit_report')}}';">Submit Report</button>
+                    </div>
+                </form>
+
+             </ul>
+
              {% endblock navbar_content %}
 
         </div>
@@ -46,7 +82,8 @@
 <div class="container">
    {% block smithers_content %}
     {% endblock smithers_content %}
-    <a href="{{g.config.comments_url}}">Comments, bugs, or suggestions?</a>
+    <hr>
+    <p><a href="{{g.config.comments_url}}">Comments, bugs, or suggestions?</a></p>
 </div>
 
 {% endblock content %}

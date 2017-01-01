@@ -26,9 +26,37 @@ h1 {
 }
 
 .form-error {
-color:red; font-style: italic
+  color:red;
+  font-style: italic;
+  font-weight: bold;
+
 }
 
 .form-notification {
-color:darkgreen; font-style: italic
+  color:green;
+  font-style: italic;
+  font-weight: bold
+}
+
+h1 {
+	color: rgba(0,0,204,1);
+	font-weight: normal;
+	font-size: 2.8em;
+}
+
+h2 {
+	color:rgba(0,0,204,1);
+	font-weight: normal;
+	font-size: 1.8em;
+	margin-top:0.5em;
+	margin-bottom:0.5em;
+}
+
+h3 {
+	color:rgba(0,0,204,1);
+	font-weight: normal;
+}
+
+a {
+	color:black;
 }

@@ -20,12 +20,7 @@
    <h1>{{display_user.full_name}}'s Report From {{the_report.local_created_time().strftime("%b %d")}}</h1>
    {% endif %}
 
-    {% if error %}
-    <p class="form-error" style="color:red; font-style: italic">{{error}}</p>
-    {% endif %}
-    {% if notification %}
-    <p class="form-notification" style="color:darkgreen; font-style: italic">{{notification}}</p>
-    {% endif %}
+   {{ alerts() }}
 
    {{ wtf.quick_form(form, form_type="horizontal") }}
 

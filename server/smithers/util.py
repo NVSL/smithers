@@ -2,7 +2,11 @@ import collections
 import functools
 import flask_login
 import flask
+import pytz
 from flask import request
+
+from smithers import config
+
 
 def role_required(role):
     def decorator(func):
@@ -189,3 +193,7 @@ def build_table_spec(
 
 def next_url(default):
     return default if "next" not in request.args else request.args["next"];
+
+
+def localize_time(time):
+    return time.replace(tzinfo=pytz.UTC).astimezone(config.local_time_zone)

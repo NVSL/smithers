@@ -33,8 +33,9 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-#env_variables:
+env_variables:
 #  CLOUDSDK_CONFIG: "/Users/swanson/.config/gcloud/configurations/config_nvslapply"
+  FLASK_DEBUG: 1
 
 libraries:
 - name: webapp2
