@@ -6,9 +6,16 @@
 
 {% block smithers_content %}
 {% if is_new_report %}
-<h1>Submit Report</h1>
+<h1>Submit Report for {{display_user.compute_next_due_date().strftime("%d %B %Y")}}</h1>
+
+{% if display_user.is_report_due() %}
+<p class="form-notification">Your next report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}</p>
 {% else %}
-<h1>{% if display_user != current_user %} {{display_user.full_name}}: {% endif %} {{the_report.local_created_time().strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+<p class="form-notification">Your next report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}. You can submit it starting at {{display_user.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}.</p>
+{% endif %}
+
+{% else %}
+<h1>{% if display_user != current_user %} {{display_user.full_name}}: {% endif %} {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
 {% endif %}
 
 {{ alerts() }}

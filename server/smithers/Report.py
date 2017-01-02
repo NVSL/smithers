@@ -15,7 +15,7 @@ class Report(ndb.Model):
     progress_made  = ndb.TextProperty()
     problems_encountered = ndb.TextProperty()
     next_weekly_goals = ndb.TextProperty()
-
+    report_for_date = ndb.DateProperty()
     student = ndb.StringProperty()
 
     def delete(self):

@@ -11,6 +11,7 @@ from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField
+from wtforms.widgets import HiddenInput
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email
 
@@ -54,6 +55,21 @@ class WhiteList(ndb.Model):
         if put:
             self.put()
 
+
+days_of_the_week = ["Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday"]
+_day_before = deque(days_of_the_week)
+_day_before.rotate(1)
+day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}
+
+_day_after = deque(days_of_the_week)
+_day_after.rotate(-1)
+day_after = {a: b for (a, b) in zip(days_of_the_week, _day_after)}
+
 class Student(ndb.Model):
     """A main model for representing users."""
     username = ndb.StringProperty()
@@ -93,6 +109,49 @@ class Student(ndb.Model):
     def nickname(self):
         return self.email
 
+    def compute_next_due_date(self):
+        if self.meeting_day_of_week is None:
+            return None
+
+        now = localize_time(datetime.datetime.now())
+        today = now.date()
+
+        due_date = now.date()
+        this_day = now.strftime("%A")
+
+        if this_day == self.meeting_day_of_week:
+            due_today = datetime.datetime.combine(today, config.report_due_time)
+            if now > datetime.datetime.combine(today, config.report_due_time):
+                return due_today + datetime.timedelta(days=7)
+            else:
+                return due_today
+        else:
+            while due_date.strftime("%A") != self.meeting_day_of_week:
+                due_date = due_date + datetime.timedelta(days=1)
+
+            return datetime.datetime.combine(due_date, config.report_due_time)
+
+    def compute_next_submission_time(self):
+        return self.compute_next_due_date() - config.report_submit_period
+
+    def is_report_due(self):
+        next_due = self.compute_next_due_date()
+        now = localize_time(datetime.datetime.now())
+
+        if next_due is None:
+            return False
+
+        if next_due - now > config.report_submit_period:
+            return False
+
+        latest_report = Report.query(ancestor=self.key).order(Report.created).get()
+
+        if latest_report is None:
+            return True
+
+        if latest_report.local_created_time() < next_due - config.report_submit_period:
+            return False
+
     @classmethod
     def get_student(self,id):
         try:
@@ -122,27 +181,6 @@ class Student(ndb.Model):
                 raise Exception("Unauthorized email address")
         return student
 
-
-class DisplayReportForm(FlaskForm):
-    long_term_goal = TextAreaField('Current Goal', validators=[InputRequired()])
-    disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
-    previous_weekly_goals = HiddenField()
-    progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
-    problems_encountered = TextAreaField('Probems Encountered', validators=[InputRequired()])
-    next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
-    submit = SubmitField("Submit")
-
-    def __init__(self, *args, **kwargs):
-        super(DisplayReportForm, self).__init__(*args, **kwargs)
-        read_only(self.disp_previous_weekly_goals)
-
-    def read_only(self):
-        read_only(self.long_term_goal)
-        read_only(self.disp_previous_weekly_goals)
-        read_only(self.progress_made)
-        read_only(self.problems_encountered)
-        read_only(self.next_weekly_goals)
-        del self.submit
 
 
 class UpdateUserForm(FlaskForm):
@@ -264,6 +302,29 @@ def submit_report():
     return view_or_enter_reports(student)
 
 
+class DisplayReportForm(FlaskForm):
+    long_term_goal = TextAreaField('Current Goal', validators=[InputRequired()])
+    disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
+    previous_weekly_goals = HiddenField()
+    report_for_date = HiddenField()
+    progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
+    problems_encountered = TextAreaField('Probems Encountered', validators=[InputRequired()])
+    next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
+    submit = SubmitField("Submit")
+
+    def __init__(self, *args, **kwargs):
+        super(DisplayReportForm, self).__init__(*args, **kwargs)
+        read_only(self.disp_previous_weekly_goals)
+
+    def read_only(self):
+        read_only(self.long_term_goal)
+        read_only(self.disp_previous_weekly_goals)
+        read_only(self.progress_made)
+        read_only(self.problems_encountered)
+        read_only(self.next_weekly_goals)
+        del self.submit
+
+
 def view_or_enter_reports(student, default_to_submission=True):
     form = DisplayReportForm(request.form)
     report_query = Report.query(ancestor=student.key).order(Report.created)
@@ -271,6 +332,7 @@ def view_or_enter_reports(student, default_to_submission=True):
     if request.method == "POST" and form.validate():
         try:
             report = Report(parent=student.key)
+            form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
             form.populate_obj(report)
             report.previous_weekly_goals = form.previous_weekly_goals.data
             report.student = student.nickname()
@@ -307,6 +369,9 @@ def view_or_enter_reports(student, default_to_submission=True):
                 form.long_term_goal.data = latest_report.long_term_goal
             is_new_report = True
             display_report = None
+            form.report_for_date.data = student.compute_next_due_date().date()
+            if not student.is_report_due():
+                form.read_only()
         elif index > report_count or index < 0:
             log.info("redirecting {} {}".format(index, report_count))
             return redirect(url_for(".submit_report"))
@@ -438,15 +503,6 @@ def render_resource(file):
     return render_template("html/{}".format(file.replace(".html",".jinja.html")))
 
 
-days_of_the_week = ["Sunday",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday"]
-_day_before = deque(days_of_the_week)
-_day_before.rotate(1)
-day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}
 
 @student_ops.route("/send_reminder_emails")
 def send_reminder_emails():
@@ -458,8 +514,7 @@ def send_reminder_emails():
     for s in students:
         if s.meeting_day_of_week is not None:
             if today == day_before[s.meeting_day_of_week]:
-
-                due_time = now.replace(hour=2, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+                due_time = s.compute_next_due_date()
                 time_left = datetime.datetime(year=2016, month=1, day=1) + (due_time - now)
                 time_left_str = time_left.strftime(" %H hours, %M minutes").replace(" 0"," ")
 
