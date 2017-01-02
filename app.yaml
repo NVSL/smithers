@@ -20,6 +20,10 @@ handlers:
   script: server.smithers.app
   login: admin
 
+- url: /send_reminder_emails
+  script: server.smithers.app
+  login: admin
+
 - url: /student.*
   script: server.smithers.app
   login: admin

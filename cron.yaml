@@ -1,0 +1,7 @@
+cron:
+- description: "Send reminder emails"
+  url: /send_reminder_emails
+  schedule: every day 20:00
+  timezone: America/Los_Angeles
+
+

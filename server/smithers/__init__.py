@@ -67,7 +67,11 @@ app.register_blueprint(email_ops)
 class smithers_globals(app.app_ctx_globals_class):
     def __init__(self, *args, **kwargs):
         super(smithers_globals,self).__init__(*args, **kwargs)
-        self.current_user=Student.get_current_student()
+        try:
+            self.current_user=Student.get_current_student()
+        except AttributeError:
+            self.current_user = None
+
         self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]
         self.admin_view = users.is_current_user_admin()
         self.config = config

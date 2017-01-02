@@ -448,13 +448,12 @@ _day_before = deque(days_of_the_week)
 _day_before.rotate(1)
 day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}
 
-@student_ops.route("/student/op/check_report_deadlines")
-def check_deadlines():
+@student_ops.route("/send_reminder_emails")
+def send_reminder_emails():
 
     students = Student.query(ancestor=student_parent_key).fetch()
     now = localize_time(datetime.datetime.now())
     today = now.strftime("%A")
-    tomorrow = now.date() + datetime.timedelta(days=1)
 
     for s in students:
         if s.meeting_day_of_week is not None:
@@ -476,6 +475,6 @@ def check_deadlines():
                                           subject="Your progress report is due in {}".format(time_left_str),
                                           body=message)
                 email.send()
-                log.info("sent message to {}: \n{}".format(email, message))
+                log.info("sent reminder message to {}: \n{}".format(email, message))
 
     return "success", 200
