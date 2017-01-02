@@ -1,0 +1,7 @@
+{{g.current_user.full_name}},
+
+Your next report is due at {{due_hour.strftime(" %H:%M%p").replace(" 0","")}} tomorrow, in {{time_left}}.
+
+{{url}}
+
+-steve

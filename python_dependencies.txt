@@ -9,3 +9,4 @@ flask-bootstrap
 wtforms-components
 pytz
 flask-nav
+flask-debugtoolbar

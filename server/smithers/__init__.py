@@ -2,18 +2,30 @@ from flask import Flask, url_for
 from google.appengine.api import users
 import config
 from flask_bootstrap import Bootstrap
-
+import os
 # import flask_login
 from google.appengine.ext import ndb
 import logging as log
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup
+from flask_debugtoolbar import DebugToolbarExtension
 
 # login_manager = flask_login.LoginManager()
 app = Flask(__name__)
 Bootstrap(app)
 
+def local_mode ():
+    files = os.listdir("./server")
+    mode = "local_mode.flag" in files
+    return mode
+
+app.debug = local_mode()
+
 app.secret_key = 'A0Zr9aoeu8j/3yXaoeuaoeuaoeujmN]LWX/,?RT'
+#app.config['SECRET_KEY'] = 'aoseuntahosneuths,r4g25c,40y9,'
+
+toolbar = DebugToolbarExtension(app)
+
 
 nav = Nav()
 

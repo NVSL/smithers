@@ -10,9 +10,11 @@ from flask import redirect, url_for, request, render_template, Blueprint
 from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField
+from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email
+
+from collections import deque
 
 
 student_ops = Blueprint("student_ops", __name__)
@@ -60,6 +62,8 @@ class Student(ndb.Model):
     userid = ndb.StringProperty()
 
     last_signed_expectations_agreement = ndb.DateTimeProperty()
+
+    meeting_day_of_week = ndb.StringProperty()
 
     formatted_members = [
         DFC("urlsafe",
@@ -143,12 +147,20 @@ class DisplayReportForm(FlaskForm):
 
 class UpdateUserForm(FlaskForm):
     full_name = StringField("Full Name", validators=[InputRequired()])
+    meeting_day_of_week = SelectField("Meeting day",
+                                      choices=[("Monday"   , "Monday"),
+                                               ("Tuesday"  , "Tuesday"),
+                                               ("Wednesday", "Wednesday"),
+                                               ("Thursday" , "Thursday"),
+                                               ("Friday"   , "Friday")])
     email = StringField("Email")
+    last_signed_expectations_agreement = DateField()
     submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):
         super(UpdateUserForm, self).__init__(*args, **kwargs)
         read_only(self.email)
+        read_only(self.last_signed_expectations_agreement)
 
 
 @student_ops.route("/user/update/", methods=['GET', 'POST'])
@@ -165,6 +177,8 @@ def update_user():
     else:
         form.full_name.data = student.full_name
         form.email.data = student.email
+        form.meeting_day_of_week.data = student.meeting_day_of_week
+        form.last_signed_expectations_agreement.data = student.last_signed_expectations_agreement
         return render_template("update_user.jinja.html",
                                form=form)
 
@@ -191,7 +205,7 @@ class Requirement(object):
 
 class UpdateUser(Requirement):
     def is_satisfied(self, student):
-        return student.full_name is not None
+        return student.full_name is not None and student.meeting_day_of_week is not None
 
     def redirect_url(self, student):
         return self.url_for(".update_user")
@@ -410,36 +424,6 @@ def logout():
 class NewStudentForm(FlaskForm):
     email = StringField('E-mail', validators=[InputRequired()])
     full_name=StringField('Name', validators=[InputRequired()])
-#
-# @student_ops.route("/student/")
-# @role_required(config.admin_role)
-# def display_all_students():
-#
-#     # DFC("start vm",
-#     members = [m for m in Student.formatted_members]
-#
-#     table = build_table_spec("students",
-#                              Student.query().fetch(),
-#                              members,
-#                              "username",
-#                              default_sort_reversed=True)
-#     return render_template("admin_student_list.jinja.html",
-#         userlist=table
-#     )
-#
-# @student_ops.route("/student/<key>")
-# @role_required(config.admin_role)
-# def display_one_student(key):
-#     student = ndb.Key(urlsafe=key).get()
-#
-#     build_spec = build_list_spec("student",
-#                                  student,
-#                                  Student.formatted_members)
-#
-#     return render_template("admin_student.jinja.html",
-#         user_attrs = build_spec,
-#         user = student
-#     )
 
 
 @student_ops.route("/")
@@ -452,3 +436,46 @@ def index():
 @student_ops.route("/resource/<file>")
 def render_resource(file):
     return render_template("html/{}".format(file.replace(".html",".jinja.html")))
+
+
+days_of_the_week = ["Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday"]
+_day_before = deque(days_of_the_week)
+_day_before.rotate(1)
+day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}
+
+@student_ops.route("/student/op/check_report_deadlines")
+def check_deadlines():
+
+    students = Student.query(ancestor=student_parent_key).fetch()
+    now = localize_time(datetime.datetime.now())
+    today = now.strftime("%A")
+    tomorrow = now.date() + datetime.timedelta(days=1)
+
+    for s in students:
+        if s.meeting_day_of_week is not None:
+            if today == day_before[s.meeting_day_of_week]:
+
+                due_time = now.replace(hour=2, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+                time_left = datetime.datetime(year=2016, month=1, day=1) + (due_time - now)
+                time_left_str = time_left.strftime(" %H hours, %M minutes").replace(" 0"," ")
+
+                message = render_template("report_reminder_email.jinja.txt",
+                                          time_left=time_left_str,
+                                          due_time=due_time,
+                                          due_hour=datetime.time(hour=2),
+                                          url=request.host_url[0:-1])
+
+                email = mail.EmailMessage(sender=config.admin_email,
+                                          to=s.email,
+                                          bcc=config.admin_email,
+                                          subject="Your progress report is due in {}".format(time_left_str),
+                                          body=message)
+                email.send()
+                log.info("sent message to {}: \n{}".format(email, message))
+
+    return "success", 200
