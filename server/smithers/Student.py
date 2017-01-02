@@ -12,7 +12,7 @@ from Report import Report
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField
 from wtforms_components import read_only
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import InputRequired, Email
 
 
 student_ops = Blueprint("student_ops", __name__)
@@ -120,12 +120,12 @@ class Student(ndb.Model):
 
 
 class DisplayReportForm(FlaskForm):
-    long_term_goal = TextAreaField('Current Goal', validators=[DataRequired()])
+    long_term_goal = TextAreaField('Current Goal', validators=[InputRequired()])
     disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
     previous_weekly_goals = HiddenField()
-    progress_made = TextAreaField('Weekly Progress', validators=[DataRequired()])
-    problems_encountered = TextAreaField('Probems Encountered', validators=[DataRequired()])
-    next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[DataRequired()])
+    progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
+    problems_encountered = TextAreaField('Probems Encountered', validators=[InputRequired()])
+    next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):
@@ -142,7 +142,7 @@ class DisplayReportForm(FlaskForm):
 
 
 class UpdateUserForm(FlaskForm):
-    full_name = StringField("Full Name", validators=[DataRequired()])
+    full_name = StringField("Full Name", validators=[InputRequired()])
     email = StringField("Email")
     submit = SubmitField("Submit")
 
@@ -211,8 +211,8 @@ class SignExpectationsAgreement(Requirement):
         return self.url_for(".sign_expectation_agreement")
 
 class ExpectationAgreementForm(FlaskForm):
-    #name = StringField("Name", validators=[DataRequired()])
-    agree = BooleanField("I have read and understood the document above.", validators=[DataRequired()])
+    #name = StringField("Name", validators=[InputRequired()])
+    agree = BooleanField("I have read and understood the document above.", validators=[InputRequired()])
     submit = SubmitField("Agree")
 
 @student_ops.route("/expectations", methods=["POST", "GET"])
@@ -336,7 +336,7 @@ def view_or_enter_reports(student, default_to_submission=True):
 
 
 class UpdateWhiteListForm(FlaskForm):
-    email = StringField("Email Address", validators=[DataRequired(),Email()])
+    email = StringField("Email Address", validators=[InputRequired(),Email()])
     custom_message = TextAreaField("Custom Message")
     submit = SubmitField("Add")
 
@@ -408,8 +408,8 @@ def logout():
 
 
 class NewStudentForm(FlaskForm):
-    email = StringField('E-mail', validators=[DataRequired()])
-    full_name=StringField('Name', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[InputRequired()])
+    full_name=StringField('Name', validators=[InputRequired()])
 #
 # @student_ops.route("/student/")
 # @role_required(config.admin_role)

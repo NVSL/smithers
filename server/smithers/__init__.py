@@ -46,8 +46,10 @@ import traceback
 
 from smithers.Student import student_ops, Student
 from smithers.Report import report_ops
+from smithers.email import email_ops
 app.register_blueprint(student_ops)
 app.register_blueprint(report_ops)
+app.register_blueprint(email_ops)
 
 
 class smithers_globals(app.app_ctx_globals_class):
