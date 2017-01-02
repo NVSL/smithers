@@ -71,15 +71,27 @@
             </ul>
                     {% if g.current_user %}
             <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <p class="navbar-text">Hello, {{ g.current_user.full_name or g.current_user.email }}</p>
+                <li  class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Hello, {{ g.current_user.full_name or g.current_user.email }}<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+
+                        <li><a href="{{url_for('student_ops.update_user')}}">Update Account</a></li>
+                        <li><a href="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}">Logout</a></li>
+
+                    </ul>
+                </li>
+                <!--li>
+
+                    <p class="navbar-text"><a href="{{url_for('student_ops.update_user')}}">Hello, {{ g.current_user.full_name or g.current_user.email }}</a></p>
                     <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
                         <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
-                         <button class="btn btn-default" type="submit">Logout</button>
+                        <button class="btn btn-default" type="submit">Logout</button>
                     </form>
 
                 </li>
-                <li><p class="navbar-text">&nbsp;&nbsp;</p></li>
+                <li><p class="navbar-text">&nbsp;&nbsp;</p></li-->
             </ul>
             {% endif %}
 
