@@ -9,9 +9,9 @@
 <h1>Submit Report for {{display_user.compute_next_due_date().strftime("%d %B %Y")}}</h1>
 
 {% if display_user.is_report_due() %}
-<p class="form-notification">Your next report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}</p>
+<p class="form-notification">This report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
 {% else %}
-<p class="form-notification">Your next report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}. You can submit it starting at {{display_user.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}.</p>
+<p class="form-notification">You can submit at {{display_user.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}; it is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
 {% endif %}
 
 {% else %}

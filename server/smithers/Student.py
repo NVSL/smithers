@@ -120,19 +120,39 @@ class Student(ndb.Model):
         this_day = now.strftime("%A")
 
         if this_day == self.meeting_day_of_week:
-            due_today = datetime.datetime.combine(today, config.report_due_time)
-            if now > datetime.datetime.combine(today, config.report_due_time):
-                return due_today + datetime.timedelta(days=7)
+            time_due_today = datetime.datetime.combine(today, config.report_due_time)
+            if now > time_due_today:
+                raw_next_due_date = time_due_today + datetime.timedelta(days=7)
             else:
-                return due_today
+                raw_next_due_date = time_due_today
         else:
             while due_date.strftime("%A") != self.meeting_day_of_week:
                 due_date = due_date + datetime.timedelta(days=1)
 
-            return datetime.datetime.combine(due_date, config.report_due_time)
+            raw_next_due_date = datetime.datetime.combine(due_date, config.report_due_time)
+
+        submission_period_start = raw_next_due_date - config.report_submit_period
+
+        if now > submission_period_start and now < raw_next_due_date:
+            latest_report = self.get_latest_report()
+            if latest_report is not None:
+                last_report_time = self.get_latest_report().local_created_time()
+            else:
+                return raw_next_due_date
+
+            if last_report_time > submission_period_start and last_report_time < raw_next_due_date:
+                return raw_next_due_date + datetime.timedelta(days=7)
+            else:
+                return raw_next_due_date
+        else:
+            return raw_next_due_date
+
 
     def compute_next_submission_time(self):
         return self.compute_next_due_date() - config.report_submit_period
+
+    def get_latest_report(self):
+        return Report.query(ancestor=self.key).order(Report.created).get()
 
     def is_report_due(self):
         next_due = self.compute_next_due_date()
@@ -144,7 +164,7 @@ class Student(ndb.Model):
         if next_due - now > config.report_submit_period:
             return False
 
-        latest_report = Report.query(ancestor=self.key).order(Report.created).get()
+        latest_report = self.get_latest_report()
 
         if latest_report is None:
             return True
@@ -369,7 +389,10 @@ def view_or_enter_reports(student, default_to_submission=True):
                 form.long_term_goal.data = latest_report.long_term_goal
             is_new_report = True
             display_report = None
-            form.report_for_date.data = student.compute_next_due_date().date()
+            t = student.compute_next_due_date()
+            if t:
+                form.report_for_date.data = t.date()
+
             if not student.is_report_due():
                 form.read_only()
         elif index > report_count or index < 0:
@@ -513,12 +536,13 @@ def send_reminder_emails():
 
     for s in students:
         if s.meeting_day_of_week is not None:
-            if today == day_before[s.meeting_day_of_week]:
+            if today == day_before[s.meeting_day_of_week] and s.is_report_due():
                 due_time = s.compute_next_due_date()
                 time_left = datetime.datetime(year=2016, month=1, day=1) + (due_time - now)
                 time_left_str = time_left.strftime(" %H hours, %M minutes").replace(" 0"," ")
 
                 message = render_template("report_reminder_email.jinja.txt",
+                                          student=s,
                                           time_left=time_left_str,
                                           due_time=due_time,
                                           due_hour=datetime.time(hour=2),
