@@ -11,7 +11,6 @@ from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField
-from wtforms.widgets import HiddenInput
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email
 
@@ -310,6 +309,25 @@ def sign_expectation_agreement():
 requirements = [UpdateUser(),
                 SignExpectationsAgreement()]
 
+@student_ops.route("/report_alt", methods=["GET"])
+def report_alt():
+    student = Student.get_current_student()
+    report_query = Report.query(ancestor=student.key).order(Report.created)
+    report = report_query.get()
+    form = DisplayReportForm()
+
+    form.disp_previous_weekly_goals.data = report.previous_weekly_goals
+    form.long_term_goal.data = report.long_term_goal
+    form.disp_previous_weekly_goals.data = report.previous_weekly_goals
+    form.previous_weekly_goals.data = report.previous_weekly_goals
+    form.progress_made.data = report.progress_made
+    form.problems_encountered.data = report.problems_encountered
+    form.next_weekly_goals.data = report.next_weekly_goals
+
+    return render_template("report_alt.jinja.html",
+                           display_user=student,
+                           the_report=report,
+                           form=form)
 @student_ops.route('/report', methods=["POST",'GET'])
 def submit_report():
     student = Student.get_current_student()

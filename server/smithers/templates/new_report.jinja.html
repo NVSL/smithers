@@ -1,8 +1,37 @@
 {% extends "smithers_page.jinja.html" %}
+
+{% macro render_completed_report(form) %}
+<h2>{{form.long_term_goal.label.text}}</h2>
+<div class="report-body">
+    {{form.long_term_goal.data|safe}}
+</div>
+<h2>{{form.disp_previous_weekly_goals.label.text}}</h2>
+<div class="report-body">
+    {{form.disp_previous_weekly_goals.data|safe}}
+</div>
+<h2>{{form.progress_made.label.text}}</h2>
+<div class="report-body">
+    {{form.progress_made.data|safe}}
+</div>
+
+<h2>{{form.problems_encountered.label.text}}</h2>
+<div class="report-body">
+    {{form.problems_encountered.data|safe}}
+</div>
+<h2>{{form.next_weekly_goals.label.text}}</h2>
+<div class="report-body">
+    {{form.next_weekly_goals.data|safe}}
+</div>
+{% endmacro %}
+
+
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block title %}Submit Report{% endblock title%}
 
+{% block body_attribs %}
+onload="load_editors()"
+{% endblock body_attribs %}
 
 {% block smithers_content %}
 {% if is_new_report %}
@@ -21,9 +50,9 @@
 {{ alerts() }}
 
 
-<form class="form form-horizontal">
+<form class="form a-form-horizontal">
     <div class="form-group">
-        <div class="col-lg-offset-2 col-lg-10">
+        <div class="acol-lg-offset-2 acol-lg-10">
             <div class="btn-group" role="group">
                 <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
                 <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
@@ -32,7 +61,41 @@
     </div>
 </form>
 
-{{ wtf.quick_form(form, form_type="horizontal") }}
+{% if is_new_report %}
+{{ wtf.quick_form(form, form_type="vertical", extra_classes="report-form") }}
+{% else %}
+{{ render_completed_report(form) }}
+{% endif %}
+<script type="text/javascript">
+
+    function load_editors() {
+        console.log("HERE")
+        $(".report-form textarea").each(function (i, e) {
+            console.log(i);
+            console.log(e);
+            window.CKEDITOR.replace($(e).attr("id"), {
+                filebrowserUploadUrl: '/cke/upload',
+                filebrowserImageUploadUrl: '/cke/upload'
+            })
+        });
+    }
+</script>
+
+<style>
+    .report-body {
+        clear:both;
+        overflow:hidden;
+    }
+
+    .report-form label {
+        	color:rgba(0,0,204,1);
+	font-weight: normal;
+	font-size: 1.8em;
+	margin-top:0.5em;
+	margin-bottom:0.5em;
+
+    }
+</style>
 
 {% endblock smithers_content %}
 

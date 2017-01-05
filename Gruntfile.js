@@ -17,7 +17,7 @@ const JS_SRC=[];
 
 // Building the deployment files
 const CLIENT_FILES_SRC_DIR="static";
-const CLIENT_FILES=['**/*.html', '**/*.css',  '**/*.json', '**/*.gspec', '**/*.svg', 'Jet.js', '**/*.png', '**/*.jpg', '**/*.zip'];
+const CLIENT_FILES=['**/*.html', '**/*.css',  '**/*.json', '**/*.gspec', '**/*.svg', '**/*.js', '**/*.png', '**/*.jpg', '**/*.zip'];
 
 const SERVER_FILES_SRC_DIR="server";
 const SERVER_FILES=['**/*.json', '*.yaml', '**/*.py', '**/*.jinja.*', 'local_mode.flag'];

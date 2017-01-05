@@ -1,0 +1,30 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Submit Report{% endblock title%}
+
+{% block body_attribs %}
+onload="load_editors()"
+{% endblock body_attribs %}
+
+{% block smithers_content %}
+
+
+<h1>{% if display_user != current_user %} {{display_user.full_name}}: {% endif %} {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+
+{{ alerts() }}
+
+
+<form class="form a-form-horizontal">
+    <div class="form-group">
+        <div class="acol-lg-offset-2 acol-lg-10">
+            <div class="btn-group" role="group">
+                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
+                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock smithers_content %}
