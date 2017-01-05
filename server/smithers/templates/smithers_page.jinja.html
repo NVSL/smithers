@@ -1,3 +1,5 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+
 {% extends "bootstrap/base.html" %}
 {% macro alerts() %}
     {% if error %}
@@ -8,30 +10,68 @@
     {% endif %}
 {% endmacro %}
 
-{% macro render_completed_report(form) %}
-<h2>{{form.long_term_goal.label.text}}</h2>
+{% macro render_completed_report_section(field) %}
+<h2>{{field.label.text}}</h2>
 <div class="report-body">
-    {{form.long_term_goal.data|safe}}
-</div>
-<h2>{{form.disp_previous_weekly_goals.label.text}}</h2>
-<div class="report-body">
-    {{form.disp_previous_weekly_goals.data|safe}}
-</div>
-<h2>{{form.progress_made.label.text}}</h2>
-<div class="report-body">
-    {{form.progress_made.data|safe}}
-</div>
-
-<h2>{{form.problems_encountered.label.text}}</h2>
-<div class="report-body">
-    {{form.problems_encountered.data|safe}}
-</div>
-<h2>{{form.next_weekly_goals.label.text}}</h2>
-<div class="report-body">
-    {{form.next_weekly_goals.data|safe}}
+    {% if not field.data %}
+    <i>Missing</i>
+    {% else %}
+    {{field.data|safe}}
+    {% endif %}
 </div>
 {% endmacro %}
 
+{% macro render_completed_report(form) %}
+  {{ render_completed_report_section(form.long_term_goal)}}
+  {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
+  {{ render_completed_report_section(form.progress_made)}}
+  {{ render_completed_report_section(form.problems_encountered)}}
+  {{ render_completed_report_section(form.next_weekly_goals)}}
+{% endmacro %}
+
+{% macro render_editable_report(
+form,
+action="",
+method="post",
+extra_classes="report-form",
+role="form",
+form_type="basic",
+horizontal_columns=('lg', 2, 10),
+enctype=None,
+button_map={},
+id="",
+novalidate=False) %}
+<form
+  {%- if action != None %} action="{{action}}"{% endif -%}
+  {%- if id %} id="{{id}}"{% endif -%}
+  {%- if method %} method="{{method}}"{% endif %}
+  class="form
+    {%- if extra_classes %} {{extra_classes}}{% endif -%}
+    {%- if form_type == "horizontal" %} form-horizontal
+    {%- elif form_type == "inline" %} form-inline
+    {%- endif -%}
+  "
+  {%- if role %} role="{{role}}"{% endif -%}
+  {%- if novalidate %} novalidate{% endif -%}
+  >
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens='only') }}
+
+  {{ wtf.form_field(form.long_term_goal, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+
+  {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
+
+  {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+
+  {% if form.submit %}
+  {{ wtf.form_field(form.submit) }}
+  {% endif %}
+
+</form>
+
+{% endmacro %}
 
 {% import 'bootstrap/wtf.html' as wtf %}
 

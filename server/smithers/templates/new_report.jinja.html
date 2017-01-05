@@ -1,7 +1,4 @@
 {% extends "smithers_page.jinja.html" %}
-
-
-
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block title %}Submit Report{% endblock title%}
@@ -39,7 +36,7 @@ onload="load_editors()"
 </form>
 
 {% if is_new_report %}
-{{ wtf.quick_form(form, form_type="vertical", extra_classes="report-form") }}
+{{ render_editable_report(form) }}
 {% else %}
 {{ render_completed_report(form) }}
 {% endif %}
@@ -48,12 +45,12 @@ onload="load_editors()"
     function load_editors() {
         console.log("HERE")
         $(".report-form textarea").each(function (i, e) {
-            console.log(i);
-            console.log(e);
-            window.CKEDITOR.replace($(e).attr("id"), {
-                filebrowserUploadUrl: '/cke/upload',
-                filebrowserImageUploadUrl: '/cke/upload'
-            })
+            if ($(e).attr("id") !== "disp_previous_weekly_goals") {
+                window.CKEDITOR.replace($(e).attr("id"), {
+                    filebrowserUploadUrl: '/cke/upload',
+                    filebrowserImageUploadUrl: '/cke/upload'
+                })
+            }
         });
     }
 </script>

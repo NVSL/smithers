@@ -159,7 +159,7 @@ class Student(ndb.Model):
     def is_report_due(self):
         if self.is_test_account:
             return True
-        
+
         next_due = self.compute_next_due_date()
         now = localize_time(datetime.datetime.now())
 
@@ -492,7 +492,11 @@ def send_update_email(user, report):
                               html=html_message
                               )
     email.send()
+
     log.info("sent message to {}: \n{}".format(config.admin_email, html_message))
+
+    email.to=user.email
+    email.send()
 
 
 @student_ops.route("/whitelist", methods=['POST', 'GET'])

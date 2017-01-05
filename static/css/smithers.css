@@ -82,3 +82,7 @@ a {
     margin-bottom:0.5em;
 
 }
+
+.report-form textarea {
+    visibility: hidden; display: none;
+}
