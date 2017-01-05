@@ -1,28 +1,5 @@
 {% extends "smithers_page.jinja.html" %}
 
-{% macro render_completed_report(form) %}
-<h2>{{form.long_term_goal.label.text}}</h2>
-<div class="report-body">
-    {{form.long_term_goal.data|safe}}
-</div>
-<h2>{{form.disp_previous_weekly_goals.label.text}}</h2>
-<div class="report-body">
-    {{form.disp_previous_weekly_goals.data|safe}}
-</div>
-<h2>{{form.progress_made.label.text}}</h2>
-<div class="report-body">
-    {{form.progress_made.data|safe}}
-</div>
-
-<h2>{{form.problems_encountered.label.text}}</h2>
-<div class="report-body">
-    {{form.problems_encountered.data|safe}}
-</div>
-<h2>{{form.next_weekly_goals.label.text}}</h2>
-<div class="report-body">
-    {{form.next_weekly_goals.data|safe}}
-</div>
-{% endmacro %}
 
 
 {% import 'bootstrap/wtf.html' as wtf %}

@@ -54,7 +54,7 @@ class WhiteList(ndb.Model):
         if put:
             self.put()
 
-
+#request.
 days_of_the_week = ["Sunday",
                     "Monday",
                     "Tuesday",
@@ -79,6 +79,9 @@ class Student(ndb.Model):
     last_signed_expectations_agreement = ndb.DateTimeProperty()
 
     meeting_day_of_week = ndb.StringProperty()
+
+
+    is_test_account = ndb.BooleanProperty()
 
     formatted_members = [
         DFC("urlsafe",
@@ -154,6 +157,9 @@ class Student(ndb.Model):
         return Report.query(ancestor=self.key).order(Report.created).get()
 
     def is_report_due(self):
+        if self.is_test_account:
+            return True
+        
         next_due = self.compute_next_due_date()
         now = localize_time(datetime.datetime.now())
 
@@ -194,7 +200,8 @@ class Student(ndb.Model):
                                   id=user.user_id(),
                                   email=user.email(),
                                   userid=user.user_id(),
-                                  username=user.email().split("@")[0])
+                                  username=user.email().split("@")[0],
+                                  is_test_account=False)
                 student.put()
             else:
                 raise Exception("Unauthorized email address")
@@ -309,25 +316,6 @@ def sign_expectation_agreement():
 requirements = [UpdateUser(),
                 SignExpectationsAgreement()]
 
-@student_ops.route("/report_alt", methods=["GET"])
-def report_alt():
-    student = Student.get_current_student()
-    report_query = Report.query(ancestor=student.key).order(Report.created)
-    report = report_query.get()
-    form = DisplayReportForm()
-
-    form.disp_previous_weekly_goals.data = report.previous_weekly_goals
-    form.long_term_goal.data = report.long_term_goal
-    form.disp_previous_weekly_goals.data = report.previous_weekly_goals
-    form.previous_weekly_goals.data = report.previous_weekly_goals
-    form.progress_made.data = report.progress_made
-    form.problems_encountered.data = report.problems_encountered
-    form.next_weekly_goals.data = report.next_weekly_goals
-
-    return render_template("report_alt.jinja.html",
-                           display_user=student,
-                           the_report=report,
-                           form=form)
 @student_ops.route('/report', methods=["POST",'GET'])
 def submit_report():
     student = Student.get_current_student()
@@ -361,6 +349,15 @@ class DisplayReportForm(FlaskForm):
         read_only(self.problems_encountered)
         read_only(self.next_weekly_goals)
         del self.submit
+
+    def load_report(self, report):
+        self.disp_previous_weekly_goals.data = report.previous_weekly_goals
+        self.long_term_goal.data = report.long_term_goal
+        self.disp_previous_weekly_goals.data = report.previous_weekly_goals
+        self.previous_weekly_goals.data = report.previous_weekly_goals
+        self.progress_made.data = report.progress_made
+        self.problems_encountered.data = report.problems_encountered
+        self.next_weekly_goals.data = report.next_weekly_goals
 
 
 def view_or_enter_reports(student, default_to_submission=True):
@@ -418,13 +415,7 @@ def view_or_enter_reports(student, default_to_submission=True):
             return redirect(url_for(".submit_report"))
         else:
             display_report = reports[index]
-            form.disp_previous_weekly_goals.data = display_report.previous_weekly_goals
-            form.long_term_goal.data = display_report.long_term_goal
-            form.disp_previous_weekly_goals.data = display_report.previous_weekly_goals
-            form.previous_weekly_goals.data = display_report.previous_weekly_goals
-            form.progress_made.data = display_report.progress_made
-            form.problems_encountered.data = display_report.problems_encountered
-            form.next_weekly_goals.data = display_report.next_weekly_goals
+            form.load_report(display_report)
             form.read_only()
             is_new_report = False
 
@@ -481,18 +472,27 @@ def send_welcome_email(email, custom_message=None):
 
 def send_update_email(user, report):
 
-    message = render_template("update_email.jinja.txt",
-                              user=user,
-                              report=report,
-                              report_url="{}{}".format(request.host_url[0:-1],
-                                                       url_for(".browse_report", student=user.key.urlsafe())))
+    report_url="{}{}".format(request.host_url[0:-1],
+                             url_for(".browse_report", student=user.key.urlsafe()))
+
+
+    form = DisplayReportForm()
+    form.load_report(report)
+    html_message = render_template("update_email.jinja.html",
+                                   display_user=user,
+                                   form=form,
+                                   the_report=report,
+                                   report_url=report_url)
 
     email = mail.EmailMessage(sender=config.admin_email,
                               to=config.admin_email,
-                              subject="Progress Report for {} ({})".format(user.full_name, report.local_created_time().strftime("%b %d, %Y")),
-                              body=message)
+                              subject="Progress Report for {} ({})".format(user.full_name,
+                                                                           report.local_created_time().strftime("%b %d, %Y")),
+                              #body=message,
+                              html=html_message
+                              )
     email.send()
-    log.info("sent message to {}: \n{}".format(config.admin_email, message))
+    log.info("sent message to {}: \n{}".format(config.admin_email, html_message))
 
 
 @student_ops.route("/whitelist", methods=['POST', 'GET'])

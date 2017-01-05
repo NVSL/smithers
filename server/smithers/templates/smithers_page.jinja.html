@@ -7,17 +7,43 @@
     <p class="form-notification" >{{notification}}</p>
     {% endif %}
 {% endmacro %}
+
+{% macro render_completed_report(form) %}
+<h2>{{form.long_term_goal.label.text}}</h2>
+<div class="report-body">
+    {{form.long_term_goal.data|safe}}
+</div>
+<h2>{{form.disp_previous_weekly_goals.label.text}}</h2>
+<div class="report-body">
+    {{form.disp_previous_weekly_goals.data|safe}}
+</div>
+<h2>{{form.progress_made.label.text}}</h2>
+<div class="report-body">
+    {{form.progress_made.data|safe}}
+</div>
+
+<h2>{{form.problems_encountered.label.text}}</h2>
+<div class="report-body">
+    {{form.problems_encountered.data|safe}}
+</div>
+<h2>{{form.next_weekly_goals.label.text}}</h2>
+<div class="report-body">
+    {{form.next_weekly_goals.data|safe}}
+</div>
+{% endmacro %}
+
+
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block head %}
 {{ super() }}
-<script src="/static/assets/js/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="{{request.host_url}}static/assets/js/ckeditor/ckeditor.js" type="text/javascript"></script>
 {% endblock head %}
 
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet"
-      href="{{url_for('static', filename='css/smithers.css')}}">
+      href="{{request.host_url}}static/css/smithers.css">
 {% endblock styles %}
 
     {% block navbar %}

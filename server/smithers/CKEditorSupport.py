@@ -36,7 +36,7 @@ def upload_ckeditor_file():
         if os.environ["SERVER_NAME"] == "localhost":
             url="http://localhost:8080/_ah/gcs/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
         else:
-            url="https://storage.cloud.google.com/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
+            url="https://storage.googleapis.com/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
         error = ""
         # if not path:
         #     url = url_for('.static', filename='%s/%s' % (folder, rnd_name))

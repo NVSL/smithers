@@ -68,3 +68,17 @@ a {
     padding-bottom: 5px;
     padding-right: 5px;
 }
+
+.report-body {
+    clear:both;
+    overflow:hidden;
+}
+
+.report-form label {
+    color:rgba(0,0,204,1);
+    font-weight: normal;
+    font-size: 1.8em;
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+
+}
