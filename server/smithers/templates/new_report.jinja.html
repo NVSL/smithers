@@ -35,7 +35,9 @@ onload="load_editors()"
     </div>
 </form>
 
+
 {% if is_new_report %}
+<p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Report guidelines</i></a></p>
 {{ render_editable_report(form) }}
 {% else %}
 {{ render_completed_report(form) }}

@@ -62,6 +62,9 @@ a {
 	color:black;
 }
 
+.container a {
+        text-decoration: underline;
+}
 .navbar-brand {
     padding-top: 5px;
     padding-left: 10px;
