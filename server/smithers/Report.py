@@ -1,6 +1,6 @@
 from flask import Blueprint
 from google.appengine.ext import ndb
-from SmartModel import SmartModel
+from SmartModel import SmartModel, FieldAnnotation
 from wtforms.validators import  Email
 from smithers.util import localize_time
 
@@ -26,9 +26,9 @@ class Report(SmartModel):
 
         return localize_time(self.created)
 
-    @property
-    def field_args(self):
-        return dict(student = dict(validators =[Email()]))
+    @classmethod
+    def field_annotations(cls):
+        return dict(student = FieldAnnotation(validators =[Email()]))
 
     @classmethod
     def lookup(cls, id):

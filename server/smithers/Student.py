@@ -602,7 +602,7 @@ def index():
     if not users.is_current_user_admin():
         return redirect(url_for(".submit_report"))
     else:
-        return render_template("smithers_page.jinja.html")
+        return render_template("home.jinja.html")
 
 @student_ops.route("/resource/<file>")
 def render_resource(file):

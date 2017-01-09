@@ -6,6 +6,10 @@
     {{bs_util.flashed_messages()}}
 {% endmacro %}
 
+{% macro edit_entity_button(e, m="Raw Edit") %}
+<a href="{{url_for('smart_model.ndb_edit', key=e.key.urlsafe())}}" class="btn btn-default">{{m}}</a>
+{% endmacro %}
+
 {% macro render_completed_report_section(field) %}
 <h2>{{field.label.text}}</h2>
 <div class="report-body">
@@ -175,6 +179,7 @@ novalidate=False) %}
 
 {% block content %}
 <div class="container">
+
     {% block smithers_content %}
     {% endblock smithers_content %}
     <hr>

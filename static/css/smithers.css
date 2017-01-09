@@ -65,6 +65,9 @@ a {
 .container a {
         text-decoration: underline;
 }
+a.btn {
+        text-decoration: none;
+}
 .navbar-brand {
     padding-top: 5px;
     padding-left: 10px;

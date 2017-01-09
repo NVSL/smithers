@@ -41,11 +41,11 @@ onload="load_editors()"
 {{ render_editable_report(form) }}
 {% else %}
 {{ render_completed_report(form) }}
+{{ edit_entity_button(the_report)}}
 {% endif %}
 <script type="text/javascript">
 
     function load_editors() {
-        console.log("HERE")
         $(".report-form textarea").each(function (i, e) {
             if ($(e).attr("id") !== "disp_previous_weekly_goals") {
                 window.CKEDITOR.replace($(e).attr("id"), {

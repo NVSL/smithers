@@ -1,5 +1,5 @@
 from google.appengine.ext import ndb
-from flask import redirect, url_for, request, render_template, Blueprint
+from flask import redirect, url_for, request, render_template, Blueprint, flash
 from flask_wtf import FlaskForm
 from wtforms_appengine.ndb import model_form
 from wtforms.fields import SubmitField, StringField, HiddenField
@@ -24,7 +24,8 @@ def smart_form(model, *args, **kwargs):
     class T(base):
         key=  StringField()
         urlsafe = StringField()
-        submit = SubmitField()
+        save = SubmitField(label="Save")
+        delete = SubmitField(label="Delete")
 
         hidden_urlsafe = HiddenField()
         hidden_key = HiddenField()
@@ -66,6 +67,8 @@ class SmartModel(ndb.Model):
 @smart_model.route("/<key>", methods=["POST", "GET"])
 def ndb_edit(key):
     entity = ndb.Key(urlsafe=key).get()
+    if entity is None:
+        return ("",404)
     the_type = type(entity)
     FormType = smart_form(the_type,
                           base_class=FlaskForm)
@@ -76,19 +79,32 @@ def ndb_edit(key):
 
     if request.method == "POST":
         if form.validate():
-            try:
-                form.populate_obj(entity)
-                entity.put()
-                return redirect(url_for(request.endpoint, notification="Update Saved", key=key))
-            except:
-                return redirect(url_for(request.endpoint, error="Not Saved", key=key))
+            if "submit" in request.form:
+                try:
+                    form.populate_obj(entity)
+                    entity.put()
+                    return redirect(url_for(request.endpoint, key=key))
+                except:
+                    return redirect(url_for(request.endpoint, key=key))
+            elif "delete" in request.form:
+                try:
+                    entity.key.delete()
+                    flash("Deleted entity")
+                    return redirect("/")
+                except:
+                    flash("Deletion failed")
+                    return redirect(url_for(request.endpoint, key=key))
+            else:
+                raise Exception("Illegal submission")
         else:
             return render_template("generic_gae_model.jinja.html",
-                                   form=form)
+                                   form=form,
+                                   entity=entity)
     else:
         form = FormType(obj=entity)
         form['urlsafe'].data = entity.key.urlsafe()
         form.hidden_key.data = entity.key
         form.hidden_urlsafe.data = entity.key.urlsafe()
         return render_template("generic_gae_model.jinja.html",
-                               form=form)
+                               form=form,
+                               entity=entity)
