@@ -38,7 +38,7 @@ def smart_form(model, *args, **kwargs):
 
             for key, annotations in model.field_annotations().items():
                 if key in self:
-                    if annotations.__dict__.get("read_only", False):
+                    if annotations._asdict().get("read_only", False):
                         read_only(self[key])
 
     T.__name__ = model._get_kind() + "Form"
