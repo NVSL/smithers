@@ -7,7 +7,9 @@
 {% endmacro %}
 
 {% macro edit_entity_button(e, m="Raw Edit") %}
+{% if g.admin_view %}
 <a href="{{url_for('smart_model.ndb_edit', key=e.key.urlsafe())}}" class="btn btn-default">{{m}}</a>
+{% endif %}
 {% endmacro %}
 
 {% macro render_completed_report_section(field) %}

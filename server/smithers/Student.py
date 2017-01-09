@@ -21,8 +21,15 @@ from collections import deque
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
 
-class WhiteList(ndb.Model):
+class WhiteList(SmartModel):
     authorized_users = ndb.TextProperty()
+
+    @classmethod
+    def field_annotations(cls):
+        return dict(
+            authorized_users=FieldAnnotation(
+                description='One address per line',
+            ))
 
     @classmethod
     def get_list(cls):
@@ -283,14 +290,18 @@ def update_user():
         log.info("update user: {}".format(student.email))
         form.populate_obj(student)
         student.put()
+        flash("Account updated")
         return redirect(next_url(url_for(".submit_report")))
     else:
+
         form.full_name.data = student.full_name
         form.email.data = student.email
         form.meeting_day_of_week.data = student.meeting_day_of_week
         form.last_signed_expectations_agreement.data = student.last_signed_expectations_agreement
         return render_template("update_user.jinja.html",
-                               form=form)
+                               form=form,
+                               student=student
+                               )
 
 
 @student_ops.route("/student/<student>")
@@ -583,7 +594,8 @@ def update_whitelist():
     else:
         return render_template("update_whitelist.jinja.html",
                                white_list=WhiteList.get_list().authorized_users.split("\n"),
-                               form=form
+                               form=form,
+                               white_list_entity=WhiteList.get_list()
                                )
 
 

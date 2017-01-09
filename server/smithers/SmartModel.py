@@ -48,7 +48,7 @@ class SmartModel(ndb.Model):
 
     @classmethod
     def field_annotations(cls):
-        return None
+        return {}
 
     @classmethod
     def formatted_members(cls):

@@ -1,11 +1,14 @@
 {% extends "smithers_page.jinja.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block title %}Update User: {{g.current_user.full_name or g.current_user.email}}{% endblock title%}
+{% block title %}Update User: {{student.full_name or student.email}}{% endblock title%}
 
 {% block smithers_content %}
-   <h1>Update User Profile: {{g.current_user.full_name or g.current_user.email}}</h1>
+   <h1>Update User Profile: {{student.full_name or student.email}}</h1>
     {{ alerts() }}
     {{ wtf.quick_form(form, form_type="horizontal") }}
+
+    {{ edit_entity_button(student)}}
+
 {% endblock smithers_content %}
 

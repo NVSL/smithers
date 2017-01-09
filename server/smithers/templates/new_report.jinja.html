@@ -41,7 +41,8 @@ onload="load_editors()"
 {{ render_editable_report(form) }}
 {% else %}
 {{ render_completed_report(form) }}
-{{ edit_entity_button(the_report)}}
+{{ edit_entity_button(the_report, "Edit Report")}}
+{{ edit_entity_button(display_user, "Edit User")}}
 {% endif %}
 <script type="text/javascript">
 
