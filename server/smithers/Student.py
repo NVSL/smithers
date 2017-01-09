@@ -434,7 +434,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                 return render_report_page(default_to_submission, form, student)
             else:
                 flash("Report Saved")
-                return redirect(url_for(".submit_report", index=report_count))
+                return redirect(url_for(".submit_report", index="last"))
         else:
             return render_report_page(default_to_submission, form, student)
     else:
@@ -444,12 +444,16 @@ def render_report_page(default_to_submission, form, student):
 
     report_query = Report.query(ancestor=student.key).order(Report.created)
     report_count = report_query.count()
+
     if report_count > 0:
         reports = report_query.fetch()
         latest_report = reports[report_count - 1]
     else:
         latest_report = None
-    if default_to_submission:
+
+    if request.args.get("index") == "last":
+        index = report_count - 1
+    elif default_to_submission:
         index = int(request.args.get("index", report_count))
     else:
         if report_count == 0:
@@ -457,6 +461,7 @@ def render_report_page(default_to_submission, form, student):
             flash("{} has not submitted any reports".format(student.full_name or student.email))
         else:
             index = int(request.args.get("index", report_count - 1))
+
     if index == report_count:
         if latest_report is not None:
             form.previous_weekly_goals.data = latest_report.next_weekly_goals
