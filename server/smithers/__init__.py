@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, request
 from google.appengine.api import users
 import config
 from flask_bootstrap import Bootstrap
@@ -59,12 +59,14 @@ import traceback
 from smithers.Student import student_ops, Student
 from smithers.Report import report_ops
 from smithers.email import email_ops
+from smithers.SmartModel import smart_model
 from smithers.CKEditorSupport import ckeditor_ops
 app.register_blueprint(student_ops)
 app.register_blueprint(report_ops)
 app.register_blueprint(email_ops)
 app.register_blueprint(ckeditor_ops)
 
+app.register_blueprint(smart_model, url_prefix="/entity")
 
 class smithers_globals(app.app_ctx_globals_class):
     def __init__(self, *args, **kwargs):
@@ -77,6 +79,16 @@ class smithers_globals(app.app_ctx_globals_class):
         self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]
         self.admin_view = users.is_current_user_admin()
         self.config = config
+
+    @property
+    def error(self):
+        return request.form.get("error") or request.args.get("error")
+    @property
+    def notification(self):
+        return request.form.get("notification") or request.args.get("notification")
+    @property
+    def error(self):
+        return request.form.get("error") or request.args.get("error")
 
     def CreateLogoutURL(self, next):
         return users.CreateLogoutURL(next)

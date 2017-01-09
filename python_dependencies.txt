@@ -10,3 +10,4 @@ wtforms-components
 pytz
 flask-nav
 flask-debugtoolbar
+WTForms-Appengine

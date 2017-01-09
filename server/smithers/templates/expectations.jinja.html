@@ -12,8 +12,7 @@
 {% endif %}
 
 {% include 'expectations_body.jinja.html' %}
-
-
+{{ alerts() }}
 {{ wtf.quick_form(form) }}
 
 {% endblock smithers_content %}

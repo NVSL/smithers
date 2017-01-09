@@ -1,13 +1,9 @@
 {% import 'bootstrap/wtf.html' as wtf %}
+{% import 'bootstrap/utils.html' as bs_util %}
 
 {% extends "bootstrap/base.html" %}
 {% macro alerts() %}
-    {% if error %}
-    <p class="form-error">{{error}}</p>
-    {% endif %}
-    {% if notification %}
-    <p class="form-notification" >{{notification}}</p>
-    {% endif %}
+    {{bs_util.flashed_messages()}}
 {% endmacro %}
 
 {% macro render_completed_report_section(field) %}

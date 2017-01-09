@@ -1,0 +1,12 @@
+{% extends "smithers_page.jinja.html" %}
+{% macro edit_entity(form) %}
+{{ wtf.quick_form(form)}}
+{% endmacro %}
+{% block smithers_content %}
+
+{{ alerts() }}
+
+{{ edit_entity(form)}}
+
+
+{% endblock smithers_content %}
