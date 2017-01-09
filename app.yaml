@@ -28,6 +28,10 @@ handlers:
   script: server.smithers.app
   login: admin
 
+- url: /entity.*
+  script: server.smithers.app
+  login: admin
+
 - url: /.*
   script: server.smithers.app
   login: required
