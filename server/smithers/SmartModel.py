@@ -79,7 +79,7 @@ def ndb_edit(key):
 
     if request.method == "POST":
         if form.validate():
-            if "submit" in request.form:
+            if "save" in request.form:
                 try:
                     form.populate_obj(entity)
                     entity.put()
