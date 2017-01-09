@@ -427,7 +427,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                 form.populate_obj(report)
                 report.previous_weekly_goals = form.previous_weekly_goals.data
                 report.student = student.nickname()
-                raise Exception("hello")
+                #raise Exception("hello")
                 report.put()
             except Exception as e:
                 flash(str(e),category='error')
@@ -441,7 +441,7 @@ def view_or_enter_reports(student, default_to_submission=True):
         return render_report_page(default_to_submission, form, student)
 
 def render_report_page(default_to_submission, form, student):
-    
+
     report_query = Report.query(ancestor=student.key).order(Report.created)
     report_count = report_query.count()
     if report_count > 0:
