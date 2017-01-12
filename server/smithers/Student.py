@@ -402,7 +402,7 @@ class DisplayReportForm(FlaskForm):
     previous_weekly_goals = HiddenField()
     report_for_date = HiddenField()
     progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
-    problems_encountered = TextAreaField('Probems Encountered', validators=[InputRequired()])
+    problems_encountered = TextAreaField('Problems Encountered', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     submit = SubmitField("Submit")
 
@@ -440,6 +440,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                 report.student = student.nickname()
                 #raise Exception("hello")
                 report.put()
+                send_update_email(student, report)
             except Exception as e:
                 flash(str(e),category='error')
                 return render_report_page(default_to_submission, form, student)
