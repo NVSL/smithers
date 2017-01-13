@@ -18,7 +18,7 @@ onload="load_editors()"
 {% endif %}
 
 {% else %}
-<h1>{% if display_user != current_user %} {{display_user.full_name}}: {% endif %} {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+<h1>{% if display_user != current_user %} {{display_user.get_display_name()}}: {% endif %} {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
 {% endif %}
 
 {{ alerts() }}

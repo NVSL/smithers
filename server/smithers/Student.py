@@ -129,6 +129,9 @@ class Student(SmartModel):
     def get_fullname(self):
         return self.full_name
 
+    def get_display_name(self):
+        return self.full_name or self.email
+    
     def get_admin_path(self):
         return url_for("student_ops.display_one_student", key=self.key.urlsafe())
 

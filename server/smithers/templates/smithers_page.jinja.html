@@ -122,6 +122,7 @@ novalidate=False) %}
                         {{ resource("GivingTalks.html", "Giving Talks")}}
                         {{ resource("WritingPapers.html", "Writing Papers")}}
                         {{ resource("ProgressReports.html", "Weekly Reports")}}
+                        {{ resource("ResearchExams.html", "Research Exams")}}
                         {{ resource("meetings.html", "Scheduling Meetings")}}
                         {{ resource("travel.html", "Travel")}}
                         {{ resource("Vacation.html", "Time off")}}
@@ -137,7 +138,7 @@ novalidate=False) %}
                     </a>
                     <ul class="dropdown-menu">
                         {% for s in g.student_list %}
-                        <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].full_name}}</a></li>
+                        <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].get_display_name()}}</a></li>
                         {% endfor %}
                     </ul>
                 </li>
