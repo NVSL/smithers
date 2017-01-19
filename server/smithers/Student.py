@@ -400,7 +400,7 @@ def submit_report():
 
 
 class DisplayReportForm(FlaskForm):
-    long_term_goal = TextAreaField('Current Goal', validators=[InputRequired()])
+    long_term_goal = TextAreaField('Long Term Goal', validators=[InputRequired()])
     disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
     previous_weekly_goals = HiddenField()
     report_for_date = HiddenField()
