@@ -566,6 +566,7 @@ def send_update_email(user, report):
                               subject="Progress Report for {} ({})".format(user.full_name,
                                                                            report.local_created_time().strftime("%b %d, %Y")),
                               #body=message,
+                              reply_to=user.email,
                               html=html_message
                               )
     email.send()
@@ -573,6 +574,7 @@ def send_update_email(user, report):
     log.info("sent message to {}: \n{}".format(config.admin_email, html_message))
 
     email.to=user.email
+    email.reply_to = None
     email.send()
 
 
