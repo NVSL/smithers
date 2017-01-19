@@ -574,7 +574,7 @@ def send_update_email(user, report):
     log.info("sent message to {}: \n{}".format(config.admin_email, html_message))
 
     email.to=user.email
-    email.reply_to = None
+    del email.reply_to
     email.send()
 
 
