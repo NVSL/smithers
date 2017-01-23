@@ -216,6 +216,7 @@ class Student(SmartModel):
             print "return True -- There is a report, it's not too early, and the last report is before the submission window"
             return True
         print "fall off"
+        return False
 
     @classmethod
     def get_student(self, id):
@@ -293,7 +294,7 @@ def update_user():
         log.info("update user: {}".format(student.email))
         form.populate_obj(student)
         student.put()
-        flash("Account updated")
+        flash("Account updated", category='success')
         return redirect(next_url(url_for(".submit_report")))
     else:
 
@@ -366,7 +367,7 @@ def sign_expectation_agreement():
                 flash(str(e), category='error')
                 return redirect(url_for(".sign_expectation_agreement"))
             else:
-                flash("Expectation agreement signed")
+                flash("Expectation agreement signed", category='success')
                 return redirect(next_url(url_for(".submit_report")))
         else:
             [ flash(e, category='error') for e in form.agree.errors ]
@@ -448,7 +449,7 @@ def view_or_enter_reports(student, default_to_submission=True):
                 flash(str(e),category='error')
                 return render_report_page(default_to_submission, form, student)
             else:
-                flash("Report Saved")
+                flash("Report Saved", category="success")
                 return redirect(url_for(".submit_report", index="last"))
         else:
             return render_report_page(default_to_submission, form, student)
@@ -595,7 +596,7 @@ def update_whitelist():
             flash(str(e), category='error')
             return redirect(url_for(".update_whitelist"))
         else:
-            flash("Successfuly added")
+            flash("Successfuly added", category="success")
             return redirect(url_for(".update_whitelist"))
     else:
         return render_template("update_whitelist.jinja.html",

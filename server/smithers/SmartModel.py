@@ -83,16 +83,18 @@ def ndb_edit(key):
                 try:
                     form.populate_obj(entity)
                     entity.put()
+                    flash("Update Succeeded", category='success')
                     return redirect(url_for(request.endpoint, key=key))
                 except:
+                    flash("Update failed",category="error")
                     return redirect(url_for(request.endpoint, key=key))
             elif "delete" in request.form:
                 try:
                     entity.key.delete()
-                    flash("Deleted entity")
+                    flash("Deleted entity", category='success')
                     return redirect("/")
                 except:
-                    flash("Deletion failed")
+                    flash("Deletion failed", category='error')
                     return redirect(url_for(request.endpoint, key=key))
             else:
                 raise Exception("Illegal submission")
