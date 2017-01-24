@@ -258,7 +258,8 @@ class Student(SmartModel):
                                   email=user.email(),
                                   userid=user.user_id(),
                                   username=user.email().split("@")[0],
-                                  is_test_account=False)
+                                  is_test_account=False,
+                                  meeting_day_of_week="")
                 student.put()
             else:
                 raise Exception("Unauthorized email address")
@@ -269,11 +270,13 @@ class Student(SmartModel):
 class UpdateUserForm(FlaskForm):
     full_name = StringField("Full Name", validators=[InputRequired()])
     meeting_day_of_week = SelectField("Meeting day",
-                                      choices=[("Monday"   , "Monday"),
+                                      choices=[("", ""),
+                                               ("Monday"   , "Monday"),
                                                ("Tuesday"  , "Tuesday"),
                                                ("Wednesday", "Wednesday"),
                                                ("Thursday" , "Thursday"),
-                                               ("Friday"   , "Friday")])
+                                               ("Friday"   , "Friday")],
+                                      validators=[AnyOf(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])])
     email = StringField("Email")
     last_signed_expectations_agreement = DateField()
     submit = SubmitField("Submit")
@@ -290,12 +293,18 @@ def update_user():
     form = UpdateUserForm(request.form)
     log.info("updating student {}: {}".format(student.email, request.form))
 
-    if request.method == "POST" and form.validate():
-        log.info("update user: {}".format(student.email))
-        form.populate_obj(student)
-        student.put()
-        flash("Account updated", category='success')
-        return redirect(next_url(url_for(".submit_report")))
+    if request.method == "POST":
+        if form.validate():
+            log.info("update user: {}".format(student.email))
+            form.populate_obj(student)
+            student.put()
+            flash("Account updated", category='success')
+            return redirect(next_url(url_for(".submit_report")))
+        else:
+            return render_template("update_user.jinja.html",
+                                   form=form,
+                                   student=student
+                                   )
     else:
 
         form.full_name.data = student.full_name
