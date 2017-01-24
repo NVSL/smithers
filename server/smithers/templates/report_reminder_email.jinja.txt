@@ -2,6 +2,8 @@
 
 Your next progress report is due at {{due_hour.strftime(" %H:%M%p").replace(" 0","")}} tomorrow, in {{time_left}}.
 
+Here's the URL:
+
 {{url}}
 
 -steve

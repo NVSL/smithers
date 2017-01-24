@@ -137,12 +137,14 @@ novalidate=False) %}
                         Students<span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('student_ops.update_whitelist') }}">Add</a></li>
+                        <li role="separator" class="divider"></li>
+
                         {% for s in g.student_list %}
                         <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].get_display_name()}}</a></li>
                         {% endfor %}
                     </ul>
                 </li>
-                <li><a href="{{ url_for('student_ops.update_whitelist') }}">Add</a></li>
                 {% endif %}
             </ul>
                     {% if g.current_user %}
