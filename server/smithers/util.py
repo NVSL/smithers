@@ -205,4 +205,5 @@ def next_url(default):
 
 
 def localize_time(time):
-    return time.replace(tzinfo=pytz.UTC).astimezone(config.local_time_zone)
+    r = time.replace(tzinfo=pytz.UTC).astimezone(config.local_time_zone)
+    return r

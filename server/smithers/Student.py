@@ -7,7 +7,7 @@ from google.appengine.api import mail
 import config
 from util import DFC
 import Logging as log
-from flask import redirect, url_for, request, render_template, Blueprint, flash
+from flask import redirect, url_for, request, render_template, Bluelog.debug, flash
 from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
@@ -16,6 +16,7 @@ from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email, AnyOf
 from SmartModel import SmartModel, FieldAnnotation
 from collections import deque
+import pytz
 
 
 student_ops = Blueprint("student_ops", __name__)
@@ -145,38 +146,60 @@ class Student(SmartModel):
         if self.meeting_day_of_week is None:
             return None
 
-        now = localize_time(datetime.datetime.now())
-        today = now.date()
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
 
-        due_date = now.date()
-        this_day = now.strftime("%A")
+        local_now = localize_time(now)
+        log.info("local_now = {}".format(local_now))
+        log.info("now = {}".format(now))
+
+        today = now.date()
+        log.info("today = {}".format(today))
+
+        this_day = local_now.strftime("%A")
 
         if this_day == self.meeting_day_of_week:
             time_due_today = datetime.datetime.combine(today, config.report_due_time)
+            log.info("time_due_today = {}".format(time_due_today))
+            time_due_today = config.local_time_zone.localize(time_due_today)
+            log.info("time_due_today = {}".format(time_due_today))
+
             if now > time_due_today:
                 raw_next_due_date = time_due_today + datetime.timedelta(days=7)
+                log.info("raw_next_due_date [1] = {}".format(raw_next_due_date))
             else:
                 raw_next_due_date = time_due_today
+                log.info("raw_next_due_date [2] = {}".format(raw_next_due_date))
         else:
-            while due_date.strftime("%A") != self.meeting_day_of_week:
-                due_date = due_date + datetime.timedelta(days=1)
+            due_day = local_now.date()
+            while due_day.strftime("%A") != self.meeting_day_of_week:
+                due_day = due_day + datetime.timedelta(days=1)
+                log.info("due_day [1] = {}".format(due_day))
+            raw_next_due_date = config.local_time_zone.localize(datetime.datetime.combine(due_day, config.report_due_time))
+            log.info("raw_next_due_date [3] = {}".format(raw_next_due_date))
 
-            raw_next_due_date = datetime.datetime.combine(due_date, config.report_due_time)
+        log.info("raw_next_due_date final = {}".format(raw_next_due_date))
 
         submission_period_start = raw_next_due_date - config.report_submit_period
 
         if now > submission_period_start and now < raw_next_due_date:
+            log.info("In submission window")
             latest_report = self.get_latest_report()
             if latest_report is not None:
                 last_report_time = self.get_latest_report().local_created_time()
+                log.info("last_report_time = {}".format(last_report_time))
             else:
+                log.info("return raw_next_due_date = {}".format(raw_next_due_date))
                 return raw_next_due_date
 
             if last_report_time > submission_period_start and last_report_time < raw_next_due_date:
-                return raw_next_due_date + datetime.timedelta(days=7)
+                r = raw_next_due_date + datetime.timedelta(days=7)
+                log.info("return {}".format(r))
+                return r
             else:
+                log.info("return {}".format(raw_next_due_date))
                 return raw_next_due_date
         else:
+            log.info("return {}".format(raw_next_due_date))
             return raw_next_due_date
 
 
@@ -184,38 +207,39 @@ class Student(SmartModel):
         return self.compute_next_due_date() - config.report_submit_period
 
     def get_latest_report(self):
-        return Report.query(ancestor=self.key).order(Report.created).get()
+        return Report.query(ancestor=self.key).order(-Report.created).get()
 
     def is_report_due(self):
         if self.is_test_account:
             return True
 
         next_due = self.compute_next_due_date()
-        print "next_due={}".format(next_due)
+
+        log.debug("next_due={}".format(next_due))
         now = localize_time(datetime.datetime.now())
-        print "now={}".format(now)
+        log.debug("now={}".format(now))
         if next_due is None:
-            print "return false 1 -- not due"
+            log.debug("return false 1 -- not due")
             return False
 
-        print "next_due -now = {}".format(next_due-now)
-        print "config.report_submit_period = {}".format(config.report_submit_period)
+        log.debug("next_due -now = {}".format(next_due-now))
+        log.debug("config.report_submit_period = {}".format(config.report_submit_period))
         if next_due - now > config.report_submit_period:
-            print "return false 2 -- too early."
+            log.debug ("return false 2 -- too early.")
             return False
 
         latest_report = self.get_latest_report()
-        print "latest_report= {}".format(latest_report)
+        log.debug ("latest_report= {}".format(latest_report))
         if latest_report is None:
-            print "return true 1 -- no report, not too early, so it's due"
+            log.debug ("return true 1 -- no report, not too early, so it's due")
             return True
 
-        print "latest_report.local_created_time() = {}".format(latest_report.local_created_time())
-        print "next_due - config.report_submit_period = {}".format(next_due - config.report_submit_period)
+        log.debug ("latest_report.local_created_time() = {}".format(latest_report.local_created_time()))
+        log.debug ("next_due - config.report_submit_period = {}".format(next_due - config.report_submit_period))
         if latest_report.local_created_time() < next_due - config.report_submit_period:
-            print "return True -- There is a report, it's not too early, and the last report is before the submission window"
+            log.debug ("return True -- There is a report, it's not too early, and the last report is before the submission window")
             return True
-        print "fall off"
+        log.debug ("fall off, return false")
         return False
 
     @classmethod

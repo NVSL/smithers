@@ -20,5 +20,5 @@ local_time_zone = pytz.timezone("US/Pacific")
 
 expectation_agreement_period = datetime.timedelta(weeks=26)
 
-report_due_time = datetime.time(hour=2, tzinfo=local_time_zone)
+report_due_time = datetime.time(hour=2)
 report_submit_period = datetime.timedelta(days=1)
