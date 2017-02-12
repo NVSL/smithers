@@ -70,7 +70,8 @@ days_of_the_week = ["Sunday",
                     "Tuesday",
                     "Wednesday",
                     "Thursday",
-                    "Friday"]
+                    "Friday",
+                    "Saturday"]
 _day_before = deque(days_of_the_week)
 _day_before.rotate(1)
 day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}

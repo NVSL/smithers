@@ -8,3 +8,9 @@ indexes:
   ancestor: yes
   properties:
   - name: created
+
+- kind: Report
+  ancestor: yes
+  properties:
+  - name: created
+    direction: desc
