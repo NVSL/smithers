@@ -7,16 +7,17 @@ from google.appengine.api import mail
 import config
 from util import DFC
 import Logging as log
-from flask import redirect, url_for, request, render_template, Bluelog.debug, flash
+from flask import redirect, url_for, request, render_template, Blueprint, flash
 from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField
+from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField, Label
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email, AnyOf
 from SmartModel import SmartModel, FieldAnnotation
 from collections import deque
 import pytz
+
 
 
 student_ops = Blueprint("student_ops", __name__)
@@ -441,6 +442,7 @@ class DisplayReportForm(FlaskForm):
     progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
     problems_encountered = TextAreaField('Problems Encountered', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
+    other_issues = TextAreaField('Other Issues')
     submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):
@@ -453,6 +455,7 @@ class DisplayReportForm(FlaskForm):
         read_only(self.progress_made)
         read_only(self.problems_encountered)
         read_only(self.next_weekly_goals)
+        read_only(self.other_issues)
         del self.submit
 
     def load_report(self, report):
@@ -463,6 +466,7 @@ class DisplayReportForm(FlaskForm):
         self.progress_made.data = report.progress_made
         self.problems_encountered.data = report.problems_encountered
         self.next_weekly_goals.data = report.next_weekly_goals
+        self.other_issues.data = report.other_issues
 
 
 def view_or_enter_reports(student, default_to_submission=True):
@@ -488,6 +492,7 @@ def view_or_enter_reports(student, default_to_submission=True):
             return render_report_page(default_to_submission, form, student)
     else:
         return render_report_page(default_to_submission, form, student)
+
 
 def render_report_page(default_to_submission, form, student):
 
@@ -517,6 +522,7 @@ def render_report_page(default_to_submission, form, student):
             form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
             form.next_weekly_goals.data = latest_report.next_weekly_goals
             form.long_term_goal.data = latest_report.long_term_goal
+            form.other_issues.data = latest_report.other_issues
         is_new_report = True
         display_report = None
         t = student.compute_next_due_date()

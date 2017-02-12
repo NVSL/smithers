@@ -16,6 +16,7 @@ class Report(SmartModel):
     progress_made  = ndb.TextProperty()
     problems_encountered = ndb.TextProperty()
     next_weekly_goals = ndb.TextProperty()
+    other_issues = ndb.TextProperty()
     report_for_date = ndb.DateProperty()
     student = ndb.StringProperty()
 

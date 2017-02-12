@@ -16,7 +16,7 @@
 <h2>{{field.label.text}}</h2>
 <div class="report-body">
     {% if not field.data %}
-    <i>Missing</i>
+    <i>None</i>
     {% else %}
     {{field.data|safe}}
     {% endif %}
@@ -29,6 +29,7 @@
   {{ render_completed_report_section(form.progress_made)}}
   {{ render_completed_report_section(form.problems_encountered)}}
   {{ render_completed_report_section(form.next_weekly_goals)}}
+  {{ render_completed_report_section(form.other_issues)}}
 {% endmacro %}
 
 {% macro render_editable_report(
@@ -66,6 +67,7 @@ novalidate=False) %}
   {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
   {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
   {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
   {% if form.submit %}
   {{ wtf.form_field(form.submit) }}
