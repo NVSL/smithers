@@ -220,31 +220,32 @@ class Student(SmartModel):
 
         next_due = self.compute_next_due_date()
 
-        log.debug("next_due={}".format(next_due))
-        now = localize_time(datetime.datetime.now())
-        log.debug("now={}".format(now))
+        log.info("next_due={}".format(next_due))
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
+        now = localize_time(now)
+        log.info("now={}".format(now))
         if next_due is None:
-            log.debug("return false 1 -- not due")
+            log.info("return false 1 -- not due")
             return False
 
-        log.debug("next_due -now = {}".format(next_due-now))
-        log.debug("config.report_submit_period = {}".format(config.report_submit_period))
+        log.info("next_due -now = {}".format(next_due-now))
+        log.info("config.report_submit_period = {}".format(config.report_submit_period))
         if next_due - now > config.report_submit_period:
-            log.debug ("return false 2 -- too early.")
+            log.info ("return false 2 -- too early.")
             return False
 
         latest_report = self.get_latest_report()
-        log.debug ("latest_report= {}".format(latest_report))
+        log.info ("latest_report= {}".format(latest_report))
         if latest_report is None:
-            log.debug ("return true 1 -- no report, not too early, so it's due")
+            log.info ("return true 1 -- no report, not too early, so it's due")
             return True
 
-        log.debug ("latest_report.local_created_time() = {}".format(latest_report.local_created_time()))
-        log.debug ("next_due - config.report_submit_period = {}".format(next_due - config.report_submit_period))
+        log.info ("latest_report.local_created_time() = {}".format(latest_report.local_created_time()))
+        log.info ("next_due - config.report_submit_period = {}".format(next_due - config.report_submit_period))
         if latest_report.local_created_time() < next_due - config.report_submit_period:
-            log.debug ("return True -- There is a report, it's not too early, and the last report is before the submission window")
+            log.info ("return True -- There is a report, it's not too early, and the last report is before the submission window")
             return True
-        log.debug ("fall off, return false")
+        log.info ("fall off, return false")
         return False
 
     @classmethod
