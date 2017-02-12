@@ -37,7 +37,7 @@ onload="load_editors()"
 
 
 {% if is_new_report %}
-<p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Please read the report guidelines!</i></a></p>
+<p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
 {{ render_editable_report(form) }}
 {{ edit_entity_button(display_user, "Edit User")}}
 {% else %}
