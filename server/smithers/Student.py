@@ -145,8 +145,6 @@ class Student(SmartModel):
         return self.email
 
     def compute_next_due_date(self):
-        if self.meeting_day_of_week is None:
-            return None
 
         now = pytz.UTC.localize(datetime.datetime.utcnow())
 
@@ -159,7 +157,12 @@ class Student(SmartModel):
 
         this_day = local_now.strftime("%A")
 
-        if this_day == self.meeting_day_of_week:
+        if self.meeting_day_of_week in [None, ""]:
+            meeting_day_of_week = this_day
+        else:
+            meeting_day_of_week = self.meeting_day_of_week
+
+        if this_day == meeting_day_of_week:
             time_due_today = datetime.datetime.combine(today, config.report_due_time)
             log.info("time_due_today = {}".format(time_due_today))
             time_due_today = config.local_time_zone.localize(time_due_today)
@@ -173,7 +176,7 @@ class Student(SmartModel):
                 log.info("raw_next_due_date [2] = {}".format(raw_next_due_date))
         else:
             due_day = local_now.date()
-            while due_day.strftime("%A") != self.meeting_day_of_week:
+            while due_day.strftime("%A") != meeting_day_of_week:
                 due_day = due_day + datetime.timedelta(days=1)
                 log.info("due_day [1] = {}".format(due_day))
             raw_next_due_date = config.local_time_zone.localize(datetime.datetime.combine(due_day, config.report_due_time))
@@ -677,7 +680,7 @@ def send_reminder_emails():
     today = now.strftime("%A")
 
     for s in students:
-        if s.meeting_day_of_week is not None:
+        if s.meeting_day_of_week not in [None, ""]:
             if today == day_before[s.meeting_day_of_week] and s.is_report_due():
                 due_time = s.compute_next_due_date()
                 time_left = datetime.datetime(year=2016, month=1, day=1) + (due_time - now)
@@ -697,7 +700,10 @@ def send_reminder_emails():
                                           body=message)
                 email.send()
                 log.info("sent reminder message to {}: \n{}".format(email, message))
-
+            else:
+                log.info("Report for {} not due until {}".format(s.email, day_before[s.meeting_day_of_week]))
+        else:
+            log.info("No meeting day for {}".format(s.email))
     return "success", 200
 
 
