@@ -466,33 +466,50 @@ class DisplayReportForm(FlaskForm):
         read_only(self.other_issues)
         del self.submit
 
-    def load_report(self, report):
+    def load_from_report(self, report):
         self.disp_previous_weekly_goals.data = report.previous_weekly_goals
         self.long_term_goal.data = report.long_term_goal
         self.disp_previous_weekly_goals.data = report.previous_weekly_goals
         self.previous_weekly_goals.data = report.previous_weekly_goals
         self.progress_made.data = report.progress_made
+        print "Weekly progress: {}".format(report.progress_made)
         self.problems_encountered.data = report.problems_encountered
         self.next_weekly_goals.data = report.next_weekly_goals
         self.other_issues.data = report.other_issues
         self.report_id.data = report.key.urlsafe()
         self.report_for_date.data = report.report_for_date
 
+    def update_to_report(self, report):
+        if self.long_term_goal.data:
+            report.long_term_goal = self.long_term_goal.data
+        if self.previous_weekly_goals.data:
+            report.previous_weekly_goals = self.previous_weekly_goals.data
+        if self.progress_made.data:
+            report.progress_made = self.progress_made.data
+        if self.problems_encountered.data:
+            report.problems_encountered = self.problems_encountered.data
+        if self.next_weekly_goals.data:
+            report.next_weekly_goals = self.next_weekly_goals.data
+        if self.other_issues.data:
+            report.other_issues = self.other_issues.data
+
+
 def display_report(student, default_to_submission=True):
     form = DisplayReportForm(request.form)
-    if form.report_id.data not in [None, ""]:
+    if form.report_id.data:
         # We are updating an existing report.
         form.progress_made.validators = []
         form.problems_encountered.validators = []
 
     if request.method == "POST":
         if form.validate():
-            if form.report_id.data not in [None, ""]:
+            if form.report_id.data:
                 try:
                     report = ndb.Key(urlsafe=form.report_id.data).get()
                     old_report = copy.copy(report)
                     form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
-                    form.populate_obj(report)
+                    print "FORM = {}".format(request.form)
+                    form.update_to_report(report)
                     report.put()
                 except Exception as e:
                     flash("Couldn't update report: {}".format(e),category='error')
@@ -544,10 +561,7 @@ def render_report_page(default_to_submission, form, student):
     else:
         latest_report = None
 
-    if report_count > 1:
-        previous_report = reports[report_count - 2]
-    else:
-        previous_report = None
+
 
     if request.args.get("index") == "last":
         index = report_count - 1
@@ -578,14 +592,12 @@ def render_report_page(default_to_submission, form, student):
         if not student.is_report_due():
             form.read_only()
     elif index == report_count - 1 :
-        form.load_report(previous_report)
+        form.load_from_report(reports[index])
         form.submit.label.text="Update Report"
 
-        read_only(form.disp_previous_weekly_goals)
+        read_only(form.previous_weekly_goals)
         read_only(form.progress_made)
-        form.progress_made.validators = None
         read_only(form.problems_encountered)
-        form.problems_encountered.validators = None
         read_only(form.other_issues)
 
         is_previous_report = True
@@ -595,7 +607,7 @@ def render_report_page(default_to_submission, form, student):
         return redirect(url_for(".submit_report"))
     else:
         display_report = reports[index]
-        form.load_report(display_report)
+        form.load_from_report(display_report)
         form.read_only()
 
     if index >= report_count:
@@ -679,7 +691,7 @@ def send_update_email(user, report, old_report=None):
 
 def render_report_for_email(report, report_url, user):
     form = DisplayReportForm()
-    form.load_report(report)
+    form.load_from_report(report)
     html_message = render_template("update_email.jinja.html",
                                    display_user=user,
                                    form=form,
@@ -746,7 +758,7 @@ def send_reminder_emails():
     today = now.strftime("%A")
 
     for s in students:
-        if s.meeting_day_of_week not in [None, ""]:
+        if s.meeting_day_of_week:
             if today == day_before[s.meeting_day_of_week] and s.is_report_due():
                 due_time = s.compute_next_due_date()
                 time_left = datetime.datetime(year=2016, month=1, day=1) + (due_time - now)
