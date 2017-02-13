@@ -12,13 +12,16 @@ onload="load_editors()"
 <h1>Submit Report for {{display_user.compute_next_due_date().strftime("%d %B %Y")}}</h1>
 
 {% if display_user.is_report_due() %}
-<p class="form-notification">This report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
+<p class="form-notification">This is your new report.  It is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
 {% else %}
-<p class="form-notification">You can submit at {{display_user.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}; it is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
+<p class="form-notification">This is your new report.  It is not due yet.  You can submit at {{display_user.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}. It is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
 {% endif %}
 
 {% else %}
-<h1>{% if display_user != current_user %} {{display_user.get_display_name()}}: {% endif %} {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+{% if is_previous_report %}
+<p class="form-notification">This report has already been submitted.  You can update your long-term and weekly goals until you submit your next report.</p>
+{% endif %}
+<h1>{% if display_user != current_user %} {{display_user.get_display_name()}}: {% endif %} Report for {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
 {% endif %}
 
 {{ alerts() }}
@@ -36,15 +39,22 @@ onload="load_editors()"
 </form>
 
 
-{% if is_new_report  %}
+{% if is_new_report or is_previous_report %}
 <p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
+
 {{ render_editable_report(form) }}
+
 {{ edit_entity_button(display_user, "Edit User")}}
+{% if is_previous_report %}
+{{ edit_entity_button(the_report, "Edit Report")}}
+{% endif %}
+
 {% else %}
 {{ render_completed_report(form) }}
 {{ edit_entity_button(the_report, "Edit Report")}}
 {{ edit_entity_button(display_user, "Edit User")}}
 {% endif %}
+
 <script type="text/javascript">
 
     function load_editors() {

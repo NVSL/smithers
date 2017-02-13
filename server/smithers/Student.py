@@ -480,6 +480,11 @@ class DisplayReportForm(FlaskForm):
 
 def display_report(student, default_to_submission=True):
     form = DisplayReportForm(request.form)
+    if form.report_id.data not in [None, ""]:
+        # We are updating an existing report.
+        form.progress_made.validators = []
+        form.problems_encountered.validators = []
+
     if request.method == "POST":
         if form.validate():
             if form.report_id.data not in [None, ""]:
@@ -539,6 +544,11 @@ def render_report_page(default_to_submission, form, student):
     else:
         latest_report = None
 
+    if report_count > 1:
+        previous_report = reports[report_count - 2]
+    else:
+        previous_report = None
+
     if request.args.get("index") == "last":
         index = report_count - 1
     elif default_to_submission:
@@ -550,13 +560,15 @@ def render_report_page(default_to_submission, form, student):
         else:
             index = int(request.args.get("index", report_count - 1))
 
+    is_previous_report = False
+    is_new_report = False
+
     if index == report_count:
         if latest_report is not None:
             form.previous_weekly_goals.data = latest_report.next_weekly_goals
             form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
             form.next_weekly_goals.data = latest_report.next_weekly_goals
             form.long_term_goal.data = latest_report.long_term_goal
-            form.other_issues.data = latest_report.other_issues
         is_new_report = True
         display_report = None
         t = student.compute_next_due_date()
@@ -565,6 +577,19 @@ def render_report_page(default_to_submission, form, student):
 
         if not student.is_report_due():
             form.read_only()
+    elif index == report_count - 1 :
+        form.load_report(previous_report)
+        form.submit.label.text="Update Report"
+
+        read_only(form.disp_previous_weekly_goals)
+        read_only(form.progress_made)
+        form.progress_made.validators = None
+        read_only(form.problems_encountered)
+        form.problems_encountered.validators = None
+        read_only(form.other_issues)
+
+        is_previous_report = True
+        display_report = reports[index]
     elif index > report_count or index < 0:
         flash("Bad report index", category="error")
         return redirect(url_for(".submit_report"))
@@ -572,7 +597,7 @@ def render_report_page(default_to_submission, form, student):
         display_report = reports[index]
         form.load_report(display_report)
         form.read_only()
-        is_new_report = False
+
     if index >= report_count:
         next_report = None
     else:
@@ -588,6 +613,7 @@ def render_report_page(default_to_submission, form, student):
     r = render_template("new_report.jinja.html",
                         form=form,
                         is_new_report=is_new_report,
+                        is_previous_report=is_previous_report,
                         display_user=student,
                         current_user=Student.get_current_student(),
                         next_report=next_report,
