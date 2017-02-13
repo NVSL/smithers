@@ -92,3 +92,10 @@ a.btn {
 .report-form textarea {
     visibility: hidden; display: none;
 }
+
+ins {
+    color:green;
+}
+del {
+    color:red;
+}

@@ -11,3 +11,5 @@ pytz
 flask-nav
 flask-debugtoolbar
 WTForms-Appengine
+html-tree-diff
+html5lib
