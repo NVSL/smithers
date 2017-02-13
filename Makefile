@@ -23,8 +23,14 @@ test:
 
 .PHONY: deploy
 deploy:
-deploy:
 	mkdir -p deploy
 	DEPLOY_DIRECTORY=deploy grunt build_deploy
 	appcfg.py -V release update deploy/app.yaml
 	appcfg.py update_indexes deploy
+
+.PHONY: deploy-test
+deploy-test:
+	mkdir -p deploy-test
+	DEPLOY_DIRECTORY=deploy-test grunt build_deploy
+	appcfg.py -V testing update deploy-test/app.yaml
+	appcfg.py update_indexes deploy-test
