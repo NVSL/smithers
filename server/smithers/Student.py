@@ -15,6 +15,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField, Label
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email, AnyOf
+import wtforms
 from SmartModel import SmartModel, FieldAnnotation
 from collections import deque
 import pytz
@@ -441,6 +442,7 @@ def submit_report():
     return display_report(student)
 
 
+
 class DisplayReportForm(FlaskForm):
     long_term_goal = TextAreaField('Long Term Goal', validators=[InputRequired()])
     disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
@@ -448,7 +450,7 @@ class DisplayReportForm(FlaskForm):
     report_for_date = HiddenField()
     report_id=HiddenField()
     progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
-    problems_encountered = TextAreaField('Problems Encountered', validators=[InputRequired()])
+    problems_encountered = TextAreaField('Problems Encountered & Blocking Questions', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     other_issues = TextAreaField('Other Issues')
     submit = SubmitField("Submit")
@@ -622,6 +624,8 @@ def render_report_page(default_to_submission, form, student):
         prev_report = url_for(request.endpoint,
                               student=student.key.urlsafe(),
                               index=index - 1)
+
+    print "is_due = {}".format(student.is_report_due())
     r = render_template("new_report.jinja.html",
                         form=form,
                         is_new_report=is_new_report,
@@ -630,7 +634,8 @@ def render_report_page(default_to_submission, form, student):
                         current_user=Student.get_current_student(),
                         next_report=next_report,
                         prev_report=prev_report,
-                        the_report=display_report
+                        the_report=display_report,
+                        report_is_due=student.is_report_due()
                         )
     return r
 
