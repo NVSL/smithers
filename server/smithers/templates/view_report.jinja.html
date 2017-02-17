@@ -1,0 +1,63 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Submit Report{% endblock title%}
+
+{% block body_attribs %}
+onload="load_editors()"
+{% endblock body_attribs %}
+
+{% block smithers_content %}
+
+{% if is_previous_report %}
+<p class="form-notification">This report has already been submitted.  You can update your long-term and weekly goals until you submit your next report.</p>
+{% endif %}
+<h1>{% if display_user != current_user %} {{display_user.get_display_name()}}: {% endif %} Report for {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
+
+{{ alerts() }}
+
+<form class="form a-form-horizontal">
+    <div class="form-group">
+        <div class="acol-lg-offset-2 acol-lg-10">
+            <div class="btn-group" role="group">
+                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';">Next</button>
+                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';">Prev</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{ edit_entity_button(display_user, "Edit User")}}
+{% if is_previous_report %}
+  <p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
+
+  {{ render_editable_report(form) }}
+
+  {{ edit_entity_button(display_user, "Edit User")}}
+  {% if is_previous_report %}
+    {{ edit_entity_button(the_report, "Edit Report")}}
+  {% endif %}
+
+{% else %}
+    {{ render_completed_report(form) }}
+    {{ edit_entity_button(the_report, "Edit Report")}}
+    {{ edit_entity_button(display_user, "Edit User")}}
+{% endif %}
+
+<style>
+    .report-body {
+        clear:both;
+        overflow:hidden;
+    }
+
+    .report-form label {
+        color:rgba(0,0,204,1);
+	    font-weight: normal;
+	    font-size: 1.8em;
+	    margin-top:0.5em;
+	    margin-bottom:0.5em;
+    }
+</style>
+
+{% endblock smithers_content %}
+
