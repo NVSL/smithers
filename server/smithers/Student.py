@@ -20,6 +20,7 @@ from SmartModel import SmartModel, FieldAnnotation
 from collections import deque
 import pytz
 from htmltreediff import diff
+import flask
 
 
 
@@ -82,6 +83,8 @@ day_before = {a: b for (a, b) in zip(days_of_the_week, _day_before)}
 _day_after = deque(days_of_the_week)
 _day_after.rotate(-1)
 day_after = {a: b for (a, b) in zip(days_of_the_week, _day_after)}
+
+day_to_int = {a: b for (a,b) in zip(days_of_the_week, range(0,len(days_of_the_week)))}
 
 class Student(SmartModel):
     """A main model for representing users."""
@@ -410,8 +413,18 @@ def view_user(user_key=None):
 def list_all_users():
 
     Student.get_current_student().is_report_overdue()
+    students = copy.copy(flask.g.student_list)
 
-    return render_template("view_all_students.jinja.html")
+    now = pytz.UTC.localize(datetime.datetime.utcnow())
+    local_now = localize_time(now)
+    today = int(local_now.strftime("%w"))
+
+    def day_order(a): # sort so people due soon are at the top.
+        d = a[0].meeting_day_of_week
+        return (day_to_int[d] - today) % len(days_of_the_week)
+
+    return render_template("view_all_students.jinja.html",
+                           students=sorted(students, key=day_order))
 
 
 class Requirement(object):
@@ -550,6 +563,25 @@ class UpdateReportForm(BaseReportForm):
     submit = SubmitField("Submit Update")
     #cancel = SubmitField("Cancel")
 
+class CommentOnReport(FlaskForm):
+    body = TextAreaField("Report")
+    submit = SubmitField("Submit")
+
+@student_ops.route("/weekly/<report_key>/comment", methods=["GET", "POST"])
+def comment_on_report(report_key):
+    report = lookup_report(report_key)
+    form = CommentOnReport(request.form)
+
+    if request.method == "POST":
+        if form.validate():
+            print form.body.data
+    else:
+        t = render_report_for_email(report, "", report.key.parent().get())
+        print t
+        form.body.data = t
+        return render_template("comment_on_report.jinja.html",
+                               form=form)
+
 @student_ops.route("/weekly/<report_key>/", methods=['GET'])
 @student_ops.route("/weekly/", methods=['GET'])
 def view_report(report_key=None):
@@ -572,6 +604,8 @@ def view_report(report_key=None):
 
     all_reports = Report.query( ancestor=student.key).order(-Report.created).fetch()
 
+    body=render_report_for_email(report, "foo", student)
+
     r = render_template("view_report.jinja.html",
                         form=form,
                         display_user=student,
@@ -581,7 +615,8 @@ def view_report(report_key=None):
                         the_report=report,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
-                        allow_edit=all_reports[0] == report
+                        allow_edit=all_reports[0] == report,
+                        body=body
                         )
     return r
 

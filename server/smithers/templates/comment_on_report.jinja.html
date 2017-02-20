@@ -1,0 +1,32 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block body_attribs %}
+onload="load_editors()"
+{% endblock body_attribs %}
+
+
+{% block title %}Comment{% endblock title%}
+
+{% block smithers_content %}
+
+    {{ wtf.quick_form(form, form_type="horizontal", extra_classes="report-form") }}
+
+<script type="text/javascript">
+
+    function load_editors() {
+        $(".report-form textarea").each(function (i, e) {
+            if (!$(e).attr("disabled")) {
+                window.CKEDITOR.replace($(e).attr("id"), {
+                    filebrowserUploadUrl: '/cke/upload',
+                    filebrowserImageUploadUrl: '/cke/upload'
+                })
+            }
+        });
+    }
+</script>
+
+
+{% endblock smithers_content %}
+
