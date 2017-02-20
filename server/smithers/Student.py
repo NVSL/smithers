@@ -667,12 +667,13 @@ def update_report(student, report_key):
                 flash("Couldn't update report: {}".format(e),category='error')
                 return render_update_report_page(form, student, report_key)
 
-            flash("Report Updated.", category="success")
 
             try:
                 send_update_email(student, report, old_report)
             except Exception as e:
                 flash("Couldn't send notification email: {}".format(e), category="warning")
+
+            flash("Report Updated.", category="success")
 
             return redirect(url_for(".view_report", report_key=report_key))
         else:
