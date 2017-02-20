@@ -5,7 +5,6 @@
 
 {% block smithers_content %}
    <h1>Update User Profile: {{student.full_name or student.email}}</h1>
-    {{ alerts() }}
     {{ wtf.quick_form(form, form_type="horizontal") }}
 
     {{ edit_entity_button(student)}}

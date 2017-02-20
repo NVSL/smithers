@@ -1,0 +1,68 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Update Report{% endblock title%}
+
+{% block body_attribs %}
+onload="load_editors()"
+{% endblock body_attribs %}
+
+{% block smithers_content %}
+<h1>Update Report for {{display_user.compute_next_due_date().strftime("%d %B %Y")}}</h1>
+
+<p class="form-notification">This report has already been submitted, but you can update your long-term and weekly goals until you submit your next report.</p>
+
+
+
+<form class="form report-form" method="POST">
+    <div class="form-group">
+        <div class="acol-lg-offset-2 acol-lg-10">
+                {{ wtf.form_field(form.submit) }}
+                <button type="button" class="btn btn-default" onclick='location.href="{{url_for(".view_report", report_key=the_report.key.urlsafe())}}";'>Discard</button>
+
+            <!--/div-->
+        </div>
+    </div>
+
+<p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
+
+{{ render_editable_report_body(form) }}
+
+</form>
+
+
+{{ edit_entity_button(display_user, "Edit User")}}
+{{ edit_entity_button(the_report, "Edit Report")}}
+
+<script type="text/javascript">
+
+    function load_editors() {
+        $(".report-form textarea").each(function (i, e) {
+            if (!$(e).attr("disabled")) {
+                window.CKEDITOR.replace($(e).attr("id"), {
+                    filebrowserUploadUrl: '/cke/upload',
+                    filebrowserImageUploadUrl: '/cke/upload'
+                })
+            }
+        });
+    }
+</script>
+
+<style>
+    .report-body {
+        clear:both;
+        overflow:hidden;
+    }
+
+    .report-form label {
+        	color:rgba(0,0,204,1);
+	font-weight: normal;
+	font-size: 1.8em;
+	margin-top:0.5em;
+	margin-bottom:0.5em;
+
+    }
+</style>
+
+{% endblock smithers_content %}
+

@@ -147,7 +147,7 @@ class Student(SmartModel):
     def nickname(self):
         return self.email
 
-    def compute_next_due_date(self):
+    def compute_next_due_date(self, ignore_latest=False):
 
         now = pytz.UTC.localize(datetime.datetime.utcnow())
 
@@ -192,12 +192,12 @@ class Student(SmartModel):
         if now > submission_period_start and now < raw_next_due_date:
             log.info("In submission window")
             latest_report = self.get_latest_report()
-            if latest_report is not None:
-                last_report_time = self.get_latest_report().local_created_time()
-                log.info("last_report_time = {}".format(last_report_time))
-            else:
+            if not latest_report or ignore_latest:
                 log.info("return raw_next_due_date = {}".format(raw_next_due_date))
                 return raw_next_due_date
+            else:
+                last_report_time = self.get_latest_report().local_created_time()
+                log.info("last_report_time = {}".format(last_report_time))
 
             if last_report_time > submission_period_start and last_report_time < raw_next_due_date:
                 r = raw_next_due_date + datetime.timedelta(days=7)
@@ -216,6 +216,36 @@ class Student(SmartModel):
 
     def get_latest_report(self):
         return Report.query(ancestor=self.key).order(-Report.created).get()
+
+    def is_report_overdue(self):
+        if self.is_report_due():
+            return False
+
+        latest_submitted_report = self.get_latest_report()
+
+        if latest_submitted_report is None:
+            return False
+
+        next_due_time = self.compute_next_due_date(ignore_latest=True)
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
+
+        if now < next_due_time and now > next_due_time - config.report_submit_period:
+            last_report_submission_period_stop = next_due_time
+        else:
+            last_report_submission_period_stop = next_due_time - datetime.timedelta(days=7)
+
+        last_report_submission_period_start = last_report_submission_period_stop - config.report_submit_period
+
+        log.info(self.full_name)
+        log.info("last_report_submission_period_start: {}".format(last_report_submission_period_start))
+        log.info("last_report_submission_period_stop : {}".format(last_report_submission_period_stop))
+
+        if not (latest_submitted_report.local_created_time() > last_report_submission_period_start
+                and latest_submitted_report.local_created_time() < last_report_submission_period_stop):
+            return True
+        else:
+            return False
+
 
     def is_report_due(self):
         if self.is_test_account:
@@ -319,10 +349,23 @@ class UpdateUserForm(FlaskForm):
         read_only(self.email)
         read_only(self.last_signed_expectations_agreement)
 
+def get_student_perm_check(user_key):
+    if user_key is None:
+        return Student.get_current_student()
+    else:
+        user = ndb.Key(urlsafe=user_key).get()
+        if user != Student.get_current_student() and not users.is_current_user_admin():
+            return None
+        else:
+            return user
 
+@student_ops.route("/user/<user_key>/update/", methods=['GET', 'POST'])
 @student_ops.route("/user/update/", methods=['GET', 'POST'])
-def update_user():
-    student = Student.get_current_student()
+def update_user(user_key=None):
+    student = get_student_perm_check(user_key)
+    if not student:
+        return "Access denied", 403
+
     form = UpdateUserForm(request.form)
     log.info("updating student {}: {}".format(student.email, request.form))
 
@@ -332,14 +375,13 @@ def update_user():
             form.populate_obj(student)
             student.put()
             flash("Account updated", category='success')
-            return redirect(next_url(url_for(".submit_report")))
+            return redirect(next_url(url_for(".index")))
         else:
             return render_template("update_user.jinja.html",
                                    form=form,
                                    student=student
                                    )
     else:
-
         form.full_name.data = student.full_name
         form.email.data = student.email
         form.meeting_day_of_week.data = student.meeting_day_of_week
@@ -350,10 +392,27 @@ def update_user():
                                )
 
 
-@student_ops.route("/student/<student>")
-def browse_report(student):
-    s = Student.get_student(student)
-    return display_report(s, default_to_submission=False)
+@student_ops.route("/user/<user_key>", methods=['GET'])
+@student_ops.route("/user/", methods=["GET"])
+def view_user(user_key=None):
+    user = get_student_perm_check(user_key)
+    if not user:
+        return "Access denied", 403
+
+    all_reports = Report.query(ancestor=user.key).order(-Report.created).fetch()
+
+    return render_template("view_student.jinja.html",
+                           reports=all_reports,
+                           student=user)
+
+
+@student_ops.route("/user/list_all", methods=["GET"])
+def list_all_users():
+
+    Student.get_current_student().is_report_overdue()
+
+    return render_template("view_all_students.jinja.html")
+
 
 class Requirement(object):
 
@@ -430,20 +489,7 @@ def sign_expectation_agreement():
 requirements = [UpdateUser(),
                 SignExpectationsAgreement()]
 
-@student_ops.route('/report', methods=["POST",'GET'])
-def submit_report():
-    student = Student.get_current_student()
-    for r in requirements:
-        if not r.is_satisfied(student):
-            return r.do_redirect(student)
-
-    if student.full_name is None:
-        return redirect(url_for(".update_user", next=url_for(".submit_report")))
-    return display_report(student)
-
-
-
-class DisplayReportForm(FlaskForm):
+class BaseReportForm(FlaskForm):
     long_term_goal = TextAreaField('Long Term Goal', validators=[InputRequired()])
     disp_previous_weekly_goals = TextAreaField("Previous Weekly Goals")
     previous_weekly_goals = HiddenField()
@@ -453,10 +499,9 @@ class DisplayReportForm(FlaskForm):
     problems_encountered = TextAreaField('Problems Encountered & Blocking Questions', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     other_issues = TextAreaField('Other Issues')
-    submit = SubmitField("Submit")
 
     def __init__(self, *args, **kwargs):
-        super(DisplayReportForm, self).__init__(*args, **kwargs)
+        super(BaseReportForm, self).__init__(*args, **kwargs)
         read_only(self.disp_previous_weekly_goals)
 
     def read_only(self):
@@ -466,7 +511,6 @@ class DisplayReportForm(FlaskForm):
         read_only(self.problems_encountered)
         read_only(self.next_weekly_goals)
         read_only(self.other_issues)
-        del self.submit
 
     def load_from_report(self, report):
         self.disp_previous_weekly_goals.data = report.previous_weekly_goals
@@ -474,7 +518,6 @@ class DisplayReportForm(FlaskForm):
         self.disp_previous_weekly_goals.data = report.previous_weekly_goals
         self.previous_weekly_goals.data = report.previous_weekly_goals
         self.progress_made.data = report.progress_made
-        print "Weekly progress: {}".format(report.progress_made)
         self.problems_encountered.data = report.problems_encountered
         self.next_weekly_goals.data = report.next_weekly_goals
         self.other_issues.data = report.other_issues
@@ -495,156 +538,214 @@ class DisplayReportForm(FlaskForm):
         if self.other_issues.data:
             report.other_issues = self.other_issues.data
 
+class NewReportForm(BaseReportForm):
+    #save = SubmitField("Save")
+    submit = SubmitField("Submit")
 
-def display_report(student, default_to_submission=True):
-    form = DisplayReportForm(request.form)
-    if form.report_id.data:
-        # We are updating an existing report.
-        form.progress_made.validators = []
-        form.problems_encountered.validators = []
+class ViewReportForm(BaseReportForm):
+    pass
+    #update = SubmitField("Update Report")
+
+class UpdateReportForm(BaseReportForm):
+    submit = SubmitField("Submit Update")
+    #cancel = SubmitField("Cancel")
+
+@student_ops.route("/weekly/<report_key>/", methods=['GET'])
+@student_ops.route("/weekly/", methods=['GET'])
+def view_report(report_key=None):
+    if report_key is None:
+        student = Student.get_current_student()
+        report = student.get_latest_report()
+    else:
+        report = lookup_report(report_key)
+        student = report.key.parent().get()
+
+    if report is None:
+        return "Missing report", 404
+
+    form = ViewReportForm()
+    form.load_from_report(report)
+    form.read_only()
+
+    prev_report = Report.query(Report.created < report.created, ancestor=student.key).order(-Report.created).get()
+    next_report = Report.query(Report.created > report.created, ancestor=student.key).order(Report.created).get()
+
+    all_reports = Report.query( ancestor=student.key).order(-Report.created).fetch()
+
+    r = render_template("view_report.jinja.html",
+                        form=form,
+                        display_user=student,
+                        current_user=Student.get_current_student(),
+                        next_report=url_for(".view_report", report_key=next_report.key.urlsafe()) if next_report else None,
+                        prev_report=url_for(".view_report", report_key=prev_report.key.urlsafe()) if prev_report else None,
+                        the_report=report,
+                        all_reports=all_reports,
+                        update_url=url_for('.update_report', report_key=report.key.urlsafe()),
+                        allow_edit=all_reports[0] == report
+                        )
+    return r
+
+
+@student_ops.route('/weekly/new_report', methods=["POST", 'GET'])
+def submit_report():
+    student = Student.get_current_student()
+    for r in requirements:
+        if not r.is_satisfied(student):
+            return r.do_redirect(student)
+
+    if student.full_name is None:
+        return redirect(url_for(".update_user", next=url_for(".submit_report")))
+    return new_report(student)
+
+
+def new_report(student):
+    form = NewReportForm(request.form)
 
     if request.method == "POST":
         if form.validate():
-            if form.report_id.data:
-                try:
-                    report = ndb.Key(urlsafe=form.report_id.data).get()
-                    old_report = copy.copy(report)
-                    form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
-                    print "FORM = {}".format(request.form)
-                    form.update_to_report(report)
-                    report.put()
-                except Exception as e:
-                    flash("Couldn't update report: {}".format(e),category='error')
-                    return render_report_page(default_to_submission, form, student)
+            try:
+                report = Report(parent=student.key)
+                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
+                form.populate_obj(report)
+                report.previous_weekly_goals = form.previous_weekly_goals.data
+                report.student = student.nickname()
+                report.put()
+                send_update_email(student, report)
+            except Exception as e:
+                flash("Couldn't save report: {}".format(e),category='error')
+                return render_new_report_page(form, student)
 
-                flash("Report Updated.", category="success")
+            flash("Report Saved.", category="success")
+            try:
+                send_update_email(student, report)
+            except Exception as e:
+                flash("Couldn't send notification email: {}".format(e), category="warning")
 
-                try:
-                    send_update_email(student, report, old_report)
-                except Exception as e:
-                    flash("Couldn't send notification email: {}".format(e), category="warning")
-
-                return redirect(url_for(".submit_report", index="last"))
-            else:
-                try:
-                    report = Report(parent=student.key)
-                    form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
-                    form.populate_obj(report)
-                    report.previous_weekly_goals = form.previous_weekly_goals.data
-                    report.student = student.nickname()
-                    report.put()
-                    send_update_email(student, report)
-                except Exception as e:
-                    flash("Couldn't save report: {}".format(e),category='error')
-                    return render_report_page(default_to_submission, form, student)
-
-                flash("Report Saved.", category="success")
-                try:
-                    send_update_email(student, report)
-                except Exception as e:
-                    flash("Couldn't send notification email: {}".format(e), category="warning")
-
-                return redirect(url_for(".submit_report", index="last"))
+            return redirect(url_for(".view_report"))
         else:
             flash("Correct the errors below", category="error")
-            return render_report_page(default_to_submission, form, student)
+            return render_new_report_page(form, student)
     else:
-        return render_report_page(default_to_submission, form, student)
+        return render_new_report_page(form, student)
 
 
-def render_report_page(default_to_submission, form, student):
-
-    report_query = Report.query(ancestor=student.key).order(Report.created)
-    report_count = report_query.count()
-
-    if report_count > 0:
-        reports = report_query.fetch()
-        latest_report = reports[report_count - 1]
-    else:
-        latest_report = None
+@student_ops.route('/weekly/<report_key>/update', methods=["POST", 'GET'])
+def update_report(report_key):
+    student = Student.get_current_student()
+    return update_report(student, report_key)
 
 
+def update_report(student, report_key):
 
-    if request.args.get("index") == "last":
-        index = report_count - 1
-    elif default_to_submission:
-        index = int(request.args.get("index", report_count))
-    else:
-        if report_count == 0:
-            index = int(request.args.get("index", report_count))
-            flash("{} has not submitted any reports".format(student.full_name or student.email))
-        else:
-            index = int(request.args.get("index", report_count - 1))
+    form = UpdateReportForm(request.form)
 
-    is_previous_report = False
-    is_new_report = False
+    form.progress_made.validators = []
+    form.problems_encountered.validators = []
 
-    if index == report_count:
-        if latest_report is not None:
-            form.previous_weekly_goals.data = latest_report.next_weekly_goals
-            form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
-            form.next_weekly_goals.data = latest_report.next_weekly_goals
-            form.long_term_goal.data = latest_report.long_term_goal
-        is_new_report = True
-        display_report = None
-        t = student.compute_next_due_date()
-        if t:
-            form.report_for_date.data = t.date()
-
-        if not student.is_report_due():
-            form.read_only()
-    elif index == report_count - 1 :
-        form.load_from_report(reports[index])
-        form.submit.label.text="Update Report"
-
+    if not users.is_current_user_admin():
         read_only(form.previous_weekly_goals)
         read_only(form.progress_made)
         read_only(form.problems_encountered)
         read_only(form.other_issues)
 
-        is_previous_report = True
-        display_report = reports[index]
-    elif index > report_count or index < 0:
-        flash("Bad report index", category="error")
-        return redirect(url_for(".submit_report"))
-    else:
-        display_report = reports[index]
-        form.load_from_report(display_report)
-        form.read_only()
+        most_recent_report = Report.query(ancestor=student.key).order(-Report.created).get()
+        if most_recent_report.key.urlsafe() != report_key:
+            flash("You can only edit your most recent report.", category="error")
+            return redirect(url_for(".view_report", report_key=report_key))
 
-    if index >= report_count:
-        next_report = None
-    else:
-        next_report = url_for(request.endpoint,
-                              student=student.key.urlsafe(),
-                              index=index + 1)
-    if index <= 0:
-        prev_report = None
-    else:
-        prev_report = url_for(request.endpoint,
-                              student=student.key.urlsafe(),
-                              index=index - 1)
 
-    print "is_due = {}".format(student.is_report_due())
-    r = render_template("new_report.jinja.html",
+    if request.method == "POST":
+        if form.validate():
+            try:
+                report = ndb.Key(urlsafe=form.report_id.data).get()
+                old_report = copy.copy(report)
+                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
+                #print "FORM = {}".format(request.form)
+                form.update_to_report(report)
+                report.put()
+            except Exception as e:
+                flash("Couldn't update report: {}".format(e),category='error')
+                return render_update_report_page(form, student, report_key)
+
+            flash("Report Updated.", category="success")
+
+            try:
+                send_update_email(student, report, old_report)
+            except Exception as e:
+                flash("Couldn't send notification email: {}".format(e), category="warning")
+
+            return redirect(url_for(".view_report", report_key=report_key))
+        else:
+            flash("Correct the errors below", category="error")
+            return render_update_report_page(form, student, report_key)
+    else:
+        return render_update_report_page(form, student, report_key)
+
+
+def render_update_report_page(form, student, report_key):
+
+    display_report = lookup_report(report_key, student)
+
+    form.load_from_report(display_report)
+
+    r = render_template("update_report.jinja.html",
                         form=form,
-                        is_new_report=is_new_report,
-                        is_previous_report=is_previous_report,
                         display_user=student,
-                        current_user=Student.get_current_student(),
-                        next_report=next_report,
-                        prev_report=prev_report,
-                        the_report=display_report,
-                        report_is_due=student.is_report_due()
+                        report_is_due=student.is_report_due(),
+                        the_report=display_report
                         )
     return r
+
+
+def render_new_report_page(form, student):
+
+    latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
+
+    if latest_report is not None:
+        form.previous_weekly_goals.data = latest_report.next_weekly_goals
+        form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
+        form.next_weekly_goals.data = latest_report.next_weekly_goals
+        form.long_term_goal.data = latest_report.long_term_goal
+
+    t = student.compute_next_due_date()
+    if t:
+        form.report_for_date.data = t.date()
+
+    if not student.is_report_due():
+        form.read_only()
+        form.submit.disabled=True
+
+    r = render_template("new_report.jinja.html",
+                        form=form,
+                        display_user=student,
+                        report_is_due=student.is_report_due(),
+
+                        )
+    return r
+
+
+def lookup_report(report_key, student = None):
+    if report_key == "current":
+        if student == None:
+            return None
+        report_query = Report.query(ancestor=student.key).order(Report.created)
+        report_count = report_query.count()
+        reports = report_query.fetch()
+        if len(reports) == 0:
+            return None
+        display_report = reports[report_count - 1]
+    else:
+        try:
+            display_report = ndb.Key(urlsafe=report_key).get()
+        except:
+            return None
+    return display_report
 
 
 class UpdateWhiteListForm(FlaskForm):
     email = StringField("Email Address", validators=[InputRequired(),Email()])
     custom_message = TextAreaField("Custom Message")
     submit = SubmitField("Add")
-
 
 def send_welcome_email(email, custom_message=None):
     if custom_message is not None and custom_message.strip() == "":
@@ -667,7 +768,7 @@ def send_welcome_email(email, custom_message=None):
 def send_update_email(user, report, old_report=None):
 
     report_url="{}{}".format(request.host_url[0:-1],
-                             url_for(".browse_report", student=user.key.urlsafe()))
+                             url_for(".view_report", report_key=report.key.urlsafe()))
 
     html_message = render_report_for_email(report, report_url, user)
     if old_report:
@@ -695,7 +796,7 @@ def send_update_email(user, report, old_report=None):
 
 
 def render_report_for_email(report, report_url, user):
-    form = DisplayReportForm()
+    form = BaseReportForm()
     form.load_from_report(report)
     html_message = render_template("update_email.jinja.html",
                                    display_user=user,
@@ -747,7 +848,7 @@ def index():
     if not users.is_current_user_admin():
         return redirect(url_for(".submit_report"))
     else:
-        return render_template("home.jinja.html")
+        return redirect(url_for(".list_all_users"))
 
 @student_ops.route("/resource/<file>")
 def render_resource(file):
@@ -790,3 +891,12 @@ def send_reminder_emails():
     return "success", 200
 
 
+
+@student_ops.route("/<student_key>/latest_report")
+def latest_report(student_key):
+    student = ndb.Key(urlsafe=student_key).get()
+    latest_report = student.get_latest_report()
+    if not latest_report:
+        flash("{} has not submitted any reports.".format(student.full_name))
+        return redirect(url_for(".index"))
+    return redirect(url_for(".view_report", report_key=latest_report.key.urlsafe()))

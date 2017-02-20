@@ -1,0 +1,43 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Student List{% endblock title%}
+
+{% block smithers_content %}
+
+<h1>Students</h1>
+
+
+
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Meets</th>
+        <th>Last Report</th>
+    </tr>
+    <tbody>
+    {% for s in g.student_list %}
+    <tr>
+        <td><a href="{{url_for('.view_user', user_key=s[1])}}">{{s[0].get_display_name()}}</a></td>
+        <td>{{s[0].meeting_day_of_week}}</td>
+        <td {% if s[0].is_report_overdue() %}class="overdue"{% elif s[0].is_report_due() %}class="waiting"{% else %}class="ontime"{% endif %}>{% if s[0].get_latest_report() %}<a href="{{url_for('student_ops.latest_report', student_key=s[1])}}">{{s[0].get_latest_report().local_created_time().strftime("%H:%M%p on %A, %d %B")}}</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<button type="button" class="btn btn-default"  aria-haspopup="true" aria-expanded="false" onclick="location.href='{{ url_for('.update_whitelist') }}';">New User</button>
+
+<style>
+    .overdue a{
+        color:red
+    }
+    .ontime a {
+        color:green;
+    }
+    .waiting a {
+        color:black;
+    }
+</style>
+{% endblock smithers_content %}
+

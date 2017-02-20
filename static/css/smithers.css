@@ -43,6 +43,7 @@ h1 {
 	color: rgba(0,0,204,1);
 	font-weight: normal;
 	font-size: 2.8em;
+    text-decoration: none;
 }
 
 h2 {
@@ -62,9 +63,10 @@ a {
 	color:black;
 }
 
-.container a {
+/*.container a {
         text-decoration: underline;
-}
+}*/
+
 a.btn {
         text-decoration: none;
 }
@@ -87,6 +89,17 @@ a.btn {
     margin-top:0.5em;
     margin-bottom:0.5em;
 
+}
+
+
+h1 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1 a:hover {
+    text-decoration: none;
+    color: inherit;
 }
 
 .report-form textarea {

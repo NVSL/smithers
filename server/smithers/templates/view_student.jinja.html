@@ -1,0 +1,36 @@
+{% extends "smithers_page.jinja.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}{{student.full_name}}{% endblock title%}
+
+{% block smithers_content %}
+
+<h1><a href="{{url_for('.view_user', user_key=student.key.urlsafe())}}">{{student.full_name}}</a></h1>
+
+<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false" onclick="location.href='{{url_for(".update_user", user_key=student.key.urlsafe())}}';">Update Profile</button>
+
+<h2>Reporting</h2>
+
+{% if not student.is_report_due() %}
+<p class="form-notification">Your new report is not due yet.  You can submit at {{student.compute_next_submission_time().strftime("%H:%M%p on %d %B %Y")}}. It is due at {{student.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
+{% else %}
+<p class="form-notification">Your report is due at {{student.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
+{% endif %}
+
+<button type="button" class="btn btn-default" {% if not student.is_report_due()%}disabled{% endif %} aria-haspopup="true" aria-expanded="false" onclick="location.href='{{url_for(".submit_report")}}';">Submit New Report</button>
+
+<h2>Old Reports</h2>
+
+    <ul class="list-group">
+{% for r in reports %}
+  <li class="list-group-item"><a href="{{url_for('.view_report', report_key=r.key.urlsafe())}}">{{r.report_for_date}}</a></li>
+{% endfor %}
+
+        <br/>
+        {{ edit_entity_button(student, "Edit User")}}
+
+</ul>
+
+
+{% endblock smithers_content %}
+
