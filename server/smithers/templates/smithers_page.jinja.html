@@ -23,7 +23,7 @@
 </div>
 {% endmacro %}
 
-{% macro render_completed_report(form) %}
+{% macro render_completed_report_body(form) %}
   {{ render_completed_report_section(form.long_term_goal)}}
   {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
   {{ render_completed_report_section(form.progress_made)}}
@@ -32,6 +32,34 @@
   {{ render_completed_report_section(form.other_issues)}}
 {% endmacro %}
 
+{% macro render_completed_report(form) %}
+<form>
+  {{ render_completed_report_body(form) }}
+  {% if form.update %}
+  {{ wtf.form_field(form.update) }}
+  {% endif %}
+</form>
+{% endmacro %}
+
+{% macro render_editable_report_body(
+form,
+form_type='basic',
+horizontal_columns=('lg', 2, 10),
+button_map={}
+) %}
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens='only') }}
+
+  {{ wtf.form_field(form.long_term_goal, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+
+  {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
+
+  {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+
+{% endmacro %}
 {% macro render_editable_report(
 form,
 action="",
@@ -57,20 +85,17 @@ novalidate=False) %}
   {%- if role %} role="{{role}}"{% endif -%}
   {%- if novalidate %} novalidate{% endif -%}
   >
-  {{ form.hidden_tag() }}
-  {{ wtf.form_errors(form, hiddens='only') }}
+  {{ render_editable_report_body(form, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
-  {{ wtf.form_field(form.long_term_goal, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
-  {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
-
-  {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-
+  {% if form.save %}
+  {{ wtf.form_field(form.save) }}
+  {% endif %}
   {% if form.submit %}
   {{ wtf.form_field(form.submit) }}
+  {% endif %}
+  {% if form.cancel %}
+  {{ wtf.form_field(form.cancel) }}
   {% endif %}
 
 </form>
@@ -135,17 +160,20 @@ novalidate=False) %}
                 {% if g.admin_view %}
 
                 <li  class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Students<span class="caret"></span>
+                    <a href="{{url_for('student_ops.list_all_users')}}" role="button" aria-haspopup="true" aria-expanded="false">
+                        Students
                     </a>
-                    <ul class="dropdown-menu">
+                    <!--a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Students<span class="caret"></span>
+                    </a-->
+                    <!--ul class="dropdown-menu">
                         <li><a href="{{ url_for('student_ops.update_whitelist') }}">New...</a></li>
                         <li role="separator" class="divider"></li>
 
                         {% for s in g.student_list %}
-                        <li><a href="{{url_for('student_ops.browse_report', student=s[1])}}">{{s[0].get_display_name()}}</a></li>
+                        <li><a href="{{url_for('student_ops.latest_report', student_key=s[1])}}">{{s[0].get_display_name()}}</a></li>
                         {% endfor %}
-                    </ul>
+                    </ul-->
                 </li>
                 {% endif %}
             </ul>
@@ -186,7 +214,7 @@ novalidate=False) %}
 
 {% block content %}
 <div class="container">
-
+    {{ alerts() }}
     {% block smithers_content %}
     {% endblock smithers_content %}
     <hr>

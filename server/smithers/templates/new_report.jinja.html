@@ -8,6 +8,7 @@ onload="load_editors()"
 {% endblock body_attribs %}
 
 {% block smithers_content %}
+
 <h1>Submit Report for {{display_user.compute_next_due_date().strftime("%d %B %Y")}}</h1>
 
 {% if not display_user.is_report_due() %}
@@ -16,25 +17,11 @@ onload="load_editors()"
 <p class="form-notification">Your report is due at {{display_user.compute_next_due_date().strftime("%H:%M%p on %d %B %Y")}}.</p>
 {% endif %}
 
-{{ alerts() }}
-
-<form class="form a-form-horizontal">
-    <div class="form-group">
-        <div class="acol-lg-offset-2 acol-lg-10">
-            <div class="btn-group" role="group">
-                <button style='visibility: hidden' type="button" disabled class="btn btn-default" >Next</button>
-                <button style='visibility: hidden' type="button" disabled class="btn btn-default" >Prev</button>
-            </div>
-        </div>
-    </div>
-</form>
+<button type="button" class="btn btn-default" onclick='location.href="{{url_for(".view_user", user_key=display_user.key.urlsafe())}}";'>Previous Reports</button>
 
 {% if report_is_due %}
   <p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
   {{ render_editable_report(form) }}
-  {{ edit_entity_button(display_user, "Edit User")}}
-{% else %}
-    {{ edit_entity_button(display_user, "Edit User")}}
 {% endif %}
 
 <script type="text/javascript">
