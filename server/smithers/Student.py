@@ -645,7 +645,6 @@ def new_report(student):
                 report.previous_weekly_goals = form.previous_weekly_goals.data
                 report.student = student.nickname()
                 report.put()
-                send_update_email(student, report)
             except Exception as e:
                 flash("Couldn't save report: {}".format(e),category='error')
                 return render_new_report_page(form, student)
