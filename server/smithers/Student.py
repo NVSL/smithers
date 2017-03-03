@@ -8,7 +8,7 @@ from google.appengine.api import mail
 import config
 from util import DFC
 import Logging as log
-from flask import redirect, url_for, request, render_template, Blueprint, flash
+from flask import redirect, url_for, request, render_template, Blueprint
 from util import next_url, localize_time
 from Report import Report
 from flask_wtf import FlaskForm
@@ -23,6 +23,9 @@ from htmltreediff import diff
 import flask
 
 
+def flash(message, category):
+    log.info("Flashed {}: {}".format(category, message))
+    flask.flash(message, category)
 
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
@@ -421,6 +424,8 @@ def list_all_users():
 
     def day_order(a): # sort so people due soon are at the top.
         d = a[0].meeting_day_of_week
+        if not d:
+            d = "Monday"
         return (day_to_int[d] - today) % len(days_of_the_week)
 
     return render_template("view_all_students.jinja.html",
