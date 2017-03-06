@@ -7,8 +7,6 @@
 
 <h1>Students</h1>
 
-
-
 <table class="table">
     <tr>
         <th>Name</th>
@@ -20,7 +18,14 @@
     <tr>
         <td><a href="{{url_for('.view_user', user_key=s[1])}}">{{s[0].get_display_name()}}</a></td>
         <td>{{s[0].meeting_day_of_week}}</td>
-        <td {% if s[0].is_report_overdue() %}class="overdue"{% elif s[0].is_report_due() %}class="waiting"{% else %}class="ontime"{% endif %}>{% if s[0].get_latest_report() %}<a href="{{url_for('student_ops.latest_report', student_key=s[1])}}">{{s[0].get_latest_report().local_created_time().strftime("%H:%M%p on %A, %d %B")}}</a>{% endif %}</td>
+        <td {% if s[0].is_report_overdue() %}
+            class="overdue"
+            {% elif s[0].is_report_due() %}
+            class="waiting"
+            {% else %}
+            class="ontime"
+            {% endif %}
+        >{% if s[0].get_latest_report() %}<a href="{{url_for('student_ops.latest_report', student_key=s[1])}}">{{s[0].get_latest_report().local_created_time().strftime("%H:%M%p on %A, %d %B")}}</a>{% endif %}</td>
     </tr>
     {% endfor %}
 </tbody>

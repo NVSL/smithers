@@ -665,6 +665,14 @@ def new_report(student):
             flash("Correct the errors below", category="error")
             return render_new_report_page(form, student)
     else:
+        latest_report = Report.query(ancestor=student.key).order(-Report.created).get() 
+
+        if latest_report is not None:
+            form.previous_weekly_goals.data = latest_report.next_weekly_goals
+            form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
+            form.next_weekly_goals.data = latest_report.next_weekly_goals
+            form.long_term_goal.data = latest_report.long_term_goal
+
         return render_new_report_page(form, student)
 
 
@@ -739,13 +747,6 @@ def render_update_report_page(form, student, report_key):
 
 def render_new_report_page(form, student):
 
-    latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
-
-    if latest_report is not None:
-        form.previous_weekly_goals.data = latest_report.next_weekly_goals
-        form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
-        form.next_weekly_goals.data = latest_report.next_weekly_goals
-        form.long_term_goal.data = latest_report.long_term_goal
 
     t = student.compute_next_due_date()
     if t:
