@@ -665,7 +665,7 @@ def new_report(student):
             flash("Correct the errors below", category="error")
             return render_new_report_page(form, student)
     else:
-        latest_report = Report.query(ancestor=student.key).order(-Report.created).get() 
+        latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
 
         if latest_report is not None:
             form.previous_weekly_goals.data = latest_report.next_weekly_goals
