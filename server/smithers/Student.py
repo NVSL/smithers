@@ -679,10 +679,10 @@ def new_report(student):
 @student_ops.route('/weekly/<report_key>/update', methods=["POST", 'GET'])
 def update_report(report_key):
     student = Student.get_current_student()
-    return update_report(student, report_key)
+    return do_update_report(student, report_key)
 
 
-def update_report(student, report_key):
+def do_update_report(student, report_key):
 
     form = UpdateReportForm(request.form)
 
@@ -693,7 +693,7 @@ def update_report(student, report_key):
         read_only(form.previous_weekly_goals)
         read_only(form.progress_made)
         read_only(form.problems_encountered)
-        read_only(form.other_issues)
+        #read_only(form.other_issues)
 
         most_recent_report = Report.query(ancestor=student.key).order(-Report.created).get()
         if most_recent_report.key.urlsafe() != report_key:
