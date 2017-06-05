@@ -97,6 +97,7 @@ class Student(SmartModel):
     userid = ndb.StringProperty()
 
     last_signed_expectations_agreement = ndb.DateTimeProperty()
+    last_entered_availability = ndb.DateTimeProperty()
 
     meeting_day_of_week = ndb.StringProperty()
 
@@ -454,12 +455,58 @@ class UpdateUser(Requirement):
     def redirect_url(self, student):
         return self.url_for(".update_user")
 
+class EnterMeetingAvailability(Requirement):
+    def is_satisfied(self, student):
+        return student.last_entered_availability and student.last_entered_availability > datetime.datetime(2017, 6,5)
+
+    def redirect_url(self, student):
+        return self.url_for(".enter_meeting_schedule_info")
+
+class MeetingAvailabiltyForm(FlaskForm):
+    #name = StringField("Name", validators=[InputRequired()])
+    agree = BooleanField("I have entered my non-availability information.", validators=[InputRequired()])
+    submit = SubmitField("Submit")
+
+@student_ops.route("/meeting_times", methods=["POST", "GET"])
+def enter_meeting_schedule_info():
+    student = Student.get_current_student()
+    form = MeetingAvailabiltyForm(request.form)
+    if request.method == "POST":
+        if form.validate():
+            try:
+                student.last_entered_availability = datetime.datetime.now()
+                student.put()
+            except Exception as e:
+                flash(str(e), category='error')
+                return redirect(url_for(".enter_meeting_schedule_info"))
+            else:
+                flash("Response recorded", category='success')
+                return redirect(next_url(url_for(".submit_report")))
+        else:
+            [ flash(e, category='error') for e in form.agree.errors ]
+            return render_template("html/meetings.jinja.html",
+                                   form=form,
+                                   target_week="June 26th",
+                                   last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
+                                   student=student
+                                   )
+
+    else:
+        return render_template("html/meetings.jinja.html",
+                               form=form,
+                               target_week="June 26th",
+                               #how_long=datetime.datetime.now() - student.last_signed_expectations_agreement,
+                               last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
+                               student=student
+                             )
+
 class SignExpectationsAgreement(Requirement):
     def is_satisfied(self, student):
         if student.last_signed_expectations_agreement is None:
             return False
 
         how_long = datetime.datetime.now() - student.last_signed_expectations_agreement
+
         if how_long > config.expectation_agreement_period:
             return False
         else:
@@ -467,6 +514,7 @@ class SignExpectationsAgreement(Requirement):
 
     def redirect_url(self, student):
         return self.url_for(".sign_expectation_agreement")
+
 
 class ExpectationAgreementForm(FlaskForm):
     #name = StringField("Name", validators=[InputRequired()])
@@ -505,7 +553,9 @@ def sign_expectation_agreement():
                              )
 
 requirements = [UpdateUser(),
-                SignExpectationsAgreement()]
+                SignExpectationsAgreement(),
+                EnterMeetingAvailability()
+                ]
 
 class BaseReportForm(FlaskForm):
     long_term_goal = TextAreaField('Long Term Goal', validators=[InputRequired()])
