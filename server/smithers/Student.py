@@ -103,6 +103,11 @@ class Student(SmartModel):
 
     is_test_account = ndb.BooleanProperty()
 
+    submits_reports = ndb.BooleanProperty()
+
+    def get_submits_reports(self):
+        return self.submits_reports is None or self.submits_reports
+
     @classmethod
     def field_annotations(cls):
         return dict(
@@ -329,7 +334,8 @@ class Student(SmartModel):
                                   userid=user.user_id(),
                                   username=user.email().split("@")[0],
                                   is_test_account=False,
-                                  meeting_day_of_week="")
+                                  meeting_day_of_week="",
+                                  submits_reports=True)
                 student.put()
             else:
                 raise Exception("Unauthorized email address")
@@ -425,6 +431,8 @@ def list_all_users():
 
     def day_order(a): # sort so people due soon are at the top.
         d = a[0].meeting_day_of_week
+        if not a[0].get_submits_reports():
+            return 100000
         if not d:
             d = "Monday"
         return (day_to_int[d] - today) % len(days_of_the_week)
@@ -955,6 +963,8 @@ def send_reminder_emails():
     today = now.strftime("%A")
 
     for s in students:
+        if not s.get_submits_reports():
+            continue
         if s.meeting_day_of_week:
             if today == day_before[s.meeting_day_of_week] and s.is_report_due():
                 due_time = s.compute_next_due_date()

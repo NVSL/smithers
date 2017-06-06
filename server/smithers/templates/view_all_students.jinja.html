@@ -15,7 +15,13 @@
     </tr>
     <tbody>
     {% for s in students %}
-    <tr>
+    <tr
+    {% if not s[0].get_submits_reports() %}
+    class="inactive"
+    {% else %}
+    class="active"
+    {% endif %}
+    >
         <td><a href="{{url_for('.view_user', user_key=s[1])}}">{{s[0].get_display_name()}}</a></td>
         <td>{{s[0].meeting_day_of_week}}</td>
         <td {% if s[0].is_report_overdue() %}
@@ -42,6 +48,14 @@
     }
     .waiting a {
         color:black;
+    }
+    .inactive a {
+        background:gray;
+        color:white;
+    }
+    .inactive  {
+        background:gray;
+        color:white;
     }
 </style>
 {% endblock smithers_content %}
