@@ -20,8 +20,8 @@ onload="load_editors()"
     <div class="form-group">
         <div class="acol-lg-offset-2 acol-lg-10">
             <div class="btn-group" role="group">
-                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>
-</button>
+                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
+
                 <div class="btn-group">
 
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}} <span class="caret"></button>
@@ -35,8 +35,8 @@ onload="load_editors()"
                  </ul>
                 </div>
 
-                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></button>
-
+                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span>
+</button>
             </div>
             {% if allow_edit %}
             <div class="btn-group" role="group">
