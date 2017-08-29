@@ -574,7 +574,7 @@ class BaseReportForm(FlaskForm):
     progress_made = TextAreaField('Weekly Progress', validators=[InputRequired()])
     problems_encountered = TextAreaField('Problems Encountered & Blocking Questions', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
-    other_issues = TextAreaField('Other Issues')
+    other_issues = TextAreaField('Other (Non-Research-related) Issues')
 
     def __init__(self, *args, **kwargs):
         super(BaseReportForm, self).__init__(*args, **kwargs)
