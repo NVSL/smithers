@@ -3,5 +3,9 @@ cron:
   url: /send_reminder_emails
   schedule: every day 20:00
   timezone: America/Los_Angeles
+- description: "Send summary emails"
+  url: /send_summary_emails
+  schedule: every day 3:00
+  timezone: America/Los_Angeles
 
 
