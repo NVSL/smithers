@@ -1028,6 +1028,51 @@ def send_summary_emails():
     now = localize_time(datetime.datetime.now())
     today = now.strftime("%A")
 
+    if len(students) == 0:
+        return "success", 200
+
+    ontime  = []
+    overdue = []
+    
+    for s in students:
+        if not s.get_submits_reports():
+            continue
+        if s.meeting_day_of_week:
+            if today == s.meeting_day_of_week:
+                if s.is_report_overdue():
+                    overdue.append(s)
+                else:
+                    ontime.append(s)
+
+    all_students = ontime + overdue
+
+    if len(all_students) > 0:
+        message = render_template("submitted_reports_email.jinja.txt",
+                                  ontime=ontime,
+                                  overdue=overdue,
+                                  recipient=s.full_name)
+
+        email = mail.EmailMessage(sender=config.admin_email,
+                                  to=[s.email for s in all_students],
+                                  bcc=config.admin_email,
+                                  subject="Today's progress reports",
+                                  body=message)
+
+        email.send()
+        log.info("Sent summary email to {}".format(", ".join([s.email for s in all_students])))
+        log.info("Message: ".format(message))
+
+            
+    return "success", 200
+                
+    
+
+@student_ops.route("/list_summary_emails")
+def list_summary_emails():
+    students = Student.query(ancestor=student_parent_key).fetch()
+    now = localize_time(datetime.datetime.now())
+    today = now.strftime("%A")
+
     ontime  = []
     overdue = []
     for s in students:
@@ -1042,24 +1087,11 @@ def send_summary_emails():
 
     all_students = ontime + overdue
 
-    #print all_students
-    #print ontime
-    #print overdue
-    
-    for s in all_students:
-        message = render_template("submitted_reports_email.jinja.txt",
-                                  ontime=ontime,
-                                  overdue=overdue,
-                                  recipient=s.full_name)
+    #log.info("all_students={}".format(all_students))
+    #log.info("ontime={}".format(ontime))
+    #log.info("overdue={}".format(overdue))
 
-        email = mail.EmailMessage(sender=config.admin_email,
-                                  to=s.email,
-                                  bcc=config.admin_email,
-                                  subject="Today's progress reports",
-                                  body=message)
-        email.send()
-
-    return redirect(url_for(".index"))
+    return "success", 200
                 
     
-                   
+

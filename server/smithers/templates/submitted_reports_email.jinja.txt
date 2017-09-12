@@ -1,4 +1,3 @@
-{{recipient}}, 
 {% if ontime|length > 0 %}
 The following group member submitted reports last night:
 
@@ -8,6 +7,6 @@ The following group member submitted reports last night:
 The following group members did not submit a report:
 
 {% for s in overdue %}  * {{s.full_name}}{% endfor %}
-{% endif %}For the students that attend the same meeting(s) as you do, please read their reports prior to coming to the meeting.
+{% endif %}For the students that attend the same meeting(s) as you do, please read their reports prior to the meeting.
 
 -steve
