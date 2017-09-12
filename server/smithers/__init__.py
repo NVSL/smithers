@@ -10,6 +10,7 @@ from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup
 from flask_debugtoolbar import DebugToolbarExtension
 
+
 # login_manager = flask_login.LoginManager()
 app = Flask(__name__)
 Bootstrap(app)
@@ -73,7 +74,7 @@ class smithers_globals(app.app_ctx_globals_class):
         super(smithers_globals,self).__init__(*args, **kwargs)
         try:
             self.current_user=Student.get_current_student()
-        except AttributeError:
+        except:
             self.current_user = None
 
         self.student_list=[(s, s.key.urlsafe()) for s in Student.query().fetch()]

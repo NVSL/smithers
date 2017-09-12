@@ -22,6 +22,7 @@ import pytz
 from htmltreediff import diff
 import flask
 
+from Exceptions import UnauthorizedException
 
 def flash(message, category):
     log.info("Flashed {}: {}".format(category, message))
@@ -29,6 +30,7 @@ def flash(message, category):
 
 student_ops = Blueprint("student_ops", __name__)
 student_parent_key=ndb.Key("Student", "students")
+
 
 class WhiteList(SmartModel):
     authorized_users = ndb.TextProperty()
@@ -338,7 +340,7 @@ class Student(SmartModel):
                                   submits_reports=True)
                 student.put()
             else:
-                raise Exception("Unauthorized email address")
+                raise UnauthorizedException("Unauthorized email address")
         return student
 
 
@@ -686,7 +688,13 @@ def view_report(report_key=None):
 
 @student_ops.route('/weekly/new_report', methods=["POST", 'GET'])
 def submit_report():
-    student = Student.get_current_student()
+
+    try:
+        student = Student.get_current_student()
+    except UnauthorizedException:
+        flash("Couldn't retrieve current user")
+        return redirect(url_for(".logout"))
+    
     for r in requirements:
         if not r.is_satisfied(student):
             return r.do_redirect(student)
