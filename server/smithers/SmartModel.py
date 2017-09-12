@@ -19,12 +19,13 @@ FieldAnnotation = namedtuple_with_defaults("FieldAnnotation",
                                             [],
                                             False])
 
-def smart_form(model, *args, **kwargs):
+def smart_form(model, key_string, *args, **kwargs):
     base = model_form(model, *args, field_args=model.wtf_field_args(), **kwargs)
     class T(base):
         key=  StringField()
         urlsafe = StringField()
         save = SubmitField(label="Save")
+        really_delete = StringField(label="To delete, enter urlsafe value")
         delete = SubmitField(label="Delete")
 
         hidden_urlsafe = HiddenField()
@@ -71,6 +72,7 @@ def ndb_edit(key):
         return ("",404)
     the_type = type(entity)
     FormType = smart_form(the_type,
+                          key,
                           base_class=FlaskForm)
     form = FormType(request.form)
 
@@ -89,6 +91,10 @@ def ndb_edit(key):
                     flash("Update failed",category="error")
                     return redirect(url_for(request.endpoint, key=key))
             elif "delete" in request.form:
+                if request.form['really_delete'] != entity.key.urlsafe():
+                    flash("Delete not confirmed.  Entity not deleted.", category='warning')
+                    return redirect(url_for(request.endpoint, key=key))
+                
                 try:
                     entity.key.delete()
                     flash("Deleted entity", category='success')
