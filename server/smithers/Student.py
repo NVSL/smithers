@@ -995,9 +995,63 @@ def send_reminder_emails():
 
 @student_ops.route("/<student_key>/latest_report")
 def latest_report(student_key):
-    student = ndb.Key(urlsafe=student_key).get()
+    try:
+        student = ndb.Key(urlsafe=student_key).get()
+    except:
+        students = Student.query(Student.username == student_key).fetch()
+        if len(students) == 0:
+            student = None
+        else:
+            student = students[0]
+            
+    if student is None:
+        flash("Couldn't find user '{}'".format(student_key))
+        return redirect(url_for(".index"))
+            
     latest_report = student.get_latest_report()
     if not latest_report:
         flash("{} has not submitted any reports.".format(student.full_name))
         return redirect(url_for(".index"))
     return redirect(url_for(".view_report", report_key=latest_report.key.urlsafe()))
+
+@student_ops.route("/send_summary_emails")
+def send_summary_emails():
+    students = Student.query(ancestor=student_parent_key).fetch()
+    now = localize_time(datetime.datetime.now())
+    today = now.strftime("%A")
+
+    ontime  = []
+    overdue = []
+    for s in students:
+        if not s.get_submits_reports():
+            continue
+        if s.meeting_day_of_week:
+            if today == s.meeting_day_of_week:
+                if s.is_report_overdue():
+                    overdue.append(s)
+                else:
+                    ontime.append(s)
+
+    all_students = ontime + overdue
+
+    #print all_students
+    #print ontime
+    #print overdue
+    
+    for s in all_students:
+        message = render_template("submitted_reports_email.jinja.txt",
+                                  ontime=ontime,
+                                  overdue=overdue,
+                                  recipient=s.full_name)
+
+        email = mail.EmailMessage(sender=config.admin_email,
+                                  to=s.email,
+                                  bcc=config.admin_email,
+                                  subject="Today's progress reports",
+                                  body=message)
+        email.send()
+
+    return redirect(url_for(".index"))
+                
+    
+                   
