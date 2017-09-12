@@ -1,6 +1,6 @@
 {% extends "smithers_page.jinja.html" %}
 {% macro edit_entity(form) %}
-{{ wtf.quick_form(form, button_map={"delete": "danger"})}}
+{{ wtf.quick_form(form, button_map={"save": "primary"})}}
 {% endmacro %}
 {% block smithers_content %}
 

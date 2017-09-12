@@ -1,0 +1,13 @@
+{{recipient}}, 
+{% if ontime|length > 0 %}
+The following group member submitted reports last night:
+
+{% for s in ontime %}  * {{s.full_name}}:  {{request.url_root[0:-1]}}{{url_for(".latest_report", student_key=s.username)}}
+{% endfor %}{% endif %}
+{% if overdue|length > 0 %}
+The following group members did not submit a report:
+
+{% for s in overdue %}  * {{s.full_name}}{% endfor %}
+{% endif %}For the students that attend the same meeting(s) as you do, please read their reports prior to coming to the meeting.
+
+-steve
