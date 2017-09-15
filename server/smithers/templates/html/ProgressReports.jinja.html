@@ -2,35 +2,47 @@
 {% block smithers_content %}
 <h1></a>Weekly Progress Reports</h1>
 
+{% if form %}
+<p><i><strong>
+      These guidelines have changed.  Please read them carefully.
+</strong></i></p>
+{% endif %}
+
 <p>You should submit weekly progress reports via the lab's <a href="{{url_for('student_ops.submit_report')}}">online progress reporting system.</a></p>
+
+<p>Group members that attend your meetings will read the reports before the meeting.</p>
+
 <h2>Goals</h2>
 
 <p>Submitting these reports will take time and require some effort, but my hope is that they will pay off in other ways:</p>
 <ol>
     <li><b>Maintain focus:</b>The reports will help you focus on your primary goals, what you are working on, and the alignment between the two.</li>
-    <li><b>More efficient meetings:</b> Since the reports are filed before the meetings, I can read about what you've done rather having you explain it.  Then, we can spend more time discussing solutions, next steps, etc.</li>
+    <li><b>More efficient and engaging meetings:</b> Since the reports are filed before the meetings, the group  can <i>and will</i> read about what you've done rather having you explain it.  This will allow other students to better understand what you are doing and engage in a useful discussion about your work.</li>
     <li><b>Clear record of progress:</b> The reports will provide a record of what you have been working on and how it's going.  I (and you) will use this information to prepare the progress reports we often need to submit to companies and funding institutions.</li>
     <li><b>Continutity across meetings:</b> Having consistent reports should save time in our getting synchronized about what you are working on during each meeting.</li>
     <li><b>Writing practice:</b>  Preparing the reports will give you practice summarizing and presenting your work.  Much of my advice about <a href="{{url_for('student_ops.render_resource', file='WritingPapers.html')}}">writing papers</a> applies  to these reports.</li>
 </ol>
 
-<h2>The reports</h2>
+<h2>The Reports</h2>
 
 <p>Each week, your report should provide a clear, concise picture of what you are working on, what's going well, what is not, and what the next steps are.  The report form has six sections:</p>
 <ol>
-    <li><b>Current Long Term Goal:</b> Bullet points succinctly describing your mid- to long-term technical goal or goals.  Something like "complete the implementation of My Awesome System" or "Complete the data collection for our ISCA paper."  When you accomplish a goal, <span style="text-decoration: line-through">strike through</span> it (but never delete it).  When you add new goals, put them at the top.</li>
+    <li><b>Current Long Term Goal:</b> Bullet points succinctly describing your mid- to long-term technical goal or goals.  Something like "Complete the implementation of My Awesome System" or "Complete the data collection for our ISCA paper."  When you accomplish a goal, <span style="text-decoration: line-through">strike through</span> it (but never delete it).  When you add new goals, put them at the top.</li>
     <li><b>Previous Weekly Goals</b> These are the goals you set for yourself last week.  These are copied from the previous report.</li>
-    <li><b>Weekly Progress:</b> A description of what you've accomplished during the week.  This should be a description of what you have accomplished (e.g., data produced, conclusions reached, questions raised) rather than a narrative of what you did during the week.  Please includes graphs, screenshots, or other information as necessary and along with your analysis of your results.  This section (combined with the next) should provide the background I need so we can have a productive discussion about your work during the meeting.</li>
+    <li><b>Weekly Progress:</b> A description of what you've accomplished during the week.  This section (combined with the next) should provide the background the group will need to productive discussion about your work during the meeting.  This should be a description of what you have accomplished (e.g., data produced, conclusions reached, questions raised) rather than a narrative or simple list what you did.<br/>
+      <b>If you have data you will present during the meeting, put the graphs in here.</b></br>
+      This field will be auto-populated with your goals from last week.  <span style="text-decoration: line-through">Strike through</span> through the ones you completed.
+    </li>
     <li><b>Problems Encountered &amp; Blocking Questions</b> Describe any challenges you encountered and how they interefered with your ability to achieve the goals you set in the previous week.  This includes any questions or uncertaintanties that keeping you from making progess.</li>
-    <li><b>Next Weekly Goals:</b> Bullet points succintly describing what you plan to accomplish?  This should be concrete, measurable goals <i>that you can complete this week</i>.  If the task is too large to complete in a week, then describe one or more subtasks you will complete this week.  <br/> This field is copied from the previous weeks goals.  For goals you have completed, <span style="text-decoration: line-through">strike them out</span>.   Add any new goals you are setting for yourself, and delete previously <span style="text-decoration: line-through">struck-out goals</span> so it's easy to see what progress you've made.</li>
-    <li><b>Other Issues:</b>Is there anything else you need to talk to me about (e.g., departemental deadlines,  Internships, or Personal issues)</li>
+    <li><b>Next Weekly Goals:</b> Bullet points succintly describing what you plan to accomplish?  This should be concrete, measurable goals <i>that you can complete this week</i>.  If the task is too large to complete in a week, then describe one or more subtasks you will complete this week.</li>
+    <li><b>Other Issues:</b>Is there anything else you need to talk to me about <i>not related to your research</i>.   Since reports are not confidential, you can just mention that you need to schedule a meeting with me, if you'd prefer.</li>
 </ol>
 
-<p>Your reports should concise, easy to read, and easy to understand.  The HTML editor you will use to enter the reports is pretty sophisticated.  Use it's formatting tools to create bullet points, etc.  It also allows for embedding images.  Please make use of this to include graphs and data.  Nothing makes an advisor happier than graphs!</p>
+<p>The audience for your reports is myself and your fellow students.  Since each of us will need to read many of them, the reports should be concise, easy to read, and easy to understand.  The HTML editor you will use to enter the reports is pretty sophisticated.  Use it's formatting tools to create bullet points, etc.  It also allows for embedding images.  Please make use of this to include graphs and data.  Nothing makes an advisor happier than graphs!</p>
 
-<h2>Reports are not confidential</h2>
+<h2>Reports Are Not Confidential</h2>
 
-<p>The reports may be visible to other group members.  Don't include anything in your report that you wouldn't be willing to send to the group mailing list.  Please do not provide confidential, personal information in your report.  If you need to discuss something confidential with me, send it in a email (if it can't wait) or, better yet, tell me in person.</p>
+<p>The reports will be sent to other group members.  Don't include anything in your report that you wouldn't be willing to send to the group mailing list.  Please do not provide confidential, personal information in your report.  If you need to discuss something confidential with me, send it in a email (if it can't wait) or tell me in person.</p>
 
 <h2>Deadlines</h2>
 
@@ -38,5 +50,8 @@
 
 <p>The system should send you a reminder at about 8pm the night before the report is due.</p>
 
+{% if form %}
+{{ wtf.quick_form(form) }}
+{% endif %}
+
 {% endblock smithers_content %}
-\

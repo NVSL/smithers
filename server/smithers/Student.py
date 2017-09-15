@@ -100,6 +100,7 @@ class Student(SmartModel):
 
     last_signed_expectations_agreement = ndb.DateTimeProperty()
     last_entered_availability = ndb.DateTimeProperty()
+    last_read_report_guidelines = ndb.DateTimeProperty()
 
     meeting_day_of_week = ndb.StringProperty()
 
@@ -458,6 +459,25 @@ class Requirement(object):
     def url_for(self, *args, **kwargs):
         return url_for(*args, next=self.next_url, **kwargs)
 
+class ReadingRequirement(Requirement):
+
+    def __init__(self,
+                 submission_start_date,
+                 get_last_completion,
+                 redirect_method):
+        super(ReadingRequirement, self).__init__()
+        
+        self.submission_start_date = submission_start_date
+        self.get_last_completion = get_last_completion
+        self.redirect_method = redirect_method
+        
+    def is_satisfied(self, student):
+        return self.get_last_completion(student) and self.get_last_completion(student) > self.submission_start_date 
+
+    def redirect_url(self, student):
+        return self.url_for(self.redirect_method)
+
+    
 class UpdateUser(Requirement):
     def is_satisfied(self, student):
         return student.full_name is not None and student.meeting_day_of_week is not None
@@ -465,9 +485,61 @@ class UpdateUser(Requirement):
     def redirect_url(self, student):
         return self.url_for(".update_user")
 
+    
+class ReadReportGuidelines(ReadingRequirement):
+
+    def __init__(self):
+        super(ReadReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 9, 14),
+                                                   get_last_completion=lambda x: x.last_read_report_guidelines,
+                                                   redirect_method=".read_report_guidelines")
+                                                  
+
+class ReportGuidelinesForm(FlaskForm):
+    #name = StringField("Name", validators=[InputRequired()])
+    agree = BooleanField("I have read the report guideline.", validators=[InputRequired()])
+    submit = SubmitField("Submit")
+
+
+# lines with ### are the ones that differ between this and the form for entering schedule info.  We should really be able to merge them.
+@student_ops.route("/report_guidelines", methods=["POST", "GET"])
+def read_report_guidelines():
+    student = Student.get_current_student()
+    form = ReportGuidelinesForm(request.form) ###
+    target_week = "October 2nd" # this is the week they should enter there information for. ###
+    if request.method == "POST":
+        if form.validate():
+            try:
+                student.last_read_report_guidelines = datetime.datetime.now() ###
+                student.put()
+            except Exception as e:
+                flash(str(e), category='error')
+                return redirect(url_for(".read_report_guidelines")) ###
+            else:
+                flash("Response recorded", category='success')
+                return redirect(next_url(url_for(".submit_report")))
+        else:
+            [ flash(e, category='error') for e in form.agree.errors ]
+            return render_template("html/ProgressReports.jinja.html",
+                                   form=form,
+                                   target_week=target_week,
+                                   last_signed=student.last_read_report_guidelines and localize_time(student.last_read_report_guidelines), ###
+                                   student=student
+                                   )
+
+    else:
+        return render_template("html/ProgressReports.jinja.html", ###
+                               form=form,
+                               target_week=target_week,
+                               last_signed=student.last_read_report_guidelines and localize_time(student.last_read_report_guidelines),  ###
+                               student=student
+                             )
+
+    
 class EnterMeetingAvailability(Requirement):
+    
     def is_satisfied(self, student):
-        return student.last_entered_availability and student.last_entered_availability > datetime.datetime(2017, 6,5)
+        submission_start_date = datetime.datetime(2017, 9, 15)
+        return student.last_entered_availability and student.last_entered_availability > submission_start_date
 
     def redirect_url(self, student):
         return self.url_for(".enter_meeting_schedule_info")
@@ -481,6 +553,7 @@ class MeetingAvailabiltyForm(FlaskForm):
 def enter_meeting_schedule_info():
     student = Student.get_current_student()
     form = MeetingAvailabiltyForm(request.form)
+    target_week = "October 2nd" # this is the week they should enter there information for.
     if request.method == "POST":
         if form.validate():
             try:
@@ -496,7 +569,7 @@ def enter_meeting_schedule_info():
             [ flash(e, category='error') for e in form.agree.errors ]
             return render_template("html/meetings.jinja.html",
                                    form=form,
-                                   target_week="June 26th",
+                                   target_week=target_week,
                                    last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
                                    student=student
                                    )
@@ -504,7 +577,7 @@ def enter_meeting_schedule_info():
     else:
         return render_template("html/meetings.jinja.html",
                                form=form,
-                               target_week="June 26th",
+                               target_week=target_week,
                                #how_long=datetime.datetime.now() - student.last_signed_expectations_agreement,
                                last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
                                student=student
@@ -564,7 +637,8 @@ def sign_expectation_agreement():
 
 requirements = [UpdateUser(),
                 SignExpectationsAgreement(),
-                EnterMeetingAvailability()
+                EnterMeetingAvailability(),
+                ReadReportGuidelines()
                 ]
 
 class BaseReportForm(FlaskForm):
@@ -692,7 +766,7 @@ def submit_report():
     try:
         student = Student.get_current_student()
     except UnauthorizedException:
-        flash("Couldn't retrieve current user")
+        flash("Couldn't retrieve current user", category='error')
         return redirect(url_for(".logout"))
     
     for r in requirements:
@@ -1087,9 +1161,9 @@ def list_summary_emails():
 
     all_students = ontime + overdue
 
-    #log.info("all_students={}".format(all_students))
-    #log.info("ontime={}".format(ontime))
-    #log.info("overdue={}".format(overdue))
+    log.info("all_students={}".format(all_students))
+    log.info("ontime={}".format(ontime))
+    log.info("overdue={}".format(overdue))
 
     return "success", 200
                 
