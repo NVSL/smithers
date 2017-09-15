@@ -1033,9 +1033,11 @@ def send_summary_emails():
 
     ontime  = []
     overdue = []
-    
+    all_students = []
     for s in students:
-        if not s.get_submits_reports():
+        if s.get_submits_reports():
+            all_students.append(s)
+        else:
             continue
         if s.meeting_day_of_week:
             if today == s.meeting_day_of_week:
@@ -1043,8 +1045,6 @@ def send_summary_emails():
                     overdue.append(s)
                 else:
                     ontime.append(s)
-
-    all_students = ontime + overdue
 
     if len(all_students) > 0:
         message = render_template("submitted_reports_email.jinja.txt",
