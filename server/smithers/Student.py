@@ -1121,7 +1121,7 @@ def send_summary_emails():
                 else:
                     ontime.append(s)
 
-    if len(all_students) > 0:
+    if len(all_students) > 0 and len(overdue) + len(ontime) > 1: # > 1 because if there's only one student, we don't need to send mail.
         message = render_template("submitted_reports_email.jinja.txt",
                                   ontime=ontime,
                                   overdue=overdue,
