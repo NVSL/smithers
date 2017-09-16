@@ -5,6 +5,12 @@
 
 Welcome to the NVSL progress reporting system.
 
+This is a web-based system we use for submitting progress reports.
+
 Please visit {{url}} to set up your account.  You can sign in with your '{{email}}' google account.
+
+The first time you log in, it will ask you to set some stuff up.  Set your meeting day if you know it, otherwise set it to Monday.
+
+It will also ask you to read and agree to a set of group expectations and policies.  These are important, I take them very seriously, and so should you.  Please read them closely.  We can discuss them further when we meet next.
 
 -steve
