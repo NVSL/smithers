@@ -810,7 +810,8 @@ def new_report(student):
         if latest_report is not None:
             form.previous_weekly_goals.data = latest_report.next_weekly_goals
             form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
-            form.next_weekly_goals.data = latest_report.next_weekly_goals
+            form.progress_made.data = latest_report.next_weekly_goals
+            #form.next_weekly_goals.data = latest_report.next_weekly_goals
             form.long_term_goal.data = latest_report.long_term_goal
 
         return render_new_report_page(form, student)
