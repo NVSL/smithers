@@ -1,7 +1,7 @@
 {% extends "smithers_page.jinja.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block title %}View Report{% endblock title%}
+{% block title %}{{display_user.full_name}}: {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}{% endblock title%}
 
 {% block body_attribs %}
 onload="load_editors()"
