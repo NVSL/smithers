@@ -1095,7 +1095,8 @@ def latest_report(student_key):
     if not latest_report:
         flash("{} has not submitted any reports.".format(student.full_name))
         return redirect(url_for(".index"))
-    return redirect(url_for(".view_report", report_key=latest_report.key.urlsafe()))
+
+    return view_report(report_key=latest_report.key.urlsafe())
 
 @student_ops.route("/send_summary_emails")
 def send_summary_emails():
