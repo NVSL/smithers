@@ -6,7 +6,8 @@ The following group member submitted reports last night:
 {% if overdue|length > 0 %}
 The following group members had a report due but did not submit one:
 
-{% for s in overdue %}  * {{s.full_name}}{% endfor %}{% endif %}
+{% for s in overdue %}  * {{s.full_name}}
+{% endfor %}{% endif %}
 
 For the students that attend the same meeting(s) as you do (or a related meeting), please read their reports prior to the meeting.
 
