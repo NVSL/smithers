@@ -652,6 +652,8 @@ class BaseReportForm(FlaskForm):
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     other_issues = TextAreaField('Other (Non-Research-related) Issues')
 
+    advisor_comments = TextAreaField('Advisor Notes')
+
     def __init__(self, *args, **kwargs):
         super(BaseReportForm, self).__init__(*args, **kwargs)
         read_only(self.disp_previous_weekly_goals)
@@ -675,6 +677,7 @@ class BaseReportForm(FlaskForm):
         self.other_issues.data = report.other_issues
         self.report_id.data = report.key.urlsafe()
         self.report_for_date.data = report.report_for_date
+        self.advisor_comments.data = report.advisor_comments
 
     def update_to_report(self, report):
         if self.long_term_goal.data:
@@ -689,6 +692,8 @@ class BaseReportForm(FlaskForm):
             report.next_weekly_goals = self.next_weekly_goals.data
         if self.other_issues.data:
             report.other_issues = self.other_issues.data
+        if self.advisor_comments.data:
+            report.advisor_comments = self.advisor_comments.data
 
 class NewReportForm(BaseReportForm):
     #save = SubmitField("Save")
@@ -755,7 +760,8 @@ def view_report(report_key=None):
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
                         allow_edit=all_reports[0] == report,
-                        body=body
+                        body=body,
+                        is_advisor=users.is_current_user_admin()
                         )
     return r
 
@@ -881,7 +887,8 @@ def render_update_report_page(form, student, report_key):
                         form=form,
                         display_user=student,
                         report_is_due=student.is_report_due(),
-                        the_report=display_report
+                        the_report=display_report,
+                        is_advisor=users.is_current_user_admin()
                         )
     return r
 

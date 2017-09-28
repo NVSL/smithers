@@ -20,6 +20,14 @@ class Report(SmartModel):
     report_for_date = ndb.DateProperty()
     student = ndb.StringProperty()
 
+    advisor_comments = ndb.TextProperty()
+
+    def get_advisor_comments(self):
+        if self.advisor_comments:
+            return self.advisor_comments
+        else:
+            return ""
+
     def delete(self):
         self.key.delete()
 
