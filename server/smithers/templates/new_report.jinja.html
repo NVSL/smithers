@@ -24,19 +24,7 @@ onload="load_editors()"
   {{ render_editable_report(form) }}
 {% endif %}
 
-<script type="text/javascript">
-
-    function load_editors() {
-        $(".report-form textarea").each(function (i, e) {
-            if (!$(e).attr("disabled")) {//} !== "disp_previous_weekly_goals") {
-                window.CKEDITOR.replace($(e).attr("id"), {
-                    filebrowserUploadUrl: '/cke/upload',
-                    filebrowserImageUploadUrl: '/cke/upload'
-                })
-            }
-        });
-    }
-</script>
+{{ load_editor() }}
 
 <style>
     .report-body {

@@ -35,8 +35,7 @@ onload="load_editors()"
                  </ul>
                 </div>
 
-                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span>
-</button>
+                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span></button>
             </div>
             {% if allow_edit %}
             <div class="btn-group" role="group">
@@ -47,10 +46,31 @@ onload="load_editors()"
     </div>
 
     <div>Submitted {{the_report.local_created_time().strftime("%H:%M%p on %A, %d %B")}}</div>
+
+
     {{ render_completed_report_body(form) }}
+
 </form>
 
+{% if is_advisor %}
+<hr/>
+<form class="form report-form from-horizontal" action="{{url_for('.update_advisor_comments', report_key=the_report.key.urlsafe())}}"
+                method="POST"
+                role="form">
+
+            {{ wtf.form_field(form.advisor_comments, form_type='basic', horizontal_columns=('lg', 2, 10), button_map=button_map)}}
+
+            {% if form.save %}
+            {{ wtf.form_field(form.save) }}
+            {% endif %}
+</form>
+<hr/>
+{% endif %}
+
+
 {{ edit_entity_button(the_report, "Raw Edit Report")}}
+
+{{ load_editor() }}
 
 <style>
     .report-body {

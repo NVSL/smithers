@@ -700,8 +700,7 @@ class NewReportForm(BaseReportForm):
     submit = SubmitField("Submit")
 
 class ViewReportForm(BaseReportForm):
-    pass
-    #update = SubmitField("Update Report")
+    save = SubmitField("Submit")
 
 class UpdateReportForm(BaseReportForm):
     submit = SubmitField("Submit Update")
@@ -740,22 +739,28 @@ def view_report(report_key=None):
         return "Missing report", 404
 
     form = ViewReportForm()
-    form.load_from_report(report)
     form.read_only()
 
+    r = render_view_report_page(form, report, student)
+    return r
+
+def render_view_report_page(form, report, student):
+    form.load_from_report(report)
     prev_report = Report.query(Report.created < report.created, ancestor=student.key).order(-Report.created).get()
     next_report = Report.query(Report.created > report.created, ancestor=student.key).order(Report.created).get()
 
-    all_reports = Report.query( ancestor=student.key).order(-Report.created).fetch()
+    all_reports = Report.query(ancestor=student.key).order(-Report.created).fetch()
 
-    body=render_report_for_email(report, "foo", student)
+    body = render_report_for_email(report, "foo", student)
 
     r = render_template("view_report.jinja.html",
                         form=form,
                         display_user=student,
                         current_user=Student.get_current_student(),
-                        next_report=url_for(".view_report", report_key=next_report.key.urlsafe()) if next_report else None,
-                        prev_report=url_for(".view_report", report_key=prev_report.key.urlsafe()) if prev_report else None,
+                        next_report=url_for(".view_report",
+                                            report_key=next_report.key.urlsafe()) if next_report else None,
+                        prev_report=url_for(".view_report",
+                                            report_key=prev_report.key.urlsafe()) if prev_report else None,
                         the_report=report,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
@@ -794,6 +799,11 @@ def new_report(student):
                 form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
                 form.populate_obj(report)
                 report.previous_weekly_goals = form.previous_weekly_goals.data
+
+                latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
+                if latest_report is not None:
+                    report.advisor_comments = latest_report.advisor_comments
+
                 report.student = student.nickname()
                 report.put()
             except Exception as e:
@@ -840,27 +850,25 @@ def do_update_report(student, report_key):
         read_only(form.previous_weekly_goals)
         read_only(form.progress_made)
         read_only(form.problems_encountered)
-        #read_only(form.other_issues)
+        # read_only(form.other_issues)
 
         most_recent_report = Report.query(ancestor=student.key).order(-Report.created).get()
         if most_recent_report.key.urlsafe() != report_key:
             flash("You can only edit your most recent report.", category="error")
             return redirect(url_for(".view_report", report_key=report_key))
 
-
     if request.method == "POST":
         if form.validate():
             try:
                 report = ndb.Key(urlsafe=form.report_id.data).get()
                 old_report = copy.copy(report)
-                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
-                #print "FORM = {}".format(request.form)
+                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d").date()
+                # print "FORM = {}".format(request.form)
                 form.update_to_report(report)
                 report.put()
             except Exception as e:
-                flash("Couldn't update report: {}".format(e),category='error')
+                flash("Couldn't update report: {}".format(e), category='error')
                 return render_update_report_page(form, student, report_key)
-
 
             try:
                 send_update_email(student, report, old_report)
@@ -875,6 +883,33 @@ def do_update_report(student, report_key):
             return render_update_report_page(form, student, report_key)
     else:
         return render_update_report_page(form, student, report_key)
+
+
+@student_ops.route('/weekly/<report_key>/advisor_update', methods=["POST", 'GET'])
+def update_advisor_comments(report_key):
+    student = Student.get_current_student()
+    report = ndb.Key(urlsafe=report_key).get()
+
+    form = ViewReportForm(request.form)
+
+
+    if request.method == "POST":
+        if True or form.validate():
+            try:
+                report.advisor_comments = form.advisor_comments.data
+                report.put()
+            except Exception as e:
+                flash("Couldn't update report: {}".format(e),category='error')
+                return render_view_report_page(form, report, student)
+
+            flash("Advisor comments saved.", category="success")
+
+            return redirect(url_for(".view_report", report_key=report_key))
+        else:
+            flash("Correct the errors below", category="error")
+            return render_view_report_page(form, report, student)
+    else:
+        return render_view_report_page(form, report, student)
 
 
 def render_update_report_page(form, student, report_key):
@@ -1104,6 +1139,7 @@ def latest_report(student_key):
         return redirect(url_for(".index"))
 
     return view_report(report_key=latest_report.key.urlsafe())
+
 
 @student_ops.route("/send_summary_emails")
 def send_summary_emails():

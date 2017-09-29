@@ -31,7 +31,7 @@
   {{ render_completed_report_section(form.next_weekly_goals)}}
   {{ render_completed_report_section(form.other_issues)}}
 
-  {% if is_advisor %}
+  {% if False and is_advisor %}
   {{ render_completed_report_section(form.advisor_comments)}}
   {% endif %}
 
@@ -65,7 +65,7 @@ button_map={}
   {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
   {% if is_advisor %}
-  {{ wtf.form_field(form.advisor_comments, form_type='basic', horizontal_columns=('lg', 2, 10), button_map=button_map)}}
+  {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
   {% endif %}
 
 {% endmacro %}
@@ -109,6 +109,23 @@ novalidate=False) %}
 
 </form>
 
+{% endmacro %}
+
+
+{% macro load_editor() %}
+<script type="text/javascript">
+
+    function load_editors() {
+        $(".report-form textarea").each(function (i, e) {
+            if (!$(e).attr("disabled")) {
+                window.CKEDITOR.replace($(e).attr("id"), {
+                    filebrowserUploadUrl: '/cke/upload',
+                    filebrowserImageUploadUrl: '/cke/upload'
+                })
+            }
+        });
+    }
+</script>
 {% endmacro %}
 
 {% import 'bootstrap/wtf.html' as wtf %}
