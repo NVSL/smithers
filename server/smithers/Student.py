@@ -10,7 +10,7 @@ from util import DFC
 import Logging as log
 from flask import redirect, url_for, request, render_template, Blueprint
 from util import next_url, localize_time
-from Report import Report
+from Report import Report, Attachment
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField, Label
 from wtforms_components import read_only
@@ -21,7 +21,7 @@ from collections import deque
 import pytz
 from htmltreediff import diff
 import flask
-
+import CKEditorSupport
 from Exceptions import UnauthorizedException
 
 def flash(message, category):
@@ -697,6 +697,7 @@ class BaseReportForm(FlaskForm):
 
 class NewReportForm(BaseReportForm):
     #save = SubmitField("Save")
+    attachments = wtforms.FileField("Files to Attach")#, multiple=True)#, validators=[FileRequired()])
     submit = SubmitField("Submit")
 
 class ViewReportForm(BaseReportForm):
@@ -766,7 +767,8 @@ def render_view_report_page(form, report, student):
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
                         allow_edit=all_reports[0] == report,
                         body=body,
-                        is_advisor=users.is_current_user_admin()
+                        is_advisor=users.is_current_user_admin(),
+                        attachments=Attachment.query(ancestor=report.key).fetch()
                         )
     return r
 
@@ -806,6 +808,14 @@ def new_report(student):
 
                 report.student = student.nickname()
                 report.put()
+
+                file = request.files['attachments']
+                error, attachment_url = CKEditorSupport.save_blob(file)
+                attachment =  Attachment(parent=report.key)
+                attachment.url = attachment_url
+                attachment.file_name = file.filename
+                attachment.put()
+
             except Exception as e:
                 flash("Couldn't save report: {}".format(e),category='error')
                 return render_new_report_page(form, student)

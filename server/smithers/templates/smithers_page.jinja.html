@@ -63,6 +63,7 @@ button_map={}
   {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
   {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
   {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+  {{ wtf.form_field(form.attachments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
   {% if is_advisor %}
   {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
@@ -85,6 +86,7 @@ novalidate=False) %}
   {%- if action != None %} action="{{action}}"{% endif -%}
   {%- if id %} id="{{id}}"{% endif -%}
   {%- if method %} method="{{method}}"{% endif %}
+  enctype="multipart/form-data",
   class="form
     {%- if extra_classes %} {{extra_classes}}{% endif -%}
     {%- if form_type == "horizontal" %} form-horizontal

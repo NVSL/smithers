@@ -45,3 +45,9 @@ class Report(SmartModel):
         if r is None:
             raise Exception("Missing report: {}".format(id))
         return r
+
+
+class Attachment(SmartModel):
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    url = ndb.TextProperty()
+    file_name = ndb.TextProperty()

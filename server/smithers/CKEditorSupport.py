@@ -21,23 +21,7 @@ def upload_ckeditor_file():
 
     if request.method == 'POST' and 'upload' in request.files:
         fileobj = request.files['upload']
-        fname, fext = os.path.splitext(fileobj.filename)
-        rnd_name = '{}{}'.format(gen_rnd_filename(), fext)
-
-        gcs_file = gcs.open("/{}/{}".format(bucket,
-                                            rnd_name),
-                            'w',
-                            content_type=fileobj.mimetype)
-
-        gcs_file.write(fileobj.read())
-        gcs_file.close()
-
-
-        if os.environ["SERVER_NAME"] == "localhost":
-            url="http://localhost:8080/_ah/gcs/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
-        else:
-            url="https://storage.googleapis.com/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
-        error = ""
+        error, url = save_blob(fileobj)
         # if not path:
         #     url = url_for('.static', filename='%s/%s' % (folder, rnd_name))
         # else:
@@ -50,6 +34,23 @@ def upload_ckeditor_file():
          """ % (callback, url, error)
 
     return res
+
+
+def save_blob(fileobj):
+    fname, fext = os.path.splitext(fileobj.filename)
+    rnd_name = '{}{}'.format(gen_rnd_filename(), fext)
+    gcs_file = gcs.open("/{}/{}".format(bucket,
+                                        rnd_name),
+                        'w',
+                        content_type=fileobj.mimetype)
+    gcs_file.write(fileobj.read())
+    gcs_file.close()
+    if os.environ["SERVER_NAME"] == "localhost":
+        url = "http://localhost:8080/_ah/gcs/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
+    else:
+        url = "https://storage.googleapis.com/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
+    error = ""
+    return error, url
 
 
 
