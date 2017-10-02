@@ -43,8 +43,16 @@ def save_blob(fileobj):
                                         rnd_name),
                         'w',
                         content_type=fileobj.mimetype)
-    gcs_file.write(fileobj.read())
-    gcs_file.close()
+    try:
+        while True:
+            buf = fileobj.read(1024*1024)
+            if buf == "":
+                break
+            else:
+                gcs_file.write(buf)
+    finally:
+        gcs_file.close()
+
     if os.environ["SERVER_NAME"] == "localhost":
         url = "http://localhost:8080/_ah/gcs/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
     else:
