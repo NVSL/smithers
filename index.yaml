@@ -27,3 +27,8 @@ indexes:
   properties:
   - name: is_draft_computed
   - name: created
+
+- kind: Attachment
+  ancestor: yes
+  properties:
+  - name: created
