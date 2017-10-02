@@ -14,22 +14,21 @@ onload="load_editors()"
 
 
 
-<form class="form report-form" method="POST">
-    <div class="form-group">
-        <div class="acol-lg-offset-2 acol-lg-10">
-                {{ wtf.form_field(form.submit) }}
-                <button type="button" class="btn btn-default" onclick='location.href="{{url_for(".view_report", report_key=the_report.key.urlsafe())}}";'>Discard</button>
-
-            <!--/div-->
-        </div>
-    </div>
+<form class="form report-form"   enctype="multipart/form-data" method="POST">
 
 <p><a href="{{url_for('student_ops.render_resource', file='ProgressReports.html')}}"><i>Questions? Read the report guidelines!</i></a></p>
 
 {{ render_editable_report_body(form) }}
+    {{ list_attachments(attachments) }}
+
+        <div class="form-group">
+        <div class="acol-lg-offset-2 acol-lg-10">
+                {{ wtf.form_field(form.submit) }}
+                <button type="button" class="btn btn-default" onclick='location.href="{{url_for(".view_report", report_key=the_report.key.urlsafe())}}";'>Discard</button>
+        </div>
+    </div>
 
 </form>
-
 
 {{ edit_entity_button(display_user, "Edit User")}}
 {{ edit_entity_button(the_report, "Edit Report")}}

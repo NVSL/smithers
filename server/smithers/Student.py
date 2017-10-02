@@ -162,6 +162,15 @@ class Student(SmartModel):
     def nickname(self):
         return self.email
 
+
+    def get_draft_report(self):
+        r = Report.query(ancestor=self.key).order(-Report.created).get()
+        if r and r.is_draft():
+            return r
+        else:
+            print "couldn't find draft report"
+            return None
+
     def compute_next_due_date(self, ignore_latest=False):
 
         now = pytz.UTC.localize(datetime.datetime.utcnow())
@@ -230,7 +239,7 @@ class Student(SmartModel):
         return self.compute_next_due_date() - config.report_submit_period
 
     def get_latest_report(self):
-        return Report.query(ancestor=self.key).order(-Report.created).get()
+        return Report.query(Report.is_draft_computed == False, ancestor=self.key).order(-Report.created).get()
 
     def is_report_overdue(self):
         if self.is_report_due():
@@ -415,7 +424,7 @@ def view_user(user_key=None):
     if not user:
         return "Access denied", 403
 
-    all_reports = Report.query(ancestor=user.key).order(-Report.created).fetch()
+    all_reports = Report.query(Report.is_draft_computed == False, ancestor=user.key).order(-Report.created).fetch()
 
     return render_template("view_student.jinja.html",
                            reports=all_reports,
@@ -697,14 +706,17 @@ class BaseReportForm(FlaskForm):
 
 class NewReportForm(BaseReportForm):
     #save = SubmitField("Save")
-    attachments = wtforms.FileField("Files to Attach")#, multiple=True)#, validators=[FileRequired()])
+    attachments = wtforms.FileField("File to Attach")#, multiple=True)#, validators=[FileRequired()])
     submit = SubmitField("Submit")
+    save = SubmitField("Save")
+
 
 class ViewReportForm(BaseReportForm):
     save = SubmitField("Submit")
 
 class UpdateReportForm(BaseReportForm):
     submit = SubmitField("Submit Update")
+    attachments = wtforms.FileField("File to Attach")#, multiple=True)#, validators=[FileRequired()])
     #cancel = SubmitField("Cancel")
 
 class CommentOnReport(FlaskForm):
@@ -747,10 +759,10 @@ def view_report(report_key=None):
 
 def render_view_report_page(form, report, student):
     form.load_from_report(report)
-    prev_report = Report.query(Report.created < report.created, ancestor=student.key).order(-Report.created).get()
-    next_report = Report.query(Report.created > report.created, ancestor=student.key).order(Report.created).get()
+    prev_report = Report.query(Report.created < report.created, Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).get()
+    next_report = Report.query(Report.created > report.created, Report.is_draft_computed == False, ancestor=student.key).order(Report.created).get()
 
-    all_reports = Report.query(ancestor=student.key).order(-Report.created).fetch()
+    all_reports = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).fetch()
 
     body = render_report_for_email(report, "foo", student)
 
@@ -788,6 +800,7 @@ def submit_report():
 
     if student.full_name is None:
         return redirect(url_for(".update_user", next=url_for(".submit_report")))
+
     return new_report(student)
 
 
@@ -797,50 +810,66 @@ def new_report(student):
     if request.method == "POST":
         if form.validate():
             try:
-                report = Report(parent=student.key)
-                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d" ).date()
+                report = student.get_draft_report()
+
+                save_attachment(report)
+
+                form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d").date()
+
+                if "submit" in request.form:
+                    report.is_draft_report = False
+                elif "save" in request.form:
+                    pass
+
                 form.populate_obj(report)
-                report.previous_weekly_goals = form.previous_weekly_goals.data
-
-                latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
-                if latest_report is not None:
-                    report.advisor_comments = latest_report.advisor_comments
-
-                report.student = student.nickname()
                 report.put()
 
-                file = request.files['attachments']
-                error, attachment_url = CKEditorSupport.save_blob(file)
-                attachment =  Attachment(parent=report.key)
-                attachment.url = attachment_url
-                attachment.file_name = file.filename
-                attachment.put()
-
             except Exception as e:
-                flash("Couldn't save report: {}".format(e),category='error')
+                flash("Couldn't save/submit report: {}".format(e),category='error')
                 return render_new_report_page(form, student)
 
-            flash("Report Saved.", category="success")
-            try:
-                send_update_email(student, report)
-            except Exception as e:
-                flash("Couldn't send notification email: {}".format(e), category="warning")
+            if "submit" in request.form:
+                flash("Report Submitted.", category="success")
+                try:
+                    send_update_email(student, report)
+                except Exception as e:
+                    flash("Couldn't send notification email: {}".format(e), category="warning")
+                return redirect(url_for(".view_report"))
+            else:
+                flash("Report saved but not submitted.", category="success")
+                return redirect(url_for(".submit_report"))
 
-            return redirect(url_for(".view_report"))
         else:
             flash("Correct the errors below", category="error")
             return render_new_report_page(form, student)
     else:
-        latest_report = Report.query(ancestor=student.key).order(-Report.created).get()
+        draft_report = student.get_draft_report()
 
-        if latest_report is not None:
-            form.previous_weekly_goals.data = latest_report.next_weekly_goals
-            form.disp_previous_weekly_goals.data = latest_report.next_weekly_goals
-            form.progress_made.data = latest_report.next_weekly_goals
-            #form.next_weekly_goals.data = latest_report.next_weekly_goals
-            form.long_term_goal.data = latest_report.long_term_goal
+        if draft_report is not None:
+            form.load_from_report(draft_report)
+        else:
+            if student.is_report_due():
+                latest_report = student.get_latest_report()
+                draft = new_draft_report(student, latest_report)
+                form.load_from_report(draft)
+
 
         return render_new_report_page(form, student)
+
+def new_draft_report(student, latest_report):
+
+    report = Report(parent=student.key)
+    if latest_report:
+        report.advisor_comments = latest_report.advisor_comments
+        report.previous_weekly_goals = latest_report.next_weekly_goals
+        report.progress_made = latest_report.next_weekly_goals
+        # report.next_weekly_goals = latest_report.next_weekly_goals
+        report.long_term_goal = latest_report.long_term_goal
+    report.is_draft_report = True
+    report.student = student.nickname()
+
+    report.put()
+    return report
 
 
 @student_ops.route('/weekly/<report_key>/update', methods=["POST", 'GET'])
@@ -850,7 +879,6 @@ def update_report(report_key):
 
 
 def do_update_report(student, report_key):
-
     form = UpdateReportForm(request.form)
 
     form.progress_made.validators = []
@@ -862,7 +890,7 @@ def do_update_report(student, report_key):
         read_only(form.problems_encountered)
         # read_only(form.other_issues)
 
-        most_recent_report = Report.query(ancestor=student.key).order(-Report.created).get()
+        most_recent_report = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).get()
         if most_recent_report.key.urlsafe() != report_key:
             flash("You can only edit your most recent report.", category="error")
             return redirect(url_for(".view_report", report_key=report_key))
@@ -875,17 +903,20 @@ def do_update_report(student, report_key):
                 form.report_for_date.data = datetime.datetime.strptime(form.report_for_date.data, "%Y-%m-%d").date()
                 # print "FORM = {}".format(request.form)
                 form.update_to_report(report)
+
+                save_attachment(report)
+
                 report.put()
             except Exception as e:
                 flash("Couldn't update report: {}".format(e), category='error')
                 return render_update_report_page(form, student, report_key)
+            else:
+                flash("Report Updated.", category="success")
 
             try:
                 send_update_email(student, report, old_report)
             except Exception as e:
                 flash("Couldn't send notification email: {}".format(e), category="warning")
-
-            flash("Report Updated.", category="success")
 
             return redirect(url_for(".view_report", report_key=report_key))
         else:
@@ -893,6 +924,17 @@ def do_update_report(student, report_key):
             return render_update_report_page(form, student, report_key)
     else:
         return render_update_report_page(form, student, report_key)
+
+
+def save_attachment(report):
+    fileobj = request.files['attachments']
+    print "FILE = {}".format(fileobj.filename)
+    if fileobj.filename:
+        error, attachment_url = CKEditorSupport.save_blob(fileobj)
+        attachment = Attachment(parent=report.key)
+        attachment.url = attachment_url
+        attachment.file_name = fileobj.filename
+        attachment.put()
 
 
 @student_ops.route('/weekly/<report_key>/advisor_update', methods=["POST", 'GET'])
@@ -933,7 +975,8 @@ def render_update_report_page(form, student, report_key):
                         display_user=student,
                         report_is_due=student.is_report_due(),
                         the_report=display_report,
-                        is_advisor=users.is_current_user_admin()
+                        is_advisor=users.is_current_user_admin(),
+                        attachments=Attachment.query(ancestor=display_report.key).fetch()
                         )
     return r
 
@@ -949,11 +992,12 @@ def render_new_report_page(form, student):
         form.read_only()
         form.submit.disabled=True
 
+    draft = student.get_draft_report()
     r = render_template("new_report.jinja.html",
                         form=form,
                         display_user=student,
                         report_is_due=student.is_report_due(),
-
+                        attachments=Attachment.query(ancestor=draft.key).fetch() if draft else []
                         )
     return r
 
@@ -962,7 +1006,7 @@ def lookup_report(report_key, student = None):
     if report_key == "current":
         if student == None:
             return None
-        report_query = Report.query(ancestor=student.key).order(Report.created)
+        report_query = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(Report.created)
         report_count = report_query.count()
         reports = report_query.fetch()
         if len(reports) == 0:
@@ -1221,6 +1265,12 @@ def list_summary_emails():
     log.info("overdue={}".format(overdue))
 
     return "success", 200
-                
-    
 
+
+@student_ops.route("/attachment/<key>", methods=["delete"])
+def delete_attachment(key):
+    try:
+        ndb.Key(urlsafe=key).delete()
+        return "success", 200
+    except:
+        return "Unknown attachment", 404

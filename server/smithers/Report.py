@@ -22,6 +22,10 @@ class Report(SmartModel):
 
     advisor_comments = ndb.TextProperty()
 
+    is_draft_report = ndb.BooleanProperty()
+
+    is_draft_computed = ndb.ComputedProperty(lambda self: True if self.is_draft_report else False)
+
     def get_advisor_comments(self):
         if self.advisor_comments:
             return self.advisor_comments
@@ -32,8 +36,10 @@ class Report(SmartModel):
         self.key.delete()
 
     def local_created_time(self):
-
         return localize_time(self.created)
+
+    def is_draft(self):
+        return self.is_draft_computed
 
     @classmethod
     def field_annotations(cls):

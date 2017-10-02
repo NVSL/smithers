@@ -50,19 +50,7 @@ onload="load_editors()"
 
     {{ render_completed_report_body(form) }}
 
-    <h2>Attachments</h2>
-
-    <table class="table">
-    <tbody>
-    {% for a in attachments %}
-    <tr>
-        <td>{{a.file_name}}</td>
-        <td><a href="{{a.url}}"><span class="glyphicon glyphicon-eye-open"  aria-hidden="download"></span></a></td>
-        <td><a href="{{a.url}}" download><span class="glyphicon glyphicon-download-alt"  aria-hidden="download"></span></a></td>
-            </tr>
-    {% endfor %}
-    </tbody>
-    </table>
+    {{ list_attachments(attachments, allow_delete=False) }}
 
 </form>
 

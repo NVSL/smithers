@@ -52,22 +52,23 @@ form_type='basic',
 horizontal_columns=('lg', 2, 10),
 button_map={}
 ) %}
-  {{ form.hidden_tag() }}
-  {{ wtf.form_errors(form, hiddens='only') }}
+    {{ form.hidden_tag() }}
+    {{ wtf.form_errors(form, hiddens='only') }}
 
-  {{ wtf.form_field(form.long_term_goal, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
-  {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
+    {{ wtf.form_field(form.long_term_goal, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
-  {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {{ wtf.form_field(form.attachments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
 
-  {% if is_advisor %}
-  {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
-  {% endif %}
+    {{ wtf.form_field(form.progress_made, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ wtf.form_field(form.attachments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+
+    {% if is_advisor %}
+        {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {% endif %}
 
 {% endmacro %}
 {% macro render_editable_report(
@@ -86,18 +87,19 @@ novalidate=False) %}
   {%- if action != None %} action="{{action}}"{% endif -%}
   {%- if id %} id="{{id}}"{% endif -%}
   {%- if method %} method="{{method}}"{% endif %}
-  enctype="multipart/form-data",
   class="form
     {%- if extra_classes %} {{extra_classes}}{% endif -%}
     {%- if form_type == "horizontal" %} form-horizontal
     {%- elif form_type == "inline" %} form-inline
     {%- endif -%}
   "
+    enctype="multipart/form-data"
   {%- if role %} role="{{role}}"{% endif -%}
   {%- if novalidate %} novalidate{% endif -%}
   >
   {{ render_editable_report_body(form, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
+    {{ list_attachments(attachments) }}
 
   {% if form.save %}
   {{ wtf.form_field(form.save) }}
@@ -113,10 +115,86 @@ novalidate=False) %}
 
 {% endmacro %}
 
+{% macro list_attachments(attachments, allow_delete=True) %}
+{% if attachments|length > 0 %}
+<h2>Attachments</h2>
+
+<script type="text/javascript">
+    function delete_attachment(url, key) {
+        $.ajax({
+            url: url,
+            type: 'DELETE',
+            success: function () {
+                $("#"+key).remove();
+            }
+        });
+    }
+</script>
+
+<table class="table">
+    <tr><td>File name</td><td></td><td></td><td></td></tr>
+<tbody>
+{% for a in attachments %}
+<tr id="{{a.key.urlsafe()}}">
+    <td>{{a.file_name}}</td>
+    <td><a href="{{a.url}}"><span class="glyphicon glyphicon-eye-open"  aria-hidden="download"></span></a></td>
+    <td><a href="{{a.url}}" download><span class="glyphicon glyphicon-download-alt"  aria-hidden="download"></span></a></td>
+    <td>{% if allow_delete %} <a onclick='delete_attachment("{{url_for('student_ops.delete_attachment',key=a.key.urlsafe())}}", "{{a.key.urlsafe()}}")' ><span class="glyphicon glyphicon-remove"  aria-hidden="download"></span></a>{% endif %}</td>
+        </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endmacro %}
 
 {% macro load_editor() %}
 <script type="text/javascript">
 
+    var report_is_clean = true;
+
+    function load_editors() {
+        $(".report-form textarea").each(function (i, e) {
+        console.log(e);
+        if (!$(e).attr("disabled")) {
+            var editor = window.CKEDITOR.replace(e, {
+                filebrowserUploadUrl: '/cke/upload',
+                filebrowserImageUploadUrl: '/cke/upload'
+            });
+            var saving = false;
+
+            /*setInterval(function () {
+                if (!clean && !saving) {
+                    console.log("Saving");
+                    saving = true;
+                    $.ajax("{url_for('app_ops.save_answer')}",
+                            {
+                                method: "POST",
+                                data: {
+                                    user: "foo",
+                                    id: $(e).attr("id"),
+                                    content: editor.getData()
+                                }
+                            }
+                    ).done(function () {
+                        clean = true;
+                    }).always(function () {
+                        saving = false;
+                    })
+                } else {
+                    console.log("not saving");
+                }
+            }, 1000);*/
+
+            editor.on('change', function() {
+                        report_is_clean = false;
+                console.log("it is dirty")
+                    }
+            );
+        }
+    });
+}
+
+    /*
     function load_editors() {
         $(".report-form textarea").each(function (i, e) {
             if (!$(e).attr("disabled")) {
@@ -126,7 +204,7 @@ novalidate=False) %}
                 })
             }
         });
-    }
+    }*/
 </script>
 {% endmacro %}
 
@@ -144,7 +222,7 @@ novalidate=False) %}
       href="{{request.host_url}}static/css/smithers.css">
 {% endblock styles %}
 
-    {% block navbar %}
+{% block navbar %}
 
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
