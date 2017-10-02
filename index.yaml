@@ -14,3 +14,16 @@ indexes:
   properties:
   - name: created
     direction: desc
+
+- kind: Report
+  ancestor: yes
+  properties:
+  - name: is_draft_computed
+  - name: created
+    direction: desc
+
+- kind: Report
+  ancestor: yes
+  properties:
+  - name: is_draft_computed
+  - name: created
