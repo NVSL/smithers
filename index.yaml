@@ -18,17 +18,18 @@ indexes:
 - kind: Report
   ancestor: yes
   properties:
-  - name: is_draft_computed
+  - name: is_draft_report
   - name: created
     direction: desc
 
 - kind: Report
   ancestor: yes
   properties:
-  - name: is_draft_computed
+  - name: is_draft_report
   - name: created
 
 - kind: Attachment
   ancestor: yes
   properties:
   - name: created
+

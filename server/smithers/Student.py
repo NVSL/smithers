@@ -162,6 +162,11 @@ class Student(SmartModel):
     def nickname(self):
         return self.email
 
+    def get_all_reports(self, include_drafts = False):
+        if include_drafts:
+            return Report.query(ancestor=self.key).order(-Report.created).fetch()
+        else:
+            return Report.query(Report.is_draft_report == False, ancestor=self.key).order(-Report.created).fetch()
 
     def get_draft_report(self):
         r = Report.query(ancestor=self.key).order(-Report.created).get()
@@ -239,7 +244,7 @@ class Student(SmartModel):
         return self.compute_next_due_date() - config.report_submit_period
 
     def get_latest_report(self):
-        return Report.query(Report.is_draft_computed == False, ancestor=self.key).order(-Report.created).get()
+        return Report.query(Report.is_draft_report == False, ancestor=self.key).order(-Report.created).get()
 
     def is_report_overdue(self):
         if self.is_report_due():
@@ -424,7 +429,7 @@ def view_user(user_key=None):
     if not user:
         return "Access denied", 403
 
-    all_reports = Report.query(Report.is_draft_computed == False, ancestor=user.key).order(-Report.created).fetch()
+    all_reports = user.get_all_reports()
 
     return render_template("view_student.jinja.html",
                            reports=all_reports,
@@ -759,10 +764,10 @@ def view_report(report_key=None):
 
 def render_view_report_page(form, report, student):
     form.load_from_report(report)
-    prev_report = Report.query(Report.created < report.created, Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).get()
-    next_report = Report.query(Report.created > report.created, Report.is_draft_computed == False, ancestor=student.key).order(Report.created).get()
+    prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False, ancestor=student.key).order(-Report.created).get()
+    next_report = Report.query(Report.created > report.created, Report.is_draft_report == False, ancestor=student.key).order(Report.created).get()
 
-    all_reports = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).fetch()
+    all_reports = student.get_all_reports()
 
     body = render_report_for_email(report, "foo", student)
 
@@ -777,7 +782,7 @@ def render_view_report_page(form, report, student):
                         the_report=report,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
-                        allow_edit=all_reports[0] == report,
+                        allow_edit=len(all_reports)> 0 and all_reports[0] == report,
                         body=body,
                         is_advisor=users.is_current_user_admin(),
                         attachments=report.get_attachments()
@@ -890,7 +895,7 @@ def do_update_report(student, report_key):
         read_only(form.problems_encountered)
         # read_only(form.other_issues)
 
-        most_recent_report = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(-Report.created).get()
+        most_recent_report = Report.query(Report.is_draft_report == False, ancestor=student.key).order(-Report.created).get()
         if most_recent_report.key.urlsafe() != report_key:
             flash("You can only edit your most recent report.", category="error")
             return redirect(url_for(".view_report", report_key=report_key))
@@ -1007,7 +1012,7 @@ def lookup_report(report_key, student = None):
     if report_key == "current":
         if student == None:
             return None
-        report_query = Report.query(Report.is_draft_computed == False, ancestor=student.key).order(Report.created)
+        report_query = Report.query(Report.is_draft_report == False, ancestor=student.key).order(Report.created)
         report_count = report_query.count()
         reports = report_query.fetch()
         if len(reports) == 0:
@@ -1223,8 +1228,7 @@ def send_summary_emails():
     if len(all_students) > 0 and len(overdue) + len(ontime) > 1: # > 1 because if there's only one student, we don't need to send mail.
         message = render_template("submitted_reports_email.jinja.txt",
                                   ontime=ontime,
-                                  overdue=overdue,
-                                  recipient=s.full_name)
+                                  overdue=overdue)
 
         email = mail.EmailMessage(sender=config.admin_email,
                                   to=[s.email for s in all_students],
@@ -1275,3 +1279,16 @@ def delete_attachment(key):
         return "success", 200
     except:
         return "Unknown attachment", 404
+
+@student_ops.route("/weekly/upgrade_all")
+def upgrade_reports():
+    response = ""
+    reports = Report.query().fetch()
+    for report in reports:
+        try:
+            report.is_draft_report = True if report.is_draft_report else False
+            report.put()
+        except Exception as e:
+            response += str(e)
+
+    return response, 200

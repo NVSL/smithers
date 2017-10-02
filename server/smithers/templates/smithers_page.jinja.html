@@ -219,7 +219,9 @@ novalidate=False) %}
 {% endblock head %}
 
 {% block styles %}
-{{ super() }}
+{{super()}}
+<!--link rel="stylesheet"
+      href="{{request.host_url}}static/css/theme.css"-->
 <link rel="stylesheet"
       href="{{request.host_url}}static/css/smithers.css">
 {% endblock styles %}
@@ -289,7 +291,6 @@ novalidate=False) %}
                 {% endif %}
 
             </ul>
-            {% if g.current_user %}
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <a href="https://meet.google.com/fds-pbpk-dny"><span style="font-size: large;" class="glyphicon glyphicon-facetime-video"  aria-hidden="hangout"></span></a>
@@ -316,7 +317,6 @@ novalidate=False) %}
                 </li>
                 <li><p class="navbar-text">&nbsp;&nbsp;</p></li-->
             </ul>
-            {% endif %}
 
         </div>
 
