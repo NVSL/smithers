@@ -1,5 +1,14 @@
 /* Sticky footer styles
 -------------------------------------------------- */
+:root {
+    --ucsd-dark-blue:rgba(24,43,73,1);
+    --ucsd-blue: rgba(0,106,160,1);
+    --ucsd-blue-highlight: rgba(0, 198, 215,1);
+
+    --header-color: var(--ucsd-blue);
+    --text-color: var(--ucsd-dark-blue);
+    --highlight-color: var(--ucsd-blue-highlight);
+}
 html {
   position: relative;
   min-height: 100%;
@@ -7,6 +16,7 @@ html {
 
 body {
   padding-top: 70px;
+    color: var(--ucsd-dark-blue);
 }
 
 
@@ -32,6 +42,7 @@ h1 {
   font-weight: bold;
 
 }
+/* rgba(24,43,73,1) */
 
 .form-notification {
   color:green;
@@ -39,15 +50,17 @@ h1 {
   font-weight: bold
 }
 
+h1, h2, h3 {
+    color:var(--header-color);
+}
 h1 {
-	color: rgba(0,0,204,1);
+
 	font-weight: normal;
 	font-size: 2.8em;
     text-decoration: none;
 }
 
 h2 {
-	color:rgba(0,0,204,1);
 	font-weight: normal;
 	font-size: 1.8em;
 	margin-top:0.5em;
@@ -55,12 +68,15 @@ h2 {
 }
 
 h3 {
-	color:rgba(0,0,204,1);
 	font-weight: normal;
 }
 
 a {
-	color:black;
+	color:var(--text-color);
+}
+
+a:hover {
+    color: var(--text-color);
 }
 
 /*.container a {
@@ -83,7 +99,7 @@ a.btn {
 }
 
 .report-form label {
-    color:rgba(0,0,204,1);
+    color:rgba(24,43,73,1);
     font-weight: normal;
     font-size: 1.8em;
     margin-top:0.5em;
@@ -99,7 +115,7 @@ h1 a {
 
 h1 a:hover {
     text-decoration: none;
-    color: inherit;
+    color: var(--text-color);
 }
 
 .report-form textarea {
