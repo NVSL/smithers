@@ -21,7 +21,7 @@ def upload_ckeditor_file():
 
     if request.method == 'POST' and 'upload' in request.files:
         fileobj = request.files['upload']
-        error, url = save_blob(fileobj)
+        error, url, size = save_blob(fileobj)
         # if not path:
         #     url = url_for('.static', filename='%s/%s' % (folder, rnd_name))
         # else:
@@ -43,12 +43,14 @@ def save_blob(fileobj):
                                         rnd_name),
                         'w',
                         content_type=fileobj.mimetype)
+    length = 0
     try:
         while True:
             buf = fileobj.read(1024*1024)
             if buf == "":
                 break
             else:
+                length += len(buf)
                 gcs_file.write(buf)
     finally:
         gcs_file.close()
@@ -58,7 +60,7 @@ def save_blob(fileobj):
     else:
         url = "https://storage.googleapis.com/nvsl-progress-reports.appspot.com/{}".format(rnd_name)
     error = ""
-    return error, url
+    return error, url, length
 
 
 

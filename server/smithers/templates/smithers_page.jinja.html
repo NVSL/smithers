@@ -132,11 +132,13 @@ novalidate=False) %}
 </script>
 
 <table class="table">
-    <tr><td>File name</td><td></td><td></td><td></td></tr>
+    <tr><td>File name</td><td>Size</td></td><td>Added</td><td></td><td></td><td></td></tr>
 <tbody>
 {% for a in attachments %}
 <tr id="{{a.key.urlsafe()}}">
     <td>{{a.file_name}}</td>
+    <td>{{"?" if not a.size else (a.size/1024)|round(1)}}&nbsp;kB</td>
+    <td>{{a.created.strftime("%H:%M:%S%p, %d %B %Y")}}</td>
     <td><a href="{{a.url}}"><span class="glyphicon glyphicon-eye-open"  aria-hidden="download"></span></a></td>
     <td><a href="{{a.url}}" download><span class="glyphicon glyphicon-download-alt"  aria-hidden="download"></span></a></td>
     <td>{% if allow_delete %} <a onclick='delete_attachment("{{url_for('student_ops.delete_attachment',key=a.key.urlsafe())}}", "{{a.key.urlsafe()}}")' ><span class="glyphicon glyphicon-remove"  aria-hidden="download"></span></a>{% endif %}</td>

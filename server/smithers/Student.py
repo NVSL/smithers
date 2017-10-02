@@ -780,7 +780,7 @@ def render_view_report_page(form, report, student):
                         allow_edit=all_reports[0] == report,
                         body=body,
                         is_advisor=users.is_current_user_admin(),
-                        attachments=Attachment.query(ancestor=report.key).fetch()
+                        attachments=report.get_attachments()
                         )
     return r
 
@@ -930,10 +930,11 @@ def save_attachment(report):
     fileobj = request.files['attachments']
     print "FILE = {}".format(fileobj.filename)
     if fileobj.filename:
-        error, attachment_url = CKEditorSupport.save_blob(fileobj)
+        error, attachment_url, length = CKEditorSupport.save_blob(fileobj)
         attachment = Attachment(parent=report.key)
         attachment.url = attachment_url
         attachment.file_name = fileobj.filename
+        attachment.size = length
         attachment.put()
 
 
@@ -976,7 +977,7 @@ def render_update_report_page(form, student, report_key):
                         report_is_due=student.is_report_due(),
                         the_report=display_report,
                         is_advisor=users.is_current_user_admin(),
-                        attachments=Attachment.query(ancestor=display_report.key).fetch()
+                        attachments=display_report.get_attachments()
                         )
     return r
 
@@ -997,7 +998,7 @@ def render_new_report_page(form, student):
                         form=form,
                         display_user=student,
                         report_is_due=student.is_report_due(),
-                        attachments=Attachment.query(ancestor=draft.key).fetch() if draft else []
+                        attachments=draft.get_attachments()
                         )
     return r
 

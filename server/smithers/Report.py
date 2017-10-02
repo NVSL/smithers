@@ -52,8 +52,12 @@ class Report(SmartModel):
             raise Exception("Missing report: {}".format(id))
         return r
 
+    def get_attachments(self):
+        return Attachment.query(ancestor=self.key).order(Attachment.created).fetch()
 
 class Attachment(SmartModel):
     created = ndb.DateTimeProperty(auto_now_add=True)
     url = ndb.TextProperty()
     file_name = ndb.TextProperty()
+    size = ndb.IntegerProperty()
+
