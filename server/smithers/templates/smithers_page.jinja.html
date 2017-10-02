@@ -260,6 +260,7 @@ novalidate=False) %}
                         {{ resource("ProgressReports.html", "Weekly Reports")}}
                         {{ resource("ResearchExams.html", "Research Exams")}}
                         {{ resource("meetings.html", "Scheduling Meetings")}}
+                        <li><a href="https://docs.google.com/spreadsheets/d/18vXQo0jFxLYqkC7vUaSCOrOnqqkoItkOSLeCcaoPZbk/edit#gid=0">Meeting Matrix</a></li>
                         {{ resource("travel.html", "Travel")}}
                         {{ resource("Vacation.html", "Time off")}}
                         {{ resource("internships.html", "Internships")}}
@@ -286,9 +287,13 @@ novalidate=False) %}
                     </ul-->
                 </li>
                 {% endif %}
+
             </ul>
             {% if g.current_user %}
             <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="https://meet.google.com/fds-pbpk-dny"><span style="font-size: large;" class="glyphicon glyphicon-facetime-video"  aria-hidden="hangout"></span></a>
+                </li>
                 <li  class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         Hello, {{ g.current_user.full_name or g.current_user.email }}<span class="caret"></span>
