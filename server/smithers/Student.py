@@ -1003,7 +1003,7 @@ def render_new_report_page(form, student):
                         form=form,
                         display_user=student,
                         report_is_due=student.is_report_due(),
-                        attachments=draft.get_attachments()
+                        attachments=draft.get_attachments() if draft else []
                         )
     return r
 
