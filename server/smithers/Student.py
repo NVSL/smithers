@@ -12,7 +12,8 @@ from flask import redirect, url_for, request, render_template, Blueprint
 from util import next_url, localize_time
 from Report import Report, Attachment
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField, Label
+from wtforms import StringField, HiddenField, TextAreaField, SubmitField, BooleanField, SelectField, DateField#, MultipleFileField
+
 from wtforms_components import read_only
 from wtforms.validators import InputRequired, Email, AnyOf
 import wtforms
@@ -738,7 +739,6 @@ def comment_on_report(report_key):
             print form.body.data
     else:
         t = render_report_for_email(report, "", report.key.parent().get())
-        print t
         form.body.data = t
         return render_template("comment_on_report.jinja.html",
                                form=form)
@@ -758,7 +758,6 @@ def view_report(report_key=None):
 
     form = ViewReportForm()
     form.read_only()
-
     r = render_view_report_page(form, report, student)
     return r
 
@@ -769,7 +768,7 @@ def render_view_report_page(form, report, student):
 
     all_reports = student.get_all_reports()
 
-    body = render_report_for_email(report, "foo", student)
+#    body = render_report_for_email(report, "foo", student)
 
     r = render_template("view_report.jinja.html",
                         form=form,
@@ -783,7 +782,7 @@ def render_view_report_page(form, report, student):
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
                         allow_edit=len(all_reports)> 0 and all_reports[0] == report,
-                        body=body,
+ #                       body=body,
                         is_advisor=users.is_current_user_admin(),
                         attachments=report.get_attachments()
                         )
@@ -825,8 +824,9 @@ def new_report(student):
                     report.is_draft_report = False
                 elif "save" in request.form:
                     pass
-
+                t = report.advisor_comments # advisor comments don't end up being rendered, so the form will populate it away.
                 form.populate_obj(report)
+                report.advisor_comments = t
                 report.put()
 
             except Exception as e:
@@ -933,7 +933,6 @@ def do_update_report(student, report_key):
 
 def save_attachment(report):
     fileobj = request.files['attachments']
-    print "FILE = {}".format(fileobj.filename)
     if fileobj.filename:
         error, attachment_url, length = CKEditorSupport.save_blob(fileobj)
         attachment = Attachment(parent=report.key)

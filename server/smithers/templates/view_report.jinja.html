@@ -62,10 +62,7 @@ onload="load_editors()"
                 role="form">
 
             {{ wtf.form_field(form.advisor_comments, form_type='basic', horizontal_columns=('lg', 2, 10), button_map=button_map)}}
-
-            {% if form.save %}
             {{ wtf.form_field(form.save) }}
-            {% endif %}
 </form>
 <hr/>
 {% endif %}
@@ -81,13 +78,6 @@ onload="load_editors()"
         overflow:hidden;
     }
 
-    .report-form label {
-        color:rgba(0,0,204,1);
-	    font-weight: normal;
-	    font-size: 1.8em;
-	    margin-top:0.5em;
-	    margin-bottom:0.5em;
-    }
     ul.dropdown-menu a {
         text-decoration: none
     }

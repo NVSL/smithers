@@ -99,7 +99,7 @@ a.btn {
 }
 
 .report-form label {
-    color:rgba(24,43,73,1);
+    color:var(--header-color);
     font-weight: normal;
     font-size: 1.8em;
     margin-top:0.5em;
