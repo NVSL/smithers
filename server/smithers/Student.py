@@ -525,7 +525,7 @@ class ReadSemiannualReportGuidelines(ReadingRequirement):
 
 class SemiannualReportGuidelinesForm(FlaskForm):
     # name = StringField("Name", validators=[InputRequired()])
-    agree = BooleanField("I have read the semi-annual report guidelines.", validators=[InputRequired()])
+    agree = BooleanField("I have read the semi-annual report guidelines and will submit my report on time.", validators=[InputRequired()])
     submit = SubmitField("Submit")
 
 
@@ -568,10 +568,10 @@ def read_report_guidelines():
 @student_ops.route("/report_semiannual_guidelines", methods=["POST", "GET"])
 def read_semiannual_report_guidelines():
     student = Student.get_current_student()
-    form = ReportGuidelinesForm(request.form) ###
+    form = SemiannualReportGuidelinesForm(request.form) ###
 
     def render_page(form, student):
-        return render_template("html/SemiAnnual.jinja.html",
+        return render_template("html/semiannual.jinja.html",
                                form=form,
                                last_signed=student.last_read_semiannual_report_guidelines and
                                            localize_time(student.last_read_semiannual_report_guidelines),  ###
