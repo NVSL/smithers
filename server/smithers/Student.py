@@ -715,7 +715,7 @@ class BaseReportForm(FlaskForm):
     problems_encountered = TextAreaField('Problems Encountered & Blocking Questions', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     other_issues = TextAreaField('Other (Non-Research-related) Issues')
-    is_semiannual_report = BooleanField("Does this report include a semi-annual report?")
+    is_semiannual_report = BooleanField("This report includes a semi-annual report.")
     advisor_comments = TextAreaField('Advisor Notes')
 
     def __init__(self, *args, **kwargs):
