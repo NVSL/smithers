@@ -73,10 +73,11 @@ h3 {
 
 a {
 	color:var(--text-color);
+    text-decoration: underline;
 }
 
 a:hover {
-    color: var(--text-color);
+    color: var(--highlight-color);
 }
 
 /*.container a {

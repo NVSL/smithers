@@ -583,8 +583,8 @@ def read_semiannual_report_guidelines():
         return render_template("html/semiannual.jinja.html",
                                form=form,
                                last_signed=student.last_read_semiannual_report_guidelines and
-                                           localize_time(student.last_read_semiannual_report_guidelines),  ###
-                               student=student
+                                           localize_time(student.last_read_semiannual_report_guidelines),
+                               user=student
                                )
 
     if request.method == "POST":
@@ -1197,7 +1197,8 @@ def index():
 
 @student_ops.route("/resource/<file>")
 def render_resource(file):
-    return render_template("html/{}".format(file.replace(".html",".jinja.html")))
+    return render_template("html/{}".format(file.replace(".html",".jinja.html")),
+                           user=Student.get_current_student())
 
 
 

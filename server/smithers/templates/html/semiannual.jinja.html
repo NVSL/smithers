@@ -3,7 +3,7 @@
 
 <h1><a name="semiannual"></a>Semi-Annual Reviews</h1>
 <p>I typically meet with my grad students every six months to discuss their progress through the program, their development as researchers, and their goals for the next six months. One of these reviews is in conjunction with the department's annual review of progress in the Spring.  The other is in December or January.</p>
-<h2 >Your Tasks</h2>
+<h2>Think About Grad School</h2>
 <p >Ahead of the meeting I would like you to review your progress report since the last semi-annual review and spend some time thinking about how your work/grad school experience has been going, how you would like it to improve, and how we can make that happen.  Things to think about are (but are not limited to):</p>
 <ol>
   <li> Do you feel like you are making adequate progress toward your degree?</li>
@@ -23,6 +23,7 @@
 <p>Your honest input here is very important.  I would like to change some things about how we go about our work, and without your input we may fix things that aren't broken and break things that work fine.</p>
 <p>Finally, I would like you to write up a summary and self-evaluation of what you have accomplished since our last meeting (if this is our first of these meetings, summarize the time since you joined the lab).  This will give you a chance to critically reflect on your performance and will provide a record of your time in grad school that will be useful to both of us during your eventual job search.<br />
 </p>
+<h2>Write Up</h2>
 <p> The write up should include the following (you do not need to write up the answers to the questions above):</p>
 <ol>
   <li> What year you are in the program (1st, 2nd, etc.)</li>
@@ -37,14 +38,15 @@
 </ol>
 <p>Please keep it to under 1000 words, and make sure it clearly written and free of grammatical errors and typos.  This should be an example of your most thoughtful work and best writing.</p>
 
+<h2>Logistics</h2>
+
+<p>Schedule a meeting time.  Appoint slots are available on the NVSL calendar (<a href="https://calendar.google.com/calendar/selfsched?sstoken=UUtvc2ljd0x6SlAwfGRlZmF1bHR8NzliZDBjZjA1NjRlNjlmNzc0MjFiYzc3ZWU4OGEzNDE"><span class="glyphicon glyphicon-calendar"></span></a>).</p>
+
 <p>Include your write up in the "Other Issues" section of your weekly progress report prior to our meeting.</p>
 
 <p>This document is available from the "Resources" menu, if you need to refer to it.</p>
 
-<p>You can quickly find your last semi-annual report by clicking "Previous reports" on the report submissions page.</p>
-
-<p>Include your write up in the "Other Issues" section of your weekly progress report prior to our meeting.</p>
-
+<p>You can quickly find your last semi-annual report by clicking "Previous reports" on the report submissions page or by clicking <a href="{{url_for("student_ops.latest_semiannual_report", student_key=user.key.urlsafe())}}">here</a></p>
 
 {% if form %}
 {{ wtf.quick_form(form) }}
