@@ -24,6 +24,9 @@
 {% endmacro %}
 
 {% macro render_completed_report_body(form) %}
+
+{% if form.is_semiannual_report.data %}<div class="alert alert-info">This report contains as semi-annual report.</div> {% endif %}
+
   {{ render_completed_report_section(form.long_term_goal)}}
   {{ render_completed_report_section(form.disp_previous_weekly_goals)}}
   {{ render_completed_report_section(form.progress_made)}}
@@ -61,6 +64,7 @@ button_map={}
     {{ wtf.form_field(form.problems_encountered, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
     {{ wtf.form_field(form.next_weekly_goals, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
     {{ wtf.form_field(form.other_issues, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+    {{ wtf.form_field(form.is_semiannual_report, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
     {{ wtf.form_field(form.attachments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
     {% if is_advisor %}
@@ -98,11 +102,11 @@ novalidate=False) %}
 
     {{ list_attachments(attachments) }}
 
+  {% if form.submit %}
+  {{ wtf.form_field(form.submit, button_map={"submit": "primary"}) }}
+  {% endif %}
   {% if form.save %}
   {{ wtf.form_field(form.save) }}
-  {% endif %}
-  {% if form.submit %}
-  {{ wtf.form_field(form.submit) }}
   {% endif %}
   {% if form.cancel %}
   {{ wtf.form_field(form.cancel) }}

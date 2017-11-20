@@ -102,6 +102,7 @@ class Student(SmartModel):
     last_signed_expectations_agreement = ndb.DateTimeProperty()
     last_entered_availability = ndb.DateTimeProperty()
     last_read_report_guidelines = ndb.DateTimeProperty()
+    last_read_semiannual_report_guidelines = ndb.DateTimeProperty()
 
     meeting_day_of_week = ndb.StringProperty()
 
@@ -500,19 +501,33 @@ class UpdateUser(Requirement):
     def redirect_url(self, student):
         return self.url_for(".update_user")
 
-    
+
 class ReadReportGuidelines(ReadingRequirement):
 
     def __init__(self):
         super(ReadReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 9, 14),
                                                    get_last_completion=lambda x: x.last_read_report_guidelines,
                                                    redirect_method=".read_report_guidelines")
-                                                  
+
 
 class ReportGuidelinesForm(FlaskForm):
     #name = StringField("Name", validators=[InputRequired()])
-    agree = BooleanField("I have read the report guideline.", validators=[InputRequired()])
+    agree = BooleanField("I have read the report guidelines.", validators=[InputRequired()])
     submit = SubmitField("Submit")
+
+
+class ReadSemiannualReportGuidelines(ReadingRequirement):
+    def __init__(self):
+        super(ReadSemiannualReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 11, 19),
+                                                   get_last_completion=lambda x: x.last_read_semiannual_report_guidelines,
+                                                   redirect_method=".read_semiannual_report_guidelines")
+
+
+class SemiannualReportGuidelinesForm(FlaskForm):
+    # name = StringField("Name", validators=[InputRequired()])
+    agree = BooleanField("I have read the semi-annual report guidelines.", validators=[InputRequired()])
+    submit = SubmitField("Submit")
+
 
 
 # lines with ### are the ones that differ between this and the form for entering schedule info.  We should really be able to merge them.
@@ -520,7 +535,7 @@ class ReportGuidelinesForm(FlaskForm):
 def read_report_guidelines():
     student = Student.get_current_student()
     form = ReportGuidelinesForm(request.form) ###
-    target_week = "October 2nd" # this is the week they should enter there information for. ###
+    target_week = "January 8th" # this is the week they should enter there information for. ###
     if request.method == "POST":
         if form.validate():
             try:
@@ -549,11 +564,44 @@ def read_report_guidelines():
                                student=student
                              )
 
-    
+# lines with ### are the ones that differ between this and the form for entering schedule info.  We should really be able to merge them.
+@student_ops.route("/report_semiannual_guidelines", methods=["POST", "GET"])
+def read_semiannual_report_guidelines():
+    student = Student.get_current_student()
+    form = ReportGuidelinesForm(request.form) ###
+
+    def render_page(form, student):
+        return render_template("html/SemiAnnual.jinja.html",
+                               form=form,
+                               last_signed=student.last_read_semiannual_report_guidelines and
+                                           localize_time(student.last_read_semiannual_report_guidelines),  ###
+                               student=student
+                               )
+
+    if request.method == "POST":
+        if form.validate():
+            try:
+                student.last_read_semiannual_report_guidelines = datetime.datetime.now()
+                student.put()
+            except Exception as e:
+                flash(str(e), category='error')
+                return redirect(url_for(".read_semiannual_report_guidelines")) ###
+            else:
+                flash("Response recorded", category='success')
+                return redirect(next_url(url_for(".submit_report")))
+        else:
+            [ flash(e, category='error') for e in form.agree.errors ]
+            return render_page(form, student)
+    else:
+        return render_page(form, student)
+
+
+
+
 class EnterMeetingAvailability(Requirement):
     
     def is_satisfied(self, student):
-        submission_start_date = datetime.datetime(2017, 9, 15)
+        submission_start_date = datetime.datetime(2017, 11, 19)
         return student.last_entered_availability and student.last_entered_availability > submission_start_date
 
     def redirect_url(self, student):
@@ -653,7 +701,8 @@ def sign_expectation_agreement():
 requirements = [UpdateUser(),
                 SignExpectationsAgreement(),
                 EnterMeetingAvailability(),
-                ReadReportGuidelines()
+                ReadReportGuidelines(),
+                ReadSemiannualReportGuidelines()
                 ]
 
 class BaseReportForm(FlaskForm):
@@ -666,7 +715,7 @@ class BaseReportForm(FlaskForm):
     problems_encountered = TextAreaField('Problems Encountered & Blocking Questions', validators=[InputRequired()])
     next_weekly_goals = TextAreaField('Next Weekly Goals', validators=[InputRequired()])
     other_issues = TextAreaField('Other (Non-Research-related) Issues')
-
+    is_semiannual_report = BooleanField("Does this report include a semi-annual report?")
     advisor_comments = TextAreaField('Advisor Notes')
 
     def __init__(self, *args, **kwargs):
@@ -680,6 +729,7 @@ class BaseReportForm(FlaskForm):
         read_only(self.problems_encountered)
         read_only(self.next_weekly_goals)
         read_only(self.other_issues)
+        read_only(self.is_semiannual_report)
 
     def load_from_report(self, report):
         self.disp_previous_weekly_goals.data = report.previous_weekly_goals
@@ -693,6 +743,7 @@ class BaseReportForm(FlaskForm):
         self.report_id.data = report.key.urlsafe()
         self.report_for_date.data = report.report_for_date
         self.advisor_comments.data = report.advisor_comments
+        self.is_semiannual_report.data = report.is_semiannual_report
 
     def update_to_report(self, report):
         if self.long_term_goal.data:
@@ -709,6 +760,8 @@ class BaseReportForm(FlaskForm):
             report.other_issues = self.other_issues.data
         if self.advisor_comments.data:
             report.advisor_comments = self.advisor_comments.data
+        if self.is_semiannual_report.data:
+            report.is_semiannual_report = self.is_semiannual_report
 
 class NewReportForm(BaseReportForm):
     #save = SubmitField("Save")

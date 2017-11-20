@@ -23,6 +23,7 @@ class Report(SmartModel):
     advisor_comments = ndb.TextProperty()
 
     is_draft_report = ndb.BooleanProperty()
+    is_semiannual_report = ndb.BooleanProperty(default=False)
 
     def get_advisor_comments(self):
         if self.advisor_comments:

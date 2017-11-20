@@ -18,6 +18,7 @@
 <ol>
   <li> What aspects of the current management system are working well?</li>
   <li> How can I do a better of managing the group?</li>
+  <li>In particular, I'd like to know what you think about the current meeting structure and the progress reporting tool.</li>
 </ol>
 <p>Your honest input here is very important.  I would like to change some things about how we go about our work, and without your input we may fix things that aren't broken and break things that work fine.</p>
 <p>Finally, I would like you to write up a summary and self-evaluation of what you have accomplished since our last meeting (if this is our first of these meetings, summarize the time since you joined the lab).  This will give you a chance to critically reflect on your performance and will provide a record of your time in grad school that will be useful to both of us during your eventual job search.<br />
@@ -29,7 +30,7 @@
   <li> A bulleted list of any other accomplishments and activities (TAing, etc.).</li>
   <li> A section describing three things that you think you have done well in since the last meeting.  Be specific.</li>
   <li> A section describing three things that you would like to do better between now and our next semi-annual.  Be specific, and provide concrete criteria for how you will evaluate your improvement.</li>
-  <li> An evaluation of how well you have address the items above from you previous write up.  Use the criteria you set for yourself.</li>
+  <li> An evaluation of how well you have addressed the items above from your most recent write up.  Use the criteria you set for yourself.</li>
   <li> A bibliographic listing of your pubs to date.</li>
   <li> Your next departmental deadline (e.g., when your research exam or thesis proposal must be complete).</li>
   <li> A brief list of classes you still need to take and when you expect to complete them.</li>
@@ -37,5 +38,10 @@
 <p>Please keep it to under 1000 words, and make sure it clearly written and free of grammatical errors and typos.  This should be an example of your most thoughtful work and best writing.</p>
 
 <p>Include your write up in the "Other Issues" section of your weekly progress report prior to our meeting.</p>
+
+
+{% if form %}
+{{ wtf.quick_form(form) }}
+{% endif %}
 
 {% endblock smithers_content %}
