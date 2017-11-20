@@ -248,6 +248,15 @@ class Student(SmartModel):
     def get_latest_report(self):
         return Report.query(Report.is_draft_report == False, ancestor=self.key).order(-Report.created).get()
 
+
+    def get_latest_semiannual_report(self):
+        all = Report.query(Report.is_draft_report == False, ancestor=self.key).order(-Report.created).fetch()
+        for r in all:
+            if r.is_semiannual_report:
+                return r
+
+        return None
+
     def is_report_overdue(self):
         if self.is_report_due():
             return False
@@ -1229,9 +1238,7 @@ def send_reminder_emails():
     return "success", 200
 
 
-
-@student_ops.route("/<student_key>/latest_report")
-def latest_report(student_key):
+def find_student(student_key):
     try:
         student = ndb.Key(urlsafe=student_key).get()
     except:
@@ -1240,14 +1247,36 @@ def latest_report(student_key):
             student = None
         else:
             student = students[0]
-            
+    return student
+
+
+@student_ops.route("/<student_key>/latest_report")
+def latest_report(student_key):
+    student = find_student(student_key)
+
     if student is None:
         flash("Couldn't find user '{}'".format(student_key))
         return redirect(url_for(".index"))
-            
+
     latest_report = student.get_latest_report()
     if not latest_report:
         flash("{} has not submitted any reports.".format(student.full_name))
+        return redirect(url_for(".index"))
+
+    return view_report(report_key=latest_report.key.urlsafe())
+
+
+@student_ops.route("/<student_key>/latest_semiannual_report")
+def latest_semiannual_report(student_key):
+    student = find_student(student_key)
+
+    if student is None:
+        flash("Couldn't find user '{}'".format(student_key))
+        return redirect(url_for(".index"))
+
+    latest_report = student.get_latest_semiannual_report()
+    if not latest_report:
+        flash("{} has not submitted any semiannual reports.".format(student.full_name))
         return redirect(url_for(".index"))
 
     return view_report(report_key=latest_report.key.urlsafe())

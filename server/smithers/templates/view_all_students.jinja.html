@@ -12,6 +12,7 @@
         <th>Name</th>
         <th>Meets</th>
         <th>Last Report</th>
+        <th>Last Semi-annual Report</th>
     </tr>
     <tbody>
     {% for s in students %}
@@ -32,6 +33,7 @@
             class="ontime"
             {% endif %}
         >{% if s[0].get_latest_report() %}<a href="{{url_for('student_ops.latest_report', student_key=s[0].username)}}">{{s[0].get_latest_report().local_created_time().strftime("%H:%M%p on %A, %d %B")}}</a>{% endif %}</td>
+         <td>{% if s[0].get_latest_semiannual_report() %}<a href="{{url_for('student_ops.latest_semiannual_report', student_key=s[0].username)}}">{{s[0].get_latest_semiannual_report().local_created_time().strftime("%H:%M%p on %A, %d %B")}}</a>{% endif %}</t>
     </tr>
     {% endfor %}
 </tbody>
