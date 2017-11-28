@@ -769,8 +769,8 @@ class BaseReportForm(FlaskForm):
             report.other_issues = self.other_issues.data
         if self.advisor_comments.data:
             report.advisor_comments = self.advisor_comments.data
-        if self.is_semiannual_report.data:
-            report.is_semiannual_report = self.is_semiannual_report
+        if self.is_semiannual_report.data is not None:
+            report.is_semiannual_report = self.is_semiannual_report.data
 
 class NewReportForm(BaseReportForm):
     #save = SubmitField("Save")
