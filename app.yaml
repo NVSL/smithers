@@ -46,7 +46,7 @@ handlers:
 
 - url: /favicon\.ico
   static_files: /static/assets/img/NVSL-favicon.png
-  upload: favicon\.ico
+# upload: favicon\.ico
 
 env_variables:
 #  CLOUDSDK_CONFIG: "/Users/swanson/.config/gcloud/configurations/config_nvslapply"

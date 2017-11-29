@@ -227,6 +227,10 @@ novalidate=False) %}
       href="{{request.host_url}}static/css/smithers.css">
 {% endblock styles %}
 
+{% block metas %}
+<link rel="icon" href="{{request.host_url}}static/assets/img/NVSL-favicon.png">
+{% endblock %}
+
 {% block navbar %}
 
 <nav class="navbar navbar-default navbar-fixed-top">
