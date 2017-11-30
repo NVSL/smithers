@@ -466,7 +466,9 @@ def list_all_users():
         return (day_to_int[d] - today) % len(days_of_the_week)
 
     return render_template("view_all_students.jinja.html",
-                           students=sorted(students, key=day_order))
+                           students=sorted(students, key=day_order),
+                           requirements=requirements
+                           )
 
 
 class Requirement(object):
@@ -504,6 +506,7 @@ class ReadingRequirement(Requirement):
 
     
 class UpdateUser(Requirement):
+    short_name = "Profile"
     def is_satisfied(self, student):
         return student.full_name is not None and student.meeting_day_of_week is not None
 
@@ -512,6 +515,7 @@ class UpdateUser(Requirement):
 
 
 class ReadReportGuidelines(ReadingRequirement):
+    short_name = "Report Guidelines"
 
     def __init__(self):
         super(ReadReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 9, 14),
@@ -526,6 +530,8 @@ class ReportGuidelinesForm(FlaskForm):
 
 
 class ReadSemiannualReportGuidelines(ReadingRequirement):
+    short_name = "SA Report Guidelines"
+
     def __init__(self):
         super(ReadSemiannualReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 11, 19),
                                                    get_last_completion=lambda x: x.last_read_semiannual_report_guidelines,
@@ -533,6 +539,7 @@ class ReadSemiannualReportGuidelines(ReadingRequirement):
 
 
 class SemiannualReportGuidelinesForm(FlaskForm):
+
     # name = StringField("Name", validators=[InputRequired()])
     agree = BooleanField("I have read the semi-annual report guidelines and will submit my report on time.", validators=[InputRequired()])
     submit = SubmitField("Submit")
@@ -608,7 +615,7 @@ def read_semiannual_report_guidelines():
 
 
 class EnterMeetingAvailability(Requirement):
-    
+    short_name = "Meetings"
     def is_satisfied(self, student):
         submission_start_date = datetime.datetime(2017, 11, 19)
         return student.last_entered_availability and student.last_entered_availability > submission_start_date

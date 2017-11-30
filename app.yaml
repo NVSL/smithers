@@ -44,7 +44,7 @@ handlers:
   script: server.smithers.app
   login: required
 
-- url: /favicon\.ico
+url: /favicon\.ico
   static_files: /static/assets/img/NVSL-favicon.png
   upload: favicon\.ico
 
