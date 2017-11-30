@@ -530,7 +530,7 @@ class ReportGuidelinesForm(FlaskForm):
 
 
 class ReadSemiannualReportGuidelines(ReadingRequirement):
-    short_name = "SA Report Guidelines"
+    short_name = "SA Report"
 
     def __init__(self):
         super(ReadSemiannualReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 11, 19),
