@@ -632,7 +632,7 @@ class MeetingAvailabiltyForm(FlaskForm):
 def enter_meeting_schedule_info():
     student = Student.get_current_student()
     form = MeetingAvailabiltyForm(request.form)
-    target_week = "October 2nd" # this is the week they should enter there information for.
+    target_week = "January 8th" # this is the week they should enter there information for.
     if request.method == "POST":
         if form.validate():
             try:
