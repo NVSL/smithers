@@ -42,7 +42,7 @@
 <form>
   {{ render_completed_report_body(form) }}
   {% if form.update %}
-  {{ wtf.form_field(form.update, button_map={"submit": "primary", "save" : "primary"}) }}
+  {{ wtf.form_field(form.update) }}
   {% endif %}
 </form>
 {% endmacro %}
@@ -104,10 +104,10 @@ novalidate=False) %}
     {{ list_attachments(attachments) }}
 
   {% if form.submit %}
-      {{ wtf.form_field(form.submit, button_map={"submit": "primary", "save" : "primary"}) }}
+      {{ wtf.form_field(form.submit, button_map={"submit": "primary"}) }}
   {% endif %}
   {% if form.save %}
-  {{ wtf.form_field(form.save, button_map={"submit": "primary", "save" : "primary"}) }}
+  {{ wtf.form_field(form.save) }}
   {% endif %}
   {% if form.cancel %}
   {{ wtf.form_field(form.cancel) }}
@@ -283,6 +283,7 @@ novalidate=False) %}
                     <a href="{{url_for('student_ops.list_all_users')}}" role="button" aria-haspopup="true" aria-expanded="false">
                         Students
                     </a>
+
                     <!--a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         Students<span class="caret"></span>
                     </a-->
@@ -295,6 +296,11 @@ novalidate=False) %}
                         {% endfor %}
                     </ul-->
                 </li>
+                <li>
+
+                    <a href="{{url_for('student_ops.view_report', day='Friday')}}" role="button' aria-haspopup="true" aria-expanded="false">
+                        Today
+                    </a></li>
                 {% endif %}
 
             </ul>

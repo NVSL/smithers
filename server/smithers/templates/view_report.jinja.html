@@ -13,7 +13,8 @@ onload="load_editors()"
 {% if is_previous_report %}
 <p class="form-notification">This report has already been submitted.  You can update your long-term and weekly goals until you submit your next report.</p>
 {% endif %}
-<h1><a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">{{display_user.get_display_name()}}</a></h1>
+
+<h1><a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">{{display_user.get_display_name()}} -- {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</a></h1>
 
 
 <form class="form report-form">

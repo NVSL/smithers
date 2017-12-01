@@ -811,41 +811,86 @@ def comment_on_report(report_key):
         return render_template("comment_on_report.jinja.html",
                                form=form)
 
-@student_ops.route("/weekly/<report_key>/", methods=['GET'])
-@student_ops.route("/weekly/", methods=['GET'])
-def view_report(report_key=None):
-    if report_key is None:
-        student = Student.get_current_student()
-        report = student.get_latest_report()
+@student_ops.route("/weekly/<report_key>", methods=['GET'])
+@student_ops.route("/weekly", methods=['GET'])
+@student_ops.route("/day/<day>/<report_key>/", methods=['GET'])
+@student_ops.route("/day/<day>/", methods=['GET'])
+def view_report(report_key=None, day=None):
+    if day:
+        if report_key is None:
+            student = None
+            report = None
+        else:
+            report = lookup_report(report_key)
+            student = report.key.parent().get()
     else:
-        report = lookup_report(report_key)
-        student = report.key.parent().get()
+        if report_key is None:
+            student = Student.get_current_student()
+            report = student.get_latest_report()
+        else:
+            report = lookup_report(report_key)
+            student = report.key.parent().get()
 
-    if report is None:
-        return "Missing report", 404
+        if report is None:
+            return "Missing report", 404
 
     form = ViewReportForm()
     form.read_only()
-    r = render_view_report_page(form, report, student)
+    r = render_view_report_page(form, report, student, day=day)
     return r
 
-def render_view_report_page(form, report, student):
+def render_view_report_page(form, report, student, day=None):
+
+
+#    body = render_report_for_email(report, "foo", student)
+    print day
+    print student
+    if day:
+        day = day[0].upper() + day[1:]
+        if not student:
+            student = Student.query(Student.meeting_day_of_week == day).order(Student.full_name).get()
+            print student
+            report = student.get_latest_report()
+
+        print Student.query().fetch()
+
+        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name).order(Student.full_name).get()
+        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name).order(-Student.full_name).get()
+
+        print "prev_students: {}".format(prev_student and prev_student.full_name)
+        print "next_students: {}".format(next_student and next_student.full_name)
+        next_report_url = url_for(".view_report",
+                                  day=day,
+                                  report_key=next_student.get_latest_report().key.urlsafe()) if next_student else None
+        prev_report_url = url_for(".view_report",
+                                  day=day,
+                                  report_key=prev_student.get_latest_report().key.urlsafe()) if prev_student else None
+
+    else:
+        prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False,
+                                   ancestor=student.key).order(-Report.created).get()
+        next_report = Report.query(Report.created > report.created, Report.is_draft_report == False,
+                                   ancestor=student.key).order(Report.created).get()
+
+        next_report_url = url_for(".view_report",
+                                  day=day,
+                                  report_key=next_report.key.urlsafe()) if next_report else None
+        prev_report_url = url_for(".view_report",
+                                  day=day,
+                                  report_key=prev_report.key.urlsafe()) if prev_report else None
+
     form.load_from_report(report)
-    prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False, ancestor=student.key).order(-Report.created).get()
-    next_report = Report.query(Report.created > report.created, Report.is_draft_report == False, ancestor=student.key).order(Report.created).get()
+
 
     all_reports = student.get_all_reports()
 
-#    body = render_report_for_email(report, "foo", student)
 
     r = render_template("view_report.jinja.html",
                         form=form,
                         display_user=student,
                         current_user=Student.get_current_student(),
-                        next_report=url_for(".view_report",
-                                            report_key=next_report.key.urlsafe()) if next_report else None,
-                        prev_report=url_for(".view_report",
-                                            report_key=prev_report.key.urlsafe()) if prev_report else None,
+                        next_report=next_report_url,
+                        prev_report=prev_report_url,
                         the_report=report,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()),
