@@ -175,7 +175,6 @@ class Student(SmartModel):
         if r and r.is_draft():
             return r
         else:
-            print "couldn't find draft report"
             return None
 
     def compute_next_due_date(self, ignore_latest=False):
@@ -896,6 +895,7 @@ def new_report(student):
                 t = report.advisor_comments # advisor comments don't end up being rendered, so the form will populate it away.
                 form.populate_obj(report)
                 report.advisor_comments = t
+                report.created = datetime.datetime.now()
                 report.put()
 
             except Exception as e:
