@@ -33,3 +33,14 @@ indexes:
   properties:
   - name: created
 
+- kind: Student
+  properties:
+  - name: meeting_day_of_week
+  - name: full_name
+
+- kind: Student
+  properties:
+  - name: meeting_day_of_week
+  - name: full_name
+    direction: desc
+  
