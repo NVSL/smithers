@@ -94,18 +94,24 @@ onload="load_editors()"
     {{ super() }}
     <script>
         delete Hammer.defaults.cssProps.userSelect;
-        var hammertime = new Hammer($("body")[0], {});
-        {% if next_report %}
-            hammertime.on('swipeleft', function(ev) {
+        function is_touch_device() {
+             return !!('ontouchstart' in window);
+        }
+        if (is_touch_device()) {
+            var hammertime = new Hammer($("body")[0], {});
+            {%
+                if next_report %}
+            hammertime.on('swipeleft', function (ev) {
                 window.location.href = '{{next_report}}';
             });
-        {% endif %}
+            {% endif %}
 
-        {% if prev_report %}
-            hammertime.on('swiperight', function(ev) {
+            {%
+                if prev_report %}
+            hammertime.on('swiperight', function (ev) {
                 window.location.href = '{{prev_report}}';
             });
-        {% endif %}
-
+            {% endif %}
+        }
     </script>
 {% endblock scripts %}
