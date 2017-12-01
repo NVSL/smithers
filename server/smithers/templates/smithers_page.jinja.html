@@ -228,7 +228,7 @@ novalidate=False) %}
 
 {% block metas %}
 <link rel="icon" href="{{request.host_url}}static/assets/img/NVSL-favicon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+{{super()}}
 {% endblock %}
 
 {% block navbar %}
@@ -344,5 +344,13 @@ novalidate=False) %}
 {% endblock content %}
 
 {% block scripts %}
-{{ super() }}
+    {{ super() }}
+    <script src="http://hammerjs.github.io/dist/hammer.js"></script>
+
+    <script>
+        var hammertime = new Hammer($("body")[0], {});
+        hammertime.on('swipeleft', function(ev) {
+            console.log(ev);
+        });
+    </script>
 {% endblock scripts %}

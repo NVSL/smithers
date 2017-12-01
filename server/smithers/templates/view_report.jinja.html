@@ -72,6 +72,7 @@ onload="load_editors()"
 
 {{ load_editor() }}
 
+
 <style>
     .report-body {
         clear:both;
@@ -85,3 +86,21 @@ onload="load_editors()"
 
 {% endblock smithers_content %}
 
+{% block scripts %}
+    {{ super() }}
+    <script>
+        var hammertime = new Hammer($("body")[0], {});
+        {% if next_report %}
+            hammertime.on('swipeleft', function(ev) {
+                window.location.href = '{{next_report}}';
+            });
+        {% endif %}
+
+        {% if prev_report %}
+            hammertime.on('swiperight', function(ev) {
+                window.location.href = '{{prev_report}}';
+            });
+        {% endif %}
+
+    </script>
+{% endblock scripts %}
