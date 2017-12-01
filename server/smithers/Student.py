@@ -817,6 +817,9 @@ def comment_on_report(report_key):
 @student_ops.route("/day/<day>/", methods=['GET'])
 def view_report(report_key=None, day=None):
     if day:
+        if day == "today":
+            day = pytz.UTC.localize(datetime.datetime.utcnow()).strftime("%A")
+
         if report_key is None:
             student = None
             report = None
@@ -841,10 +844,6 @@ def view_report(report_key=None, day=None):
 
 def render_view_report_page(form, report, student, day=None):
 
-
-#    body = render_report_for_email(report, "foo", student)
-    print day
-    print student
     if day:
         day = day[0].upper() + day[1:]
         if not student:

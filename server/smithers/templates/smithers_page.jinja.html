@@ -296,12 +296,12 @@ novalidate=False) %}
                         {% endfor %}
                     </ul-->
                 </li>
+                {% endif %}
                 <li>
 
-                    <a href="{{url_for('student_ops.view_report', day='Friday')}}" role="button' aria-haspopup="true" aria-expanded="false">
+                    <a href="{{url_for('student_ops.view_report', day='today')}}" role="button' aria-haspopup="true" aria-expanded="false">
                         Today
                     </a></li>
-                {% endif %}
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
