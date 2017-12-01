@@ -61,7 +61,7 @@ onload="load_editors()"
                 role="form">
 
             {{ wtf.form_field(form.advisor_comments, form_type='basic', horizontal_columns=('lg', 2, 10))}}
-            {{ wtf.form_field(form.save, button_map={"submit" : "primary"}) }}
+            {{ wtf.form_field(form.save, button_map={"save" : "primary"}) }}
 </form>
 <hr/>
 {% endif %}

@@ -42,7 +42,7 @@
 <form>
   {{ render_completed_report_body(form) }}
   {% if form.update %}
-  {{ wtf.form_field(form.update) }}
+  {{ wtf.form_field(form.update, button_map={"submit": "primary", "save" : "primary"}) }}
   {% endif %}
 </form>
 {% endmacro %}
@@ -69,7 +69,7 @@ button_map={}
     {{ wtf.form_field(form.attachments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
 
     {% if is_advisor %}
-        {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map=button_map)}}
+        {{ wtf.form_field(form.advisor_comments, form_type=form_type, horizontal_columns=horizontal_columns, button_map={"submit": "primary", "save" : "primary"})}}
     {% endif %}
 
 {% endmacro %}
@@ -104,10 +104,10 @@ novalidate=False) %}
     {{ list_attachments(attachments) }}
 
   {% if form.submit %}
-  {{ wtf.form_field(form.submit, button_map={"submit": "primary"}) }}
+      {{ wtf.form_field(form.submit, button_map={"submit": "primary", "save" : "primary"}) }}
   {% endif %}
   {% if form.save %}
-  {{ wtf.form_field(form.save) }}
+  {{ wtf.form_field(form.save, button_map={"submit": "primary", "save" : "primary"}) }}
   {% endif %}
   {% if form.cancel %}
   {{ wtf.form_field(form.cancel) }}
