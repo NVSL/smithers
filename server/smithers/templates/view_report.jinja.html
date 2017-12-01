@@ -50,7 +50,7 @@ onload="load_editors()"
     {% if the_report %}
     <div>Submitted {{the_report.local_created_time().strftime("%H:%M%p on %A, %d %B")}}</div>
 
-    {{ render_completed_report_body(form) }}
+    {{ render_completed_report_body(display_user, form) }}
 
     {{ list_attachments(attachments, allow_delete=False) }}
     {% endif %}

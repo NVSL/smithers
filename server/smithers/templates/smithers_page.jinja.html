@@ -23,7 +23,7 @@
 </div>
 {% endmacro %}
 
-{% macro render_completed_report_body(form) %}
+{% macro render_completed_report_body(student, form) %}
 
 <div style="overflow-x: scroll">
 {% if form.is_semiannual_report.data %}<div class="alert alert-info">This report contains a semi-annual report.</div> {% endif %}
@@ -33,14 +33,16 @@
   {{ render_completed_report_section(form.progress_made)}}
   {{ render_completed_report_section(form.problems_encountered)}}
   {{ render_completed_report_section(form.next_weekly_goals)}}
-  {{ render_completed_report_section(form.other_issues)}}
+    {% if g.admin_view or g.current_user == student %}
+    {{ render_completed_report_section(form.other_issues)}}
+    {% endif %}
 </div>
 
 {% endmacro %}
 
-{% macro render_completed_report(form) %}
+{% macro render_completed_report(student, form) %}
 <form>
-  {{ render_completed_report_body(form) }}
+  {{ render_completed_report_body(student, form) }}
   {% if form.update %}
   {{ wtf.form_field(form.update) }}
   {% endif %}
@@ -277,7 +279,6 @@ novalidate=False) %}
                         {{ resource("Misc.html", "Misc")}}
                     </ul>
                 </li>
-                {% if g.admin_view %}
 
                 <li  class="dropdown">
                     <a href="{{url_for('student_ops.list_all_users')}}" role="button" aria-haspopup="true" aria-expanded="false">
@@ -296,7 +297,6 @@ novalidate=False) %}
                         {% endfor %}
                     </ul-->
                 </li>
-                {% endif %}
                 <li>
 
                     <a href="{{url_for('student_ops.view_report', day='today')}}" role="button' aria-haspopup="true" aria-expanded="false">

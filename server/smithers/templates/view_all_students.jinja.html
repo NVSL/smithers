@@ -13,10 +13,11 @@
         <th>Meets</th>
         <th>Last Report</th>
         <th>Last Semi-annual Report</th>
-        <th>Requirements</th>
+        {% if g.admin_view %}<th>Requirements</th>{% endif %}
     </tr>
     <tbody>
     {% for s in students %}
+    {% if s[0].get_submits_reports() or g.admin_view %}
     <tr
     {% if not s[0].get_submits_reports() %}
     class="inactive"
@@ -35,7 +36,7 @@
             {% endif %}
         >{% if s[0].get_latest_report() %}<a href="{{url_for('student_ops.latest_report', student_key=s[0].username)}}">{{s[0].get_latest_report().local_created_time().strftime("%H:%M%p on %d %B")}}</a>{% endif %}</td>
          <td>{% if s[0].get_latest_semiannual_report() %}<a href="{{url_for('student_ops.latest_semiannual_report', student_key=s[0].username)}}">{{s[0].get_latest_semiannual_report().local_created_time().strftime("%d %B")}}</a>{% endif %}</td>
-        <td>
+        {% if g.admin_view %}<td>
             {% if s[0].get_submits_reports() %}
                 {% for r in requirements %}
                     {% if not r.is_satisfied(s[0]) %}
@@ -43,13 +44,16 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
-        </td>
+        </td>{% endif %}
     </tr>
+    {% endif %}
     {% endfor %}
 </tbody>
 </table>
 
+{% if g.admin_view %}
 <button type="button" class="btn btn-default"  aria-haspopup="true" aria-expanded="false" onclick="location.href='{{ url_for('.update_whitelist') }}';">New User</button>
+{% endif %}
 
 <style>
     .overdue a{

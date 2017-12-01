@@ -5,7 +5,7 @@
 {% block smithers_content %}
 <h1>{{display_user.full_name}}: {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</h1>
 
-{{ render_completed_report(form) }}
+{{ render_completed_report(display_user, form) }}
 
 Submitted at {{the_report.local_created_time().strftime("%r on %b %d, %Y")}}.
 <a href="{{report_url}}">Read online</a>

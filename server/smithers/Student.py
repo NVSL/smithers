@@ -1419,7 +1419,7 @@ def delete_attachment(key):
     except:
         return "Unknown attachment", 404
 
-@student_ops.route("/weekly/upgrade_all")
+#@student_ops.route("/weekly/upgrade_all")
 def upgrade_reports():
     response = ""
     reports = Report.query().fetch()
@@ -1433,7 +1433,7 @@ def upgrade_reports():
     return response, 200
 
 
-@student_ops.route("/upgrade_students")
+#@student_ops.route("/upgrade_students")
 def upgrade_students():
     response = "Silence is golden"
     students = Student.query().fetch()
