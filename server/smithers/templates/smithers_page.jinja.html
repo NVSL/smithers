@@ -14,7 +14,7 @@
 
 {% macro render_completed_report_section(field) %}
 <h2>{{field.label.text}}</h2>
-<div class="report-body">
+<div class="report-body" style="overflow-x: auto">
     {% if not field.data %}
     <i>None</i>
     {% else %}
@@ -25,6 +25,7 @@
 
 {% macro render_completed_report_body(form) %}
 
+<div style="overflow-x: scroll">
 {% if form.is_semiannual_report.data %}<div class="alert alert-info">This report contains a semi-annual report.</div> {% endif %}
 
   {{ render_completed_report_section(form.long_term_goal)}}
@@ -33,7 +34,7 @@
   {{ render_completed_report_section(form.problems_encountered)}}
   {{ render_completed_report_section(form.next_weekly_goals)}}
   {{ render_completed_report_section(form.other_issues)}}
-
+</div>
 
 {% endmacro %}
 
@@ -298,9 +299,9 @@ novalidate=False) %}
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li>
+                <!--li>
                     <a href="https://meet.google.com/fds-pbpk-dny"><span style="font-size: large;" class="glyphicon glyphicon-facetime-video"  aria-hidden="hangout"></span></a>
-                </li>
+                </li-->
                 <li  class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         Hello, {{ g.current_user.full_name or g.current_user.email }}<span class="caret"></span>
@@ -346,12 +347,4 @@ novalidate=False) %}
 
 {% block scripts %}
     {{ super() }}
-    <script src="http://hammerjs.github.io/dist/hammer.js"></script>
-
-    <script>
-        var hammertime = new Hammer($("body")[0], {});
-        hammertime.on('swipeleft', function(ev) {
-            console.log(ev);
-        });
-    </script>
 {% endblock scripts %}
