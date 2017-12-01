@@ -36,10 +36,12 @@ indexes:
 - kind: Student
   properties:
   - name: meeting_day_of_week
+  - name: submits_reports
   - name: full_name
 
 - kind: Student
   properties:
   - name: meeting_day_of_week
+  - name: submits_reports
   - name: full_name
     direction: desc

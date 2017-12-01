@@ -854,8 +854,8 @@ def render_view_report_page(form, report, student, day=None):
 
         #print "\n".join(map(lambda x: x.full_name,Student.query().order(Student.full_name).fetch()))
 
-        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name).order(-Student.full_name).get()
-        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name).order(Student.full_name).get()
+        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name, Student.submits_reports == True).order(-Student.full_name).get()
+        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name, Student.submits_reports == True).order(Student.full_name).get()
 
         #print "prev_student: {}".format(prev_student and prev_student.full_name)
         #print "this_student: {}".format(student and student.full_name)
@@ -1428,6 +1428,20 @@ def upgrade_reports():
         try:
             report.is_draft_report = True if report.is_draft_report else False
             report.put()
+        except Exception as e:
+            response += str(e)
+
+    return response, 200
+
+
+@student_ops.route("/upgrade_students")
+def upgrade_students():
+    response = "Silence is golden"
+    students = Student.query().fetch()
+    for s in students:
+        try:
+            s.submits_reports = s.get_submits_reports()
+            s.put()
         except Exception as e:
             response += str(e)
 
