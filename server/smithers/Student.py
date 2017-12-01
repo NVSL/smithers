@@ -852,19 +852,24 @@ def render_view_report_page(form, report, student, day=None):
             print student
             report = student.get_latest_report()
 
-        print Student.query().fetch()
+        #print "\n".join(map(lambda x: x.full_name,Student.query().order(Student.full_name).fetch()))
 
-        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name).order(Student.full_name).get()
-        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name).order(-Student.full_name).get()
+        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name).order(-Student.full_name).get()
+        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name).order(Student.full_name).get()
 
-        print "prev_students: {}".format(prev_student and prev_student.full_name)
-        print "next_students: {}".format(next_student and next_student.full_name)
+        #print "prev_student: {}".format(prev_student and prev_student.full_name)
+        #print "this_student: {}".format(student and student.full_name)
+        #print "next_student: {}".format(next_student and next_student.full_name)
+
+        prev_report = prev_student and prev_student.get_latest_report()
+        next_report = next_student and next_student.get_latest_report()
+
         next_report_url = url_for(".view_report",
                                   day=day,
-                                  report_key=next_student.get_latest_report().key.urlsafe()) if next_student else None
+                                  report_key=next_report and next_report.key.urlsafe()) if next_student else None
         prev_report_url = url_for(".view_report",
                                   day=day,
-                                  report_key=prev_student.get_latest_report().key.urlsafe()) if prev_student else None
+                                  report_key=prev_report and prev_report.key.urlsafe()) if prev_student else None
 
     else:
         prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False,
@@ -879,7 +884,8 @@ def render_view_report_page(form, report, student, day=None):
                                   day=day,
                                   report_key=prev_report.key.urlsafe()) if prev_report else None
 
-    form.load_from_report(report)
+    if report:
+        form.load_from_report(report)
 
 
     all_reports = student.get_all_reports()
@@ -893,11 +899,11 @@ def render_view_report_page(form, report, student, day=None):
                         prev_report=prev_report_url,
                         the_report=report,
                         all_reports=all_reports,
-                        update_url=url_for('.update_report', report_key=report.key.urlsafe()),
+                        update_url=url_for('.update_report', report_key=report.key.urlsafe()) if report else "#",
                         allow_edit=len(all_reports)> 0 and all_reports[0] == report,
  #                       body=body,
                         is_advisor=users.is_current_user_admin(),
-                        attachments=report.get_attachments()
+                        attachments=report.get_attachments() if report else []
                         )
     return r
 

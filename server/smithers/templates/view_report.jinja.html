@@ -1,7 +1,7 @@
 {% extends "smithers_page.jinja.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block title %}{{display_user.full_name}}: {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}{% endblock title%}
+{% block title %}{{display_user.full_name}} {% if the_report %}: {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}{% endif %}{% endblock title%}
 
 {% block body_attribs %}
 onload="load_editors()"
@@ -14,7 +14,7 @@ onload="load_editors()"
 <p class="form-notification">This report has already been submitted.  You can update your long-term and weekly goals until you submit your next report.</p>
 {% endif %}
 
-<h1><a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">{{display_user.get_display_name()}} -- {{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</a></h1>
+<h1><a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">{{display_user.get_display_name()}}</a></h1>
 
 
 <form class="form report-form">
@@ -25,8 +25,8 @@ onload="load_editors()"
 
                 <div class="btn-group">
 
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}} <span class="caret"></button>
-
+                <button type="button" class="btn btn-default {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{% if the_report %}{{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}} <span class="caret">{% else %}no report{% endif %}</button>
+                 {% if the_report %}
                  <ul class="dropdown-menu">
                      {% for r in all_reports %}
                      <li {% if r == the_report %}class="active"{% endif %} >
@@ -34,6 +34,7 @@ onload="load_editors()"
                      </li>
                      {% endfor %}
                  </ul>
+                    {%endif%}
                 </div>
 
                 <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span></button>
@@ -46,14 +47,17 @@ onload="load_editors()"
         </div>
     </div>
 
+    {% if the_report %}
     <div>Submitted {{the_report.local_created_time().strftime("%H:%M%p on %A, %d %B")}}</div>
 
     {{ render_completed_report_body(form) }}
 
     {{ list_attachments(attachments, allow_delete=False) }}
-
+    {% endif %}
 </form>
 
+
+{% if the_report %}
 
 {% if is_advisor %}
 <hr/>
@@ -69,7 +73,7 @@ onload="load_editors()"
 
 
 {{ edit_entity_button(the_report, "Raw Edit Report")}}
-
+{% endif %}
 {{ load_editor() }}
 
 

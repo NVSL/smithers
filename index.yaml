@@ -43,4 +43,3 @@ indexes:
   - name: meeting_day_of_week
   - name: full_name
     direction: desc
-  
