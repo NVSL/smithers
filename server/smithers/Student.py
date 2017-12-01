@@ -847,8 +847,8 @@ def render_view_report_page(form, report, student, day=None):
     if day:
         day = day[0].upper() + day[1:]
         if not student:
-            student = Student.query(Student.meeting_day_of_week == day).order(Student.full_name).get()
-            print student
+            student = Student.query(Student.meeting_day_of_week == day, Student.submits_reports == True).order(Student.full_name).get()
+            #print student
             report = student.get_latest_report()
 
         #print "\n".join(map(lambda x: x.full_name,Student.query().order(Student.full_name).fetch()))
