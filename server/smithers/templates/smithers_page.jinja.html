@@ -120,6 +120,7 @@ novalidate=False) %}
 {% if attachments|length > 0 %}
 <h2>Attachments</h2>
 
+<script>
     function delete_attachment(url, key) {
         $.ajax({
             url: url,
