@@ -817,8 +817,14 @@ def comment_on_report(report_key):
 @student_ops.route("/day/<day>/", methods=['GET'])
 def view_report(report_key=None, day=None):
     if day:
-        if day == "today":
-            day = pytz.UTC.localize(datetime.datetime.utcnow()).strftime("%A")
+        day = day[0].upper() + day[1:]
+
+        if day == "Today":
+            day = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(config.local_time_zone).strftime("%A")
+
+        if day not in days_of_the_week + ["Today"]:
+            flash("{} is not a day of the week. Possible values: {}, and 'Today'.".format(day, ", ".join(map(lambda x: "'{}'".format(x), days_of_the_week))), category="error")
+            day = "Today"
 
         if report_key is None:
             student = None
@@ -845,30 +851,47 @@ def view_report(report_key=None, day=None):
 def render_view_report_page(form, report, student, day=None):
 
     if day:
-        day = day[0].upper() + day[1:]
+        today_students = Student.query(Student.meeting_day_of_week == day, Student.submits_reports == True).order(Student.full_name).fetch()
+        print day
         if not student:
-            student = Student.query(Student.meeting_day_of_week == day, Student.submits_reports == True).order(Student.full_name).get()
+            student = len(today_students) and today_students[0]
             #print student
-            report = student.get_latest_report()
+            if student:
+                report = student.get_latest_report()
 
         #print "\n".join(map(lambda x: x.full_name,Student.query().order(Student.full_name).fetch()))
 
-        prev_student = Student.query(Student.meeting_day_of_week == day, Student.full_name < student.full_name, Student.submits_reports == True).order(-Student.full_name).get()
-        next_student = Student.query(Student.meeting_day_of_week == day, Student.full_name > student.full_name, Student.submits_reports == True).order(Student.full_name).get()
+        if student:
+            prev_student = Student.query(Student.meeting_day_of_week == day,
+                                         Student.full_name < student.full_name,
+                                         Student.submits_reports == True).order(-Student.full_name).get()
+            next_student = Student.query(Student.meeting_day_of_week == day,
+                                         Student.full_name > student.full_name,
+                                         Student.submits_reports == True).order(Student.full_name).get()
 
-        #print "prev_student: {}".format(prev_student and prev_student.full_name)
-        #print "this_student: {}".format(student and student.full_name)
-        #print "next_student: {}".format(next_student and next_student.full_name)
+            #print "prev_student: {}".format(prev_student and prev_student.full_name)
+            #print "this_student: {}".format(student and student.full_name)
+            #print "next_student: {}".format(next_student and next_student.full_name)
 
-        prev_report = prev_student and prev_student.get_latest_report()
-        next_report = next_student and next_student.get_latest_report()
+            prev_report = prev_student and prev_student.get_latest_report()
+            next_report = next_student and next_student.get_latest_report()
 
-        next_report_url = url_for(".view_report",
-                                  day=day,
-                                  report_key=next_report and next_report.key.urlsafe()) if next_student else None
-        prev_report_url = url_for(".view_report",
-                                  day=day,
-                                  report_key=prev_report and prev_report.key.urlsafe()) if prev_student else None
+            next_report_url = url_for(".view_report",
+                                      day=day,
+                                      report_key=next_report and next_report.key.urlsafe()) if next_student else None
+            prev_report_url = url_for(".view_report",
+                                      day=day,
+                                      report_key=prev_report and prev_report.key.urlsafe()) if prev_student else None
+            dropdown_label = student.full_name
+
+        else:
+            next_report_url = None
+            prev_report_url = None
+
+            dropdown_label = "No one meets on {}".format(day)
+
+        all_reports = zip(map(lambda x: x.get_latest_report(), today_students),
+                          map(lambda r: r.full_name, today_students))
 
     else:
         prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False,
@@ -882,12 +905,18 @@ def render_view_report_page(form, report, student, day=None):
         prev_report_url = url_for(".view_report",
                                   day=day,
                                   report_key=prev_report.key.urlsafe()) if prev_report else None
+        dropdown_label = report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")
+
+        if student:
+            reports = student.get_all_reports()
+        else:
+            reports = []
+
+        all_reports = zip(reports,
+                          map(lambda r: r.report_for_date.strftime(" %d %B %Y").replace(" 0", " "), reports))
 
     if report:
         form.load_from_report(report)
-
-
-    all_reports = student.get_all_reports()
 
 
     r = render_template("view_report.jinja.html",
@@ -897,11 +926,12 @@ def render_view_report_page(form, report, student, day=None):
                         next_report=next_report_url,
                         prev_report=prev_report_url,
                         the_report=report,
+                        day=day,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()) if report else "#",
                         allow_edit=len(all_reports)> 0 and all_reports[0] == report,
- #                       body=body,
                         is_advisor=users.is_current_user_admin(),
+                        dropdown_label=dropdown_label,
                         attachments=report.get_attachments() if report else []
                         )
     return r

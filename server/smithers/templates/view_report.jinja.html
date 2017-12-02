@@ -14,7 +14,14 @@ onload="load_editors()"
 <p class="form-notification">This report has already been submitted.  You can update your long-term and weekly goals until you submit your next report.</p>
 {% endif %}
 
-<h1><a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">{{display_user.get_display_name()}}</a></h1>
+{% if display_user %}
+    <h1>
+        <a href="{{url_for('.view_user', user_key=display_user.key.urlsafe())}}">
+            {{display_user.get_display_name()}}
+        </a>
+    </h1>
+{% endif %}
+
 
 
 <form class="form report-form">
@@ -25,12 +32,12 @@ onload="load_editors()"
 
                 <div class="btn-group">
 
-                <button type="button" class="btn btn-default {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{% if the_report %}{{the_report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}} <span class="caret">{% else %}no report{% endif %}</button>
+                <button type="button" class="btn btn-default {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{dropdown_label}}{% if all_reports | length %} <span class="caret">{% endif %}</button>
                  {% if the_report %}
                  <ul class="dropdown-menu">
-                     {% for r in all_reports %}
+                     {% for r, d in all_reports %}
                      <li {% if r == the_report %}class="active"{% endif %} >
-                         <a href="{{url_for('.view_report', report_key=r.key.urlsafe())}}">{{r.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")}}</a>
+                         <a href="{{url_for('.view_report', day=day, report_key=r.key.urlsafe())}}">{{d}}</a>
                      </li>
                      {% endfor %}
                  </ul>
