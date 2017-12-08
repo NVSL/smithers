@@ -235,8 +235,8 @@ novalidate=False) %}
 {{super()}}
 {% endblock %}
 
-{% macro nav_buttons() %}
-    <li>
+{% macro nav_buttons(class) %}
+    <li class="{{class}}">
         <div class="btn-group" role="group" >
             <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
             <div class="btn-group">
@@ -273,7 +273,7 @@ novalidate=False) %}
             </a>
 
             {% if prev_report or next_report or the_report %}
-                <div class="navbar-header-menu visible-sm-ablock visible-xs-block visible-md-ablock" style="float: right; margin-right: 25px;">
+                <div class="navbar-header-menu  visible-xs-block " style="float: right; margin-right: 25px;">
                     <ul class="nav navbar-nav navbar-right">
                         {{nav_buttons()}}
                     </ul>
@@ -290,7 +290,7 @@ novalidate=False) %}
         <div class="collapse navbar-collapse" id="top-nav">
             <ul class="nav navbar-nav navbar-right">
                 {% if prev_report or next_report or the_report %}
-                    {{nav_buttons()}}
+                        {{nav_buttons(class="hidden-xs")}}
                 {% endif %}
 
                 <li  class="dropdown">
