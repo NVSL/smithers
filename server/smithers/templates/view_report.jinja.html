@@ -33,7 +33,7 @@ onload="load_editors()"
                 <div class="btn-group">
 
                 <button type="button" class="btn btn-default {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{dropdown_label}}{% if all_reports | length %} <span class="caret">{% endif %}</button>
-                 {% if the_report %}
+                    {% if the_report %}
                  <ul class="dropdown-menu">
                      {% for r, d in all_reports %}
                      <li {% if r == the_report %}class="active"{% endif %} >
@@ -99,7 +99,7 @@ onload="load_editors()"
 
 {% block scripts %}
     {{ super() }}
-    <script>
+    <!--script>
         delete Hammer.defaults.cssProps.userSelect;
         function is_touch_device() {
              return !!('ontouchstart' in window);
@@ -120,5 +120,5 @@ onload="load_editors()"
             });
             {% endif %}
         }
-    </script>
+    </script-->
 {% endblock scripts %}

@@ -235,25 +235,64 @@ novalidate=False) %}
 {{super()}}
 {% endblock %}
 
+{% macro nav_buttons() %}
+    <li>
+        <div class="btn-group" role="group" >
+            <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
+            <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span></button>
+        </div>
+    </li>
+{% endmacro %}
+
 {% block navbar %}
-
-<nav class="navbar navbar-default navbar-fixed-top navbar-fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
-
         <div class="navbar-header">
-
-            <a class="navbar-brand" href="http://nvsl.ucsd.edu">
-                <img alt="NVSL" src="/static/assets/img/NVSL-Logo.png" style="height:40px"></img>
-            </a>
             <button aria-controls="navbar" aria-expanded="false" class="navbar-toggle collapsed" data-target="#top-nav" data-toggle="collapse" type="button">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
+            <a class="navbar-brand" href="http://nvsl.ucsd.edu">
+                <img alt="NVSL" src="/static/assets/img/NVSL-Logo.png" style="height:40px"></img>
+            </a>
+
+            {% if prev_report or next_report %}
+                <div class="navbar-header-menu visible-sm-ablock visible-xs-block visible-md-ablock" style="float: right; margin-right: 25px;">
+                    <ul class="nav navbar-nav navbar-right">
+                        {{nav_buttons()}}
+                    </ul>
+                </div>
+            {% endif %}
+            <!--div class="navbar-header-menu navbar-nav-right">
+                <ul class="nav navbar-nav navbar-nav-right">
+                    <li class="active"><a href="#">always</a>
+                    </li>
+                </ul>
+            </div-->
         </div>
-        <div class="navbar-collapse collapse" id="top-nav">
-            <ul class="nav navbar-nav">
+
+        <div class="collapse navbar-collapse" id="top-nav">
+            <ul class="nav navbar-nav navbar-right">
+                {% if prev_report or next_report %}
+                    {{nav_buttons()}}
+                {% endif %}
+
+                <li  class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Hello, {{ g.current_user.full_name or g.current_user.email }}<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+
+                        <li><a href="{{url_for('student_ops.update_user')}}">Update Account</a></li>
+                        <li><a href="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}">Logout</a></li>
+
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-left">
                 <li>
                     <a href="{{url_for('student_ops.submit_report')}}">Reporting</a>
                 </li>
@@ -284,18 +323,6 @@ novalidate=False) %}
                     <a href="{{url_for('student_ops.list_all_users')}}" role="button" aria-haspopup="true" aria-expanded="false">
                         Students
                     </a>
-
-                    <!--a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Students<span class="caret"></span>
-                    </a-->
-                    <!--ul class="dropdown-menu">
-                        <li><a href="{{ url_for('student_ops.update_whitelist') }}">New...</a></li>
-                        <li role="separator" class="divider"></li>
-
-                        {% for s in g.student_list %}
-                        <li><a href="{{url_for('student_ops.latest_report', student_key=s[1])}}">{{s[0].get_display_name()}}</a></li>
-                        {% endfor %}
-                    </ul-->
                 </li>
                 <li>
 
@@ -304,35 +331,8 @@ novalidate=False) %}
                     </a></li>
 
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <!--li>
-                    <a href="https://meet.google.com/fds-pbpk-dny"><span style="font-size: large;" class="glyphicon glyphicon-facetime-video"  aria-hidden="hangout"></span></a>
-                </li-->
-                <li  class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Hello, {{ g.current_user.full_name or g.current_user.email }}<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-
-                        <li><a href="{{url_for('student_ops.update_user')}}">Update Account</a></li>
-                        <li><a href="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}">Logout</a></li>
-
-                    </ul>
-                </li>
-                <!--li>
-
-                    <p class="navbar-text"><a href="{{url_for('student_ops.update_user')}}">Hello, {{ g.current_user.full_name or g.current_user.email }}</a></p>
-                    <form class="navbar-form navbar-right" action='{{ url_for("student_ops.logout") }}' method="POST">
-                        <input type="hidden" name="continue" value="{{ g.CreateLogoutURL(url_for('student_ops.submit_report'))}}"></input>
-                        <button class="btn btn-default" type="submit">Logout</button>
-                    </form>
-
-                </li>
-                <li><p class="navbar-text">&nbsp;&nbsp;</p></li-->
-            </ul>
 
         </div>
-
 
     </div>
 
@@ -354,6 +354,4 @@ novalidate=False) %}
 {% block scripts %}
     {{ super() }}
     <script src="http://hammerjs.github.io/dist/hammer.js"></script>
-
-
 {% endblock scripts %}
