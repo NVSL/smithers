@@ -239,6 +239,20 @@ novalidate=False) %}
     <li>
         <div class="btn-group" role="group" >
             <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default navbar-btn {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{dropdown_label}}{% if all_reports | length %} <span class="caret">{% endif %}
+                </button>
+                {% if the_report %}
+                    <ul class="dropdown-menu">
+                        {% for r, d in all_reports %}
+                            <li {% if r == the_report %}class="active"{% endif %} >
+                                <a href="{{url_for('.view_report', day=day, report_key=r.key.urlsafe())}}">{{d}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {%endif%}
+            </div>
+
             <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span></button>
         </div>
     </li>
@@ -258,7 +272,7 @@ novalidate=False) %}
                 <img alt="NVSL" src="/static/assets/img/NVSL-Logo.png" style="height:40px"></img>
             </a>
 
-            {% if prev_report or next_report %}
+            {% if prev_report or next_report or the_report %}
                 <div class="navbar-header-menu visible-sm-ablock visible-xs-block visible-md-ablock" style="float: right; margin-right: 25px;">
                     <ul class="nav navbar-nav navbar-right">
                         {{nav_buttons()}}
@@ -275,7 +289,7 @@ novalidate=False) %}
 
         <div class="collapse navbar-collapse" id="top-nav">
             <ul class="nav navbar-nav navbar-right">
-                {% if prev_report or next_report %}
+                {% if prev_report or next_report or the_report %}
                     {{nav_buttons()}}
                 {% endif %}
 

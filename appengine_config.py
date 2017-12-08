@@ -3,3 +3,7 @@ import os
 
 vendor.add(os.path.join(os.path.dirname(__file__),'server'))
 vendor.add(os.path.join(os.path.dirname(__file__),'python_libs'))
+
+
+import tempfile
+tempfile.SpooledTemporaryFile = tempfile.TemporaryFile
