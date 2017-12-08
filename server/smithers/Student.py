@@ -905,7 +905,7 @@ def render_view_report_page(form, report, student, day=None):
         prev_report_url = url_for(".view_report",
                                   day=day,
                                   report_key=prev_report.key.urlsafe()) if prev_report else None
-        dropdown_label = report.report_for_date.strftime(" %d %B %Y").replace(" 0", " ")
+        dropdown_label = report.report_for_date.strftime(" %d %b %Y").replace(" 0", " ")
 
         if student:
             reports = student.get_all_reports()
@@ -913,7 +913,7 @@ def render_view_report_page(form, report, student, day=None):
             reports = []
 
         all_reports = zip(reports,
-                          map(lambda r: r.report_for_date.strftime(" %d %B %Y").replace(" 0", " "), reports))
+                          map(lambda r: r.report_for_date.strftime("%d %b %Y").replace(" 0", " "), reports))
 
     if report:
         form.load_from_report(report)
