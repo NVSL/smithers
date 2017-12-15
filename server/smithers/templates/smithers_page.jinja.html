@@ -27,6 +27,7 @@
 
 <div style="overflow-x__: scroll">
 {% if form.is_semiannual_report.data %}<div class="alert alert-info">This report contains a semi-annual report.</div> {% endif %}
+{% if the_report.is_stale() %}<div class="alert alert-warning">This report is old.</div> {% endif %}
 
   {{ render_completed_report_section(form.long_term_goal)}}
   {{ render_completed_report_section(form.disp_previous_weekly_goals)}}

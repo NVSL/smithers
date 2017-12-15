@@ -1,3 +1,4 @@
+import datetime
 from flask import Blueprint
 from google.appengine.ext import ndb
 from SmartModel import SmartModel, FieldAnnotation
@@ -30,6 +31,9 @@ class Report(SmartModel):
             return self.advisor_comments
         else:
             return ""
+
+    def is_stale(self):
+         return localize_time(datetime.datetime.now()) - self.local_created_time() > datetime.timedelta(days=2)
 
     def delete(self):
         self.key.delete()
