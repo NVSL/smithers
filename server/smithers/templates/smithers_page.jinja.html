@@ -25,7 +25,7 @@
 
 {% macro render_completed_report_body(student, form) %}
 
-<div style="overflow-x: scroll">
+<div style="overflow-x__: scroll">
 {% if form.is_semiannual_report.data %}<div class="alert alert-info">This report contains a semi-annual report.</div> {% endif %}
 
   {{ render_completed_report_section(form.long_term_goal)}}
