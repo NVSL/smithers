@@ -239,7 +239,7 @@ novalidate=False) %}
 {% macro nav_buttons(class) %}
     <li class="{{class}}">
         <div class="btn-group" role="group" >
-            <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
+            <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default navbar-btn" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></button>
             <div class="btn-group">
                 <button type="button" class="btn btn-default navbar-btn {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{dropdown_label}}{% if all_reports | length %} <span class="caret">{% endif %}
                 </button>

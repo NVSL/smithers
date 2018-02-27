@@ -2,9 +2,8 @@ import collections
 import copy
 import datetime
 from google.appengine.ext import ndb
-from google.appengine.api import users
 from google.appengine.api import mail
-
+from google.appengine.api import users
 import config
 from util import DFC
 import Logging as log
@@ -616,7 +615,7 @@ def read_semiannual_report_guidelines():
 class EnterMeetingAvailability(Requirement):
     short_name = "Meetings"
     def is_satisfied(self, student):
-        submission_start_date = datetime.datetime(2017, 11, 19)
+        submission_start_date = datetime.datetime(2018, 2, 26)
         return student.last_entered_availability and student.last_entered_availability > submission_start_date
 
     def redirect_url(self, student):
