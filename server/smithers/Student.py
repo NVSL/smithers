@@ -531,7 +531,7 @@ class ReadSemiannualReportGuidelines(ReadingRequirement):
     short_name = "SA Report"
 
     def __init__(self):
-        super(ReadSemiannualReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2017, 11, 19),
+        super(ReadSemiannualReportGuidelines, self).__init__(submission_start_date=datetime.datetime(2018, 05, 9),
                                                    get_last_completion=lambda x: x.last_read_semiannual_report_guidelines,
                                                    redirect_method=".read_semiannual_report_guidelines")
 
@@ -539,7 +539,7 @@ class ReadSemiannualReportGuidelines(ReadingRequirement):
 class SemiannualReportGuidelinesForm(FlaskForm):
 
     # name = StringField("Name", validators=[InputRequired()])
-    agree = BooleanField("I have read the semi-annual report guidelines and will submit my report on time.", validators=[InputRequired()])
+    agree = BooleanField("I have read the semi-annual report guidelines, have signed up for an time slot, and will submit my report on time.", validators=[InputRequired()])
     submit = SubmitField("Submit")
 
 
@@ -928,7 +928,7 @@ def render_view_report_page(form, report, student, day=None):
                         day=day,
                         all_reports=all_reports,
                         update_url=url_for('.update_report', report_key=report.key.urlsafe()) if report else "#",
-                        allow_edit=len(all_reports)> 0 and all_reports[0] == report,
+                        allow_edit=len(all_reports)> 0 and all_reports[0][0] == report,
                         is_advisor=users.is_current_user_admin(),
                         dropdown_label=dropdown_label,
                         attachments=report.get_attachments() if report else []

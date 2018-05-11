@@ -25,34 +25,13 @@ onload="load_editors()"
 
 
 <form class="form report-form">
-    <!--div class="form-group">
-        <div class="acol-lg-offset-2 acol-lg-10">
-            <div class="btn-group" role="group">
-                <button type="button" {% if not prev_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{prev_report}}';"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></button>
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default {% if the_report %}dropdown-toggle{% endif %}" {% if not the_report %}disabled{% endif %} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="location.href='#';">{{dropdown_label}}{% if all_reports | length %} <span class="caret">{% endif %}
-                    </button>
-                    {% if the_report %}
-                        <ul class="dropdown-menu">
-                            {% for r, d in all_reports %}
-                                <li {% if r == the_report %}class="active"{% endif %} >
-                                    <a href="{{url_for('.view_report', day=day, report_key=r.key.urlsafe())}}">{{d}}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {%endif%}
-                </div>
-
-                <button type="button" {% if not next_report %}disabled{% endif %} class="btn btn-default" onclick="location.href='{{next_report}}';"><span class="glyphicon glyphicon-menu-right"  aria-hidden="true"></span></button>
-            </div>
-            {% if allow_edit %}
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-default" onclick='location.href="{{update_url}}";'>Update Report</button>
-            </div>
-            {% endif %}
-        </div>
-    </div-->
+    {% if allow_edit %}
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-default" onclick='location.href="{{update_url}}";'>Update Report</button>
+    </div>
+    <p></p>
+    {% endif %}
 
     {% if the_report %}
     <div>Submitted {{the_report.local_created_time().strftime("%H:%M%p on %A, %d %B")}}</div>
