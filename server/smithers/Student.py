@@ -1,6 +1,8 @@
 import collections
 import copy
 import datetime
+import traceback
+
 from google.appengine.ext import ndb
 from google.appengine.api import mail
 from google.appengine.api import users
@@ -851,7 +853,6 @@ def render_view_report_page(form, report, student, day=None):
 
     if day:
         today_students = Student.query(Student.meeting_day_of_week == day, Student.submits_reports == True).order(Student.full_name).fetch()
-        print day
         if not student:
             student = len(today_students) and today_students[0]
             #print student
@@ -917,7 +918,6 @@ def render_view_report_page(form, report, student, day=None):
     if report:
         form.load_from_report(report)
 
-
     r = render_template("view_report.jinja.html",
                         form=form,
                         display_user=student,
@@ -979,6 +979,8 @@ def new_report(student):
 
             except Exception as e:
                 flash("Couldn't save/submit report: {}".format(e),category='error')
+                log.error(traceback.format_exc())
+                log.error(e)
                 return render_new_report_page(form, student)
 
             if "submit" in request.form:
@@ -1080,8 +1082,8 @@ def do_update_report(student, report_key):
 
 
 def save_attachment(report):
-    fileobj = request.files['attachments']
-    if fileobj.filename:
+    fileobj = request.files.get('attachments')
+    if fileobj and fileobj.filename:
         error, attachment_url, length = CKEditorSupport.save_blob(fileobj)
         attachment = Attachment(parent=report.key)
         attachment.url = attachment_url
@@ -1363,7 +1365,7 @@ def latest_semiannual_report(student_key):
 
     latest_report = student.get_latest_semiannual_report()
     if not latest_report:
-        flash("{} has not submitted any semiannual reports.".format(student.full_name))
+        flash("{} has not submitted any semiannual reports.".format(student.full_name), category="warning")
         return redirect(url_for(".index"))
 
     return view_report(report_key=latest_report.key.urlsafe())
