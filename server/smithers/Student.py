@@ -890,8 +890,8 @@ def render_view_report_page(form, report, student, day=None):
 
             dropdown_label = "No one meets on {}".format(day)
 
-        all_reports = zip(map(lambda x: x.get_latest_report(), today_students),
-                          map(lambda r: r.full_name, today_students))
+        all_reports = filter(lambda x: x[0], zip(map(lambda x: x.get_latest_report(), today_students),
+                                                 map(lambda r: r.full_name, today_students)))
 
     else:
         prev_report = Report.query(Report.created < report.created, Report.is_draft_report == False,
