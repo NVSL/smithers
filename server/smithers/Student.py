@@ -99,6 +99,8 @@ class Student(SmartModel):
     email = ndb.StringProperty()
     full_name = ndb.StringProperty()
     userid = ndb.StringProperty()
+    mobile_number = ndb.StringProperty()
+    github_username = ndb.StringProperty()
 
     last_signed_expectations_agreement = ndb.DateTimeProperty()
     last_entered_availability = ndb.DateTimeProperty()
@@ -382,6 +384,9 @@ class UpdateUserForm(FlaskForm):
                                                ("Friday"   , "Friday")],
                                       validators=[AnyOf(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])])
     email = StringField("Email")
+    mobile_number = StringField("Mobile Number",validators=[InputRequired()])
+    github_username = StringField("Github username", validators=[InputRequired()])
+
     last_signed_expectations_agreement = DateField()
     submit = SubmitField("Submit")
 
@@ -426,6 +431,9 @@ def update_user(user_key=None):
         form.full_name.data = student.full_name
         form.email.data = student.email
         form.meeting_day_of_week.data = student.meeting_day_of_week
+        form.mobile_number.data = student.mobile_number
+        form.github_username.data = student.github_username
+
         form.last_signed_expectations_agreement.data = student.last_signed_expectations_agreement
         return render_template("update_user.jinja.html",
                                form=form,
@@ -508,7 +516,7 @@ class ReadingRequirement(Requirement):
 class UpdateUser(Requirement):
     short_name = "Profile"
     def is_satisfied(self, student):
-        return student.full_name is not None and student.meeting_day_of_week is not None
+        return None not in [student.full_name, student.meeting_day_of_week, student.mobile_number, student.github_username]
 
     def redirect_url(self, student):
         return self.url_for(".update_user")

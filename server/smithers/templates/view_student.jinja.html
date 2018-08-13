@@ -7,6 +7,12 @@
 
 <h1><a href="{{url_for('.view_user', user_key=student.key.urlsafe())}}">{{student.full_name}}</a></h1>
 
+{% if g.admin_view %}
+<table class="table">
+    <tr><td>Phone Number</td><td>{{student.mobile_number}}</td><td><a href="tel:{{student.mobile_number}}">call</a></td><td><a href="iMessage:{{student.mobile_number}}">text</a></td></tr>
+</table>
+{% endif %}
+
 <button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false" onclick="location.href='{{url_for(".update_user", user_key=student.key.urlsafe())}}';">Update Profile</button>
 
 <h2>Reporting</h2>
