@@ -101,6 +101,7 @@ class Student(SmartModel):
     userid = ndb.StringProperty()
     mobile_number = ndb.StringProperty()
     github_username = ndb.StringProperty()
+    slack_username = ndb.StringProperty()
 
     last_signed_expectations_agreement = ndb.DateTimeProperty()
     last_entered_availability = ndb.DateTimeProperty()
@@ -386,6 +387,7 @@ class UpdateUserForm(FlaskForm):
     email = StringField("Email")
     mobile_number = StringField("Mobile Number",validators=[InputRequired()])
     github_username = StringField("Github username", validators=[InputRequired()])
+    slack_username = StringField("Slack username", validators=[InputRequired()])
 
     last_signed_expectations_agreement = DateField()
     submit = SubmitField("Submit")
@@ -433,6 +435,7 @@ def update_user(user_key=None):
         form.meeting_day_of_week.data = student.meeting_day_of_week
         form.mobile_number.data = student.mobile_number
         form.github_username.data = student.github_username
+        form.slack_username.data = student.slack_username or student.email
 
         form.last_signed_expectations_agreement.data = student.last_signed_expectations_agreement
         return render_template("update_user.jinja.html",
