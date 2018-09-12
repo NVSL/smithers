@@ -628,7 +628,7 @@ def read_semiannual_report_guidelines():
 class EnterMeetingAvailability(Requirement):
     short_name = "Meetings"
     def is_satisfied(self, student):
-        submission_start_date = datetime.datetime(2018, 6, 7)
+        submission_start_date = datetime.datetime(2018, 9, 12)
         return student.last_entered_availability and student.last_entered_availability > submission_start_date
 
     def redirect_url(self, student):
