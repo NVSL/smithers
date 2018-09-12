@@ -628,8 +628,24 @@ def read_semiannual_report_guidelines():
 class EnterMeetingAvailability(Requirement):
     short_name = "Meetings"
     def is_satisfied(self, student):
-        submission_start_date = datetime.datetime(2018, 9, 12)
-        return student.last_entered_availability and student.last_entered_availability > submission_start_date
+
+        schedule_due_dates = [datetime.datetime(2018, 9, 21),
+                              datetime.datetime(2018, 11, 30),
+                              datetime.datetime(2019, 3, 8),
+                              datetime.datetime(2019, 5, 31),
+        ]
+
+        start_delta = datetime.timedelta(days=14)
+        print "here"
+        now = datetime.datetime(2018, 12, 1)
+        print map(lambda x :
+                                                                 student.last_entered_availability < x - start_delta and
+                                                                 now > x - start_delta, schedule_due_dates)
+
+        return student.last_entered_availability and not any(map(lambda x :
+                                                                 student.last_entered_availability < x - start_delta and
+                                                                 now > x - start_delta, schedule_due_dates))
+
 
     def redirect_url(self, student):
         return self.url_for(".enter_meeting_schedule_info")
@@ -643,7 +659,6 @@ class MeetingAvailabiltyForm(FlaskForm):
 def enter_meeting_schedule_info():
     student = Student.get_current_student()
     form = MeetingAvailabiltyForm(request.form)
-    target_week = "January 8th" # this is the week they should enter there information for.
     if request.method == "POST":
         if form.validate():
             try:
@@ -659,7 +674,6 @@ def enter_meeting_schedule_info():
             [ flash(e, category='error') for e in form.agree.errors ]
             return render_template("html/meetings.jinja.html",
                                    form=form,
-                                   target_week=target_week,
                                    last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
                                    student=student
                                    )
@@ -667,7 +681,6 @@ def enter_meeting_schedule_info():
     else:
         return render_template("html/meetings.jinja.html",
                                form=form,
-                               target_week=target_week,
                                #how_long=datetime.datetime.now() - student.last_signed_expectations_agreement,
                                last_signed=student.last_signed_expectations_agreement and localize_time(student.last_signed_expectations_agreement),
                                student=student
