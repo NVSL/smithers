@@ -636,11 +636,11 @@ class EnterMeetingAvailability(Requirement):
         ]
 
         start_delta = datetime.timedelta(days=14)
-        print "here"
-        now = datetime.datetime(2018, 12, 1)
-        print map(lambda x :
-                                                                 student.last_entered_availability < x - start_delta and
-                                                                 now > x - start_delta, schedule_due_dates)
+        #print "here"
+        now = datetime.datetime.now() #datetime(2018, 12, 1)
+        #print map(lambda x :
+        #                                                         student.last_entered_availability < x - start_delta and
+        #                                                         now > x - start_delta, schedule_due_dates)
 
         return student.last_entered_availability and not any(map(lambda x :
                                                                  student.last_entered_availability < x - start_delta and
