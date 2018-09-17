@@ -267,7 +267,7 @@ class Student(SmartModel):
         latest_submitted_report = self.get_latest_report()
 
         if latest_submitted_report is None:
-            return False
+            return True
 
         next_due_time = self.compute_next_due_date(ignore_latest=True)
         now = pytz.UTC.localize(datetime.datetime.utcnow())
