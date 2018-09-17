@@ -50,7 +50,7 @@ class WhiteList(SmartModel):
 
         if white_list is None:
             white_list = WhiteList(id="whitelist")
-            white_list.authorized_users=config.admin_email
+            white_list.authorized_users=config.admin_email_sender
             white_list.put()
 
         return white_list
@@ -1213,9 +1213,9 @@ def send_welcome_email(email, custom_message=None):
                               url=request.host_url[0:-1],
                               custom_message=custom_message)
 
-    email = mail.EmailMessage(sender=config.admin_email,
+    email = mail.EmailMessage(sender=config.admin_email_sender,
                               to=email,
-                              bcc=config.admin_email,
+                              bcc=config.admin_email_recipients,
                               subject="NVSL Progress Reporting",
                               body=message)
     email.send()
@@ -1236,8 +1236,8 @@ def send_update_email(user, report, old_report=None):
     else:
         subject = "Progress Report for {} ({})".format(user.full_name,
                                                                            report.local_created_time().strftime("%b %d, %Y"))
-    email = mail.EmailMessage(sender=config.admin_email,
-                              to=config.admin_email,
+    email = mail.EmailMessage(sender=config.admin_email_sender,
+                              to=config.admin_email_recipients,
                               subject=subject,
                               #body=message,
                               reply_to=user.email,
@@ -1245,7 +1245,7 @@ def send_update_email(user, report, old_report=None):
                               )
     email.send()
 
-    log.info("sent message to {}: \n{}".format(config.admin_email, html_message))
+    log.info("sent message to {}: \n{}".format(config.admin_email_sender, html_message))
 
     email.to=user.email
     del email.reply_to
@@ -1337,9 +1337,9 @@ def send_reminder_emails():
                                           due_hour=datetime.time(hour=2),
                                           url=request.host_url[0:-1])
 
-                email = mail.EmailMessage(sender=config.admin_email,
+                email = mail.EmailMessage(sender=config.admin_email_sender,
                                           to=s.email,
-                                          bcc=config.admin_email,
+                                          bcc=config.admin_email_recipients,
                                           subject="Your progress report is due in {}".format(time_left_str),
                                           body=message)
                 email.send()
@@ -1424,9 +1424,9 @@ def send_summary_emails():
                                   ontime=ontime,
                                   overdue=overdue)
 
-        email = mail.EmailMessage(sender=config.admin_email,
+        email = mail.EmailMessage(sender=config.admin_email_sender,
                                   to=[s.email for s in all_students],
-                                  bcc=config.admin_email,
+                                  bcc=config.admin_email_recipients,
                                   subject="Today's progress reports",
                                   body=message)
 

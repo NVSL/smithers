@@ -12,7 +12,8 @@ admin_role = "admin"
 admin_country = "usa"
 admin_fullname="Steven Swanson"
 admin_username="swanson"
-admin_email="swanson@eng.ucsd.edu"
+admin_email_sender= "swanson@eng.ucsd.edu"
+admin_email_recipients= ["swawnson@eng.ucsd.edu", "jzhao@eng.ucsd.edu" ]
 
 comments_url="https://github.com/NVSL/smithers/issues"
 

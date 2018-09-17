@@ -36,7 +36,7 @@ def email():
             else:
                 return s
 
-        t = dict(sender=config.admin_email,
+        t = dict(sender=config.admin_email_sender,
                  to=form.to_field.data,
                  cc=emtpty_is_none(form.cc_field.data),
                  bcc=emtpty_is_none(form.bcc_field.data),
