@@ -62,10 +62,12 @@ from smithers.Report import report_ops
 from smithers.email import email_ops
 from smithers.SmartModel import smart_model
 from smithers.CKEditorSupport import ckeditor_ops
+from smithers.Lock import lock_ops
 app.register_blueprint(student_ops)
 app.register_blueprint(report_ops)
 app.register_blueprint(email_ops)
 app.register_blueprint(ckeditor_ops)
+app.register_blueprint(lock_ops, url_prefix="/lock")
 
 app.register_blueprint(smart_model, url_prefix="/entity")
 

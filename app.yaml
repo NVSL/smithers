@@ -40,9 +40,13 @@ handlers:
   script: server.smithers.app
   login: admin
 
+- url: /lock.*
+  script: server.smithers.app
+
 - url: /.*
   script: server.smithers.app
   login: required
+
 
 
 env_variables:

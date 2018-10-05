@@ -93,6 +93,8 @@ day_after = {a: b for (a, b) in zip(days_of_the_week, _day_after)}
 
 day_to_int = {a: b for (a,b) in zip(days_of_the_week, range(0,len(days_of_the_week)))}
 
+
+
 class Student(SmartModel):
     """A main model for representing users."""
     username = ndb.StringProperty()
