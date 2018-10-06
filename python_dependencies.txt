@@ -13,4 +13,5 @@ flask-debugtoolbar
 WTForms-Appengine
 html-tree-diff
 html5lib
-
+requests
+requests_toolbelt

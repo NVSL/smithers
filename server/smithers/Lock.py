@@ -5,8 +5,17 @@ from flask import request, Blueprint, Response
 import re
 import functools
 import json
+import requests
+import requests_toolbelt.adapters.appengine
+requests_toolbelt.adapters.appengine.monkeypatch()
+import os
 
-
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
+    # deployment
+    bot_token = "xoxb-387044746918-450535067811-YKOGCOiuQkwlMwmxeozobeyv"
+else:
+    # testing
+    bot_token = "xoxb-387044746918-450796593989-XxfFDDFm3sHSWS4Hi7iQUZjz"
 
 lock_ops = Blueprint("lock_ops", __name__)
 resource_parent_key = ndb.Key("Lock", "lock")
@@ -86,11 +95,17 @@ def create_resource(group, args):
             new.put()
             created.append(name)
 
-    return success("",
-                   [
-                       created and "Created: {}".format(", ".join(map(lambda x: "*{}*".format(x),created))),
-                       preexisting and "Already existing: {}".format(", ".join(map(lambda x: "*{}*".format(x), preexisting)))
-                   ])
+    if created:
+        notify_channel("<@{}> created {}.".format(request.values['user_id'], ", ".join(map(lambda x: "*{}*".format(x), created))))
+
+    if preexisting:
+        return success("",
+                       [
+                           preexisting and "Already existing: {}".format(", ".join(map(lambda x: "*{}*".format(x), preexisting)))
+                       ])
+    else:
+        return ""
+
 #    return success("Created *{}*".format(name))
 
 #    return success("Resource *{}* already exists.".format(name))
@@ -107,11 +122,16 @@ def delete_resource(group, args):
             r.key.delete()
             existed.append(name)
 
-    return success("",
+    if existed:
+        notify_channel("<@{}> deleted {}.".format(request.values['user_id'], ", ".join(map(lambda x: "*{}*".format(x), existed))))
+
+    if missing:
+        return success("",
                    [
-                       existed and "Deleted: {}".format(", ".join(map(lambda x: "*{}*".format(x),existed))),
                        missing and "Does not exist: {}".format(", ".join(map(lambda x: "*{}*".format(x), missing)))
                    ])
+    else:
+        return ""
 
 def grab_resource(group, args):
     name = args[0]
@@ -121,8 +141,18 @@ def grab_resource(group, args):
         return success("*{}* not found.".format(name))
     if r.is_locked():
         return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
+
     r.lock(request.values['user_id'])
-    return success("You locked *{}*".format(name))
+    notify_channel("<@{}> locked *{}*.".format(request.values['user_id'], name))
+    return ""
+
+
+def notify_channel(text):
+    payload = dict(text=text,
+                   channel=request.values['channel_id'],
+                   token=bot_token)
+    requests.post("https://slack.com/api/chat.postMessage",
+                  data=payload)
 
 
 def release_resource(group, args):
@@ -138,8 +168,8 @@ def release_resource(group, args):
             return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
         else:
             r.unlock()
-            r.put()
-            return success("You unlocked *{}*".format(name))
+            notify_channel("<@{}> unlocked *{}*.".format(request.values['user_id'], name))
+            return ""
 
 
 def help(group, args):
@@ -147,7 +177,7 @@ def help(group, args):
     Usage:
     * `/locker list|ls` -- List resources.
     * `/locker add|create <name> <name>...` -- Create a new resource.
-    * `/locker delete|del|remove <name>` -- Delete a resource.
+    * `/locker delete|del|remove|rm <name>` -- Delete a resource.
     * `/locker lock|grab|take <name> <name>...` -- Lock a resource.
     * `/locker unlock|drop|release <name>` -- Unlock a resource.
     """)
@@ -161,7 +191,7 @@ def go():
         return list_resources(group, args[1:])
     elif args[0].lower() in ["create", "add"]:
         return create_resource(group, args[1:])
-    elif args[0].lower() in ["delete", "del", "remove"]:
+    elif args[0].lower() in ["delete", "del", "remove", "rm"]:
         return delete_resource(group, args[1:])
     elif args[0].lower() in ["take", "lock", "grab"]:
         return grab_resource(group, args[1:])
