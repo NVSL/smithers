@@ -50,11 +50,10 @@ class ResourceGroup(SmartModel):
         return Resource.query(Resource.name == name, ancestor=self.key).get()
 
 def success(text, list=None):
-    t = dict(text=text)
     if list:
-        t['attachments'] = map(lambda x : dict(text=x), list)
+        text = (text and (text + "\n")) + "\n".join(filter(lambda x:x, list))
+    t = dict(text=text)
     r = json.dumps(t)
-    print r
     return Response(r, mimetype='application/json')
 
 def invoke(f):
@@ -68,7 +67,7 @@ def invoke(f):
 def list_resources(group, args):
     resources = group.get_resources()
     return success("There are {} resources:\n".format(len(resources)),
-                   list=map(lambda x: "{} owned by *{}*".format(x.name, x.lock_holder), resources))
+                   list=map(lambda x: "{} owned by {}{}".format(x.name, "@" if x.lock_holder else "", x.lock_holder), resources))
 
 
 def create_resource(group, args):
@@ -83,10 +82,10 @@ def create_resource(group, args):
             new.put()
             created.append(name)
 
-    return success("Outcome",
+    return success("",
                    [
-                       "Created: {}".format(", ".join(map(lambda x: "'{}'".format(x),created))),
-                       "Already existing: {}".format(", ".join(map(lambda x: "'{}'".format(x), preexisting)))
+                       created and "Created: {}".format(", ".join(map(lambda x: "'{}'".format(x),created))),
+                       preexisting and "Already existing: {}".format(", ".join(map(lambda x: "'{}'".format(x), preexisting)))
                    ])
 #    return success("Created '{}'".format(name))
 
@@ -104,10 +103,10 @@ def delete_resource(group, args):
             r.key.delete()
             existed.append(name)
 
-    return success("Outcome",
+    return success("",
                    [
-                       "Deleted: {}".format(", ".join(map(lambda x: "'{}'".format(x),existed))),
-                       "Does not exist: {}".format(", ".join(map(lambda x: "'{}'".format(x), missing)))
+                       existed and "Deleted: {}".format(", ".join(map(lambda x: "'{}'".format(x),existed))),
+                       missing and "Does not exist: {}".format(", ".join(map(lambda x: "'{}'".format(x), missing)))
                    ])
 
 def grab_resource(group, args):
@@ -142,7 +141,7 @@ def release_resource(group, args):
 def help(group, args):
     return success("""
     Usage:
-    * `/locker list` -- List resources.
+    * `/locker list|ls` -- List resources.
     * `/locker add|create <name> <name>...` -- Create a new resource.
     * `/locker delete|del|remove <name>` -- Delete a resource.
     * `/locker lock|grab|take <name> <name>...` -- Lock a resource.
@@ -153,7 +152,8 @@ def help(group, args):
 def go():
     group = ResourceGroup.get_by_id(request.values['channel_id'])
     args = re.split("\s+", request.values['text'])
-    if args[0].lower() in ["list"]:
+    print request.values
+    if args[0].lower() in ["list", "ls"]:
         return list_resources(group, args[1:])
     elif args[0].lower() in ["create", "add"]:
         return create_resource(group, args[1:])
