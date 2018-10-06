@@ -27,6 +27,9 @@ class Resource(SmartModel):
     def is_locked(self):
         return self.lock_holder
 
+    def lock_holder_at(self):
+        return "<@{}>".format(self.lock_holder) if self.lock_holder else "no one"
+
 class ResourceGroup(SmartModel):
     channel_name = ndb.StringProperty()
     channel_id = ndb.StringProperty()
@@ -54,6 +57,7 @@ def success(text, list=None):
         text = (text and (text + "\n")) + "\n".join(filter(lambda x:x, list))
     t = dict(text=text)
     r = json.dumps(t)
+    print r
     return Response(r, mimetype='application/json')
 
 def invoke(f):
@@ -66,8 +70,8 @@ def invoke(f):
 
 def list_resources(group, args):
     resources = group.get_resources()
-    return success("There are {} resources:\n".format(len(resources)),
-                   list=map(lambda x: "{} owned by {}{}".format(x.name, "@" if x.lock_holder else "", x.lock_holder), resources))
+    return success("Channel resources:\n".format(len(resources)),
+                   list=map(lambda x: "*{}* {}".format(x.name, ":lock: {}".format(x.lock_holder_at()) if x.is_locked() else ""), resources))
 
 
 def create_resource(group, args):
@@ -84,12 +88,12 @@ def create_resource(group, args):
 
     return success("",
                    [
-                       created and "Created: {}".format(", ".join(map(lambda x: "'{}'".format(x),created))),
-                       preexisting and "Already existing: {}".format(", ".join(map(lambda x: "'{}'".format(x), preexisting)))
+                       created and "Created: {}".format(", ".join(map(lambda x: "*{}*".format(x),created))),
+                       preexisting and "Already existing: {}".format(", ".join(map(lambda x: "*{}*".format(x), preexisting)))
                    ])
-#    return success("Created '{}'".format(name))
+#    return success("Created *{}*".format(name))
 
-#    return success("Resource '{}' already exists.".format(name))
+#    return success("Resource *{}* already exists.".format(name))
 
 
 def delete_resource(group, args):
@@ -105,8 +109,8 @@ def delete_resource(group, args):
 
     return success("",
                    [
-                       existed and "Deleted: {}".format(", ".join(map(lambda x: "'{}'".format(x),existed))),
-                       missing and "Does not exist: {}".format(", ".join(map(lambda x: "'{}'".format(x), missing)))
+                       existed and "Deleted: {}".format(", ".join(map(lambda x: "*{}*".format(x),existed))),
+                       missing and "Does not exist: {}".format(", ".join(map(lambda x: "*{}*".format(x), missing)))
                    ])
 
 def grab_resource(group, args):
@@ -114,11 +118,11 @@ def grab_resource(group, args):
 
     r = group.get_resource_by_name(name)
     if not r:
-        return success("No resource named '{}'.".format(name))
+        return success("*{}* not found.".format(name))
     if r.is_locked():
-        return success("Resource '{}' is locked by '{}'.".format(r.name, r.lock_holder))
-    r.lock(request.values['user_name'])
-    return success("Locked resource '{}'.".format(name))
+        return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
+    r.lock(request.values['user_id'])
+    return success("You locked *{}*".format(name))
 
 
 def release_resource(group, args):
@@ -126,16 +130,16 @@ def release_resource(group, args):
 
     r = group.get_resource_by_name(name)
     if not r:
-        return success("No resource named '{}'.".format(name))
+        return success("*{}* not found.".format(name))
     if not r.is_locked():
-        return success("Resource '{}' is locked by '{}'.".format(r.name, r.lock_holder))
+        return success("*{}* is not locked.".format(r.name, r.lock_holder_at()))
     else:
-        if r.lock_holder != request.values['user_name']:
-            return success("Resource '{}' is locked by, but not by you.".format(name))
+        if r.lock_holder != request.values['user_id']:
+            return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
         else:
             r.unlock()
             r.put()
-            return success("Locked resource '{}'.".format(name))
+            return success("You unlocked *{}*".format(name))
 
 
 def help(group, args):
