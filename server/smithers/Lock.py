@@ -175,6 +175,8 @@ def release_resource(group, args):
 
 def help(group, args):
     return success("""
+    To see responses you need to invite the bot to the channel: `/invite @NVSL Lock Manager`
+
     Usage:
     * `/locker list|ls` -- List resources.
     * `/locker add|create <name> <name>...` -- Create a new resource.
