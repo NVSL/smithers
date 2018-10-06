@@ -79,8 +79,9 @@ def invoke(f):
 
 def list_resources(group, args):
     resources = group.get_resources()
+
     return success("Channel resources:\n".format(len(resources)),
-                   list=map(lambda x: "*{}* {}".format(x.name, ":lock: {}".format(x.lock_holder_at()) if x.is_locked() else ""), resources))
+                   list=map(lambda x: "*{}* {}".format(x.name, ":lock: {}".format(x.lock_holder_at()) if x.is_locked() else ""), sorted(resources, key=lambda x: x.name)))
 
 
 def create_resource(group, args):
