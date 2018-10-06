@@ -1,3 +1,4 @@
+# coding=utf-8
 import datetime
 from google.appengine.ext import ndb
 from SmartModel import SmartModel, FieldAnnotation
@@ -7,6 +8,9 @@ import functools
 import json
 import requests
 import requests_toolbelt.adapters.appengine
+import fnmatch
+from textwrap import dedent
+
 requests_toolbelt.adapters.appengine.monkeypatch()
 import os
 
@@ -69,83 +73,71 @@ def success(text, list=None):
     print r
     return Response(r, mimetype='application/json')
 
-def invoke(f):
-    @functools.wraps(f)
-    def wrapper():
-        group = ResourceGroup.get_by_id(request.values['channel_id'])
-        return f(group, re.split("\s+", request.values['text']))
-    return wrapper
 
+def expand_names(group, args):
+    return map(lambda x: x.name, filter(lambda resource: any(map(lambda pattern: fnmatch.fnmatch(resource.name, pattern), args)),
+           group.get_resources()))
 
-def list_resources(group, args):
-    resources = group.get_resources()
+def list_resources(group, args, show_all):
+    if show_all:
+        resources = group.get_resources()
+    else:
+        resources = map(lambda x : group.get_resource_by_name(x), args)
 
-    return success("Channel resources:\n".format(len(resources)),
-                   list=map(lambda x: "*{}* {}".format(x.name, ":lock: {}".format(x.lock_holder_at()) if x.is_locked() else ""), sorted(resources, key=lambda x: x.name)))
+    return "\n".join(map(lambda x: "*{}* {}".format(x.name, ":lock: {}".format(x.lock_holder_at()) if x.is_locked() else ""), sorted(resources, key=lambda x: x.name)))
 
 
 def create_resource(group, args):
-    created = []
-    preexisting = []
+    response = []
+    announce = []
+
     for name in args:
         if group.get_resource_by_name(name):
-            preexisting.append(name)
+            response.append("*{}* already exists.".format(name))
         else:
             new = Resource(parent=group.key,
                            name=name)
             new.put()
-            created.append(name)
+            announce.append("<@{}> created *{}*.".format(request.values['user_id'], name))
 
-    if created:
-        notify_channel("<@{}> created {}.".format(request.values['user_id'], ", ".join(map(lambda x: "*{}*".format(x), created))))
-
-    if preexisting:
-        return success("",
-                       [
-                           preexisting and "Already existing: {}".format(", ".join(map(lambda x: "*{}*".format(x), preexisting)))
-                       ])
-    else:
-        return ""
-
-#    return success("Created *{}*".format(name))
-
-#    return success("Resource *{}* already exists.".format(name))
+    if announce:
+        notify_channel("\n".join(announce))
+    return "\n".join(response)
 
 
 def delete_resource(group, args):
-    existed = []
-    missing = []
+    response = []
+    announce = []
+
     for name in args:
         r = group.get_resource_by_name(name)
         if not group.get_resource_by_name(name):
-            missing.append(name)
+            response.append("*{}* does not exist.".format(name))
         else:
             r.key.delete()
-            existed.append(name)
+            announce.append("<@{}> deleted {}.".format(request.values['user_id'], name))
 
-    if existed:
-        notify_channel("<@{}> deleted {}.".format(request.values['user_id'], ", ".join(map(lambda x: "*{}*".format(x), existed))))
+    if announce:
+        notify_channel("\n".join(announce))
+    return "\n".join(response)
 
-    if missing:
-        return success("",
-                   [
-                       missing and "Does not exist: {}".format(", ".join(map(lambda x: "*{}*".format(x), missing)))
-                   ])
-    else:
-        return ""
 
 def grab_resource(group, args):
-    name = args[0]
+    response = []
+    announce = []
+    for name in args:
+        r = group.get_resource_by_name(name)
+        if not r:
+            response.append("*{}* not found.".format(name))
+        if r.is_locked():
+            response.append("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
 
-    r = group.get_resource_by_name(name)
-    if not r:
-        return success("*{}* not found.".format(name))
-    if r.is_locked():
-        return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
+        r.lock(request.values['user_id'])
+        announce.append("<@{}> locked *{}*.".format(request.values['user_id'], name))
 
-    r.lock(request.values['user_id'])
-    notify_channel("<@{}> locked *{}*.".format(request.values['user_id'], name))
-    return ""
+    if announce:
+        notify_channel("\n".join(announce))
+    return "\n".join(response)
 
 
 def notify_channel(text):
@@ -157,50 +149,60 @@ def notify_channel(text):
 
 
 def release_resource(group, args):
-    name = args[0]
-
-    r = group.get_resource_by_name(name)
-    if not r:
-        return success("*{}* not found.".format(name))
-    if not r.is_locked():
-        return success("*{}* is not locked.".format(r.name, r.lock_holder_at()))
-    else:
-        if r.lock_holder != request.values['user_id']:
-            return success("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
+    response = []
+    announce = []
+    for name in args:
+        r = group.get_resource_by_name(name)
+        if not r:
+            response.append("*{}* not found.".format(name))
+        if not r.is_locked():
+            response.append("*{}* is not locked.".format(r.name, r.lock_holder_at()))
         else:
-            r.unlock()
-            notify_channel("<@{}> unlocked *{}*.".format(request.values['user_id'], name))
-            return ""
+            if r.lock_holder != request.values['user_id']:
+                response.append("*{}* is locked by {}.".format(r.name, r.lock_holder_at()))
+            else:
+                r.unlock()
+                announce.append("<@{}> unlocked *{}*.".format(request.values['user_id'], name))
+
+    if announce:
+        notify_channel("\n".join(announce))
+    return "\n".join(response)
 
 
 def help(group, args):
-    return success("""
-    To see responses you need to invite the bot to the channel: `/invite @NVSL Lock Manager`
+    return dedent("""\
+    To see responses, invite the bot to the channel: `/invite @NVSL Lock Manager`
 
     Usage:
-    * `/locker list|ls` -- List resources.
-    * `/locker add|create <name> <name>...` -- Create a new resource.
-    * `/locker delete|del|remove|rm <name>` -- Delete a resource.
-    * `/locker lock|grab|take <name> <name>...` -- Lock a resource.
-    * `/locker unlock|drop|release <name>` -- Unlock a resource.
+    • `/locker list|ls` -- List resources.
+    • `/locker add|create <name> <name> ...` -- Create a new resource.
+    • `/locker delete|del|remove|rm <name> <name> ... ` -- Delete a resource.
+    • `/locker lock|grab|take <name> <name> ...` -- Lock a resource.
+    • `/locker unlock|drop|release <name> <name> ...` -- Unlock a resource.
+
+    Shell-style globs are supported (e.g., `/locker unlock *.tex`)
+
     """)
 
 @lock_ops.route('/go', methods=['GET','POST'])
 def go():
     group = ResourceGroup.get_by_id(request.values['channel_id'])
     args = re.split("\s+", request.values['text'])
+    cmd = args[0]
+    args = args[1:]
+    expanded = expand_names(group, args)
     print request.values
-    if args[0].lower() in ["list", "ls"]:
-        return list_resources(group, args[1:])
-    elif args[0].lower() in ["create", "add"]:
-        return create_resource(group, args[1:])
-    elif args[0].lower() in ["delete", "del", "remove", "rm"]:
-        return delete_resource(group, args[1:])
-    elif args[0].lower() in ["take", "lock", "grab"]:
-        return grab_resource(group, args[1:])
-    elif args[0].lower() in ["help", "?"]:
-        return help(group, args[1:])
-    elif args[0].lower() in ["release", "unlock", "drop"]:
-        return release_resource(group, args[1:])
+    if cmd.lower() in ["list", "ls"]:
+        return list_resources(group, expanded, len(args) == 0)
+    elif cmd.lower() in ["create", "add"]:
+        return create_resource(group, args)
+    elif cmd.lower() in ["delete", "del", "remove", "rm"]:
+        return delete_resource(group, expanded)
+    elif cmd.lower() in ["take", "lock", "grab"]:
+        return grab_resource(group, expanded)
+    elif cmd.lower() in ["help", "?"]:
+        return help(group, expanded)
+    elif cmd.lower() in ["release", "unlock", "drop"]:
+        return release_resource(group, expanded)
     else:
         return "Unknown command: {}".format(request.values['text'])
